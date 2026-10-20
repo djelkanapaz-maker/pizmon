@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# Local Supabase-compatible stack for development & automated tests (no Docker needed).
+# Requires: Postgres 16 server binaries, and the Auth / PostgREST / Deno binaries in $STACK_DIR
+# (download instructions in README → "Local test stack").
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+STACK_DIR="${STACK_DIR:-/opt/localstack}"
+PGBIN="${PGBIN:-/usr/lib/postgresql/16/bin}"
+PGPORT=54322
+JWT_SECRET="${LOCAL_JWT_SECRET:-local-dev-jwt-secret-must-be-at-least-32-chars}"
+PSQL="psql -h 127.0.0.1 -p $PGPORT -U postgres -v ON_ERROR_STOP=1 -q"
+LOG="$STACK_DIR/logs"; mkdir -p "$LOG"
+
+reset="${1:-}"
+if [[ "$reset" == "--reset" ]]; then
+  pkill -f "$STACK_DIR/auth/auth" || true; pkill -f "$STACK_DIR/postgrest" || true
+  pkill -f "scripts/local-stack/gateway.mjs" || true; pkill -f "deno run.*admin-users" || true
+  su postgres -c "$PGBIN/pg_ctl -D $STACK_DIR/pgdata stop -m fast" >/dev/null 2>&1 || true
+  rm -rf "$STACK_DIR/pgdata"
+fi
+
+if [[ ! -d "$STACK_DIR/pgdata" ]]; then
+  id postgres >/dev/null 2>&1 || useradd -m postgres
+  mkdir -p "$STACK_DIR/pgdata" && chown postgres "$STACK_DIR/pgdata"
+  su postgres -c "$PGBIN/initdb -D $STACK_DIR/pgdata -U postgres --auth=trust" >/dev/null
+  FRESH=1
+fi
+touch "$LOG/pg.log"; chown postgres "$LOG/pg.log"
+su postgres -c "$PGBIN/pg_ctl -D $STACK_DIR/pgdata -o '-p $PGPORT -k /tmp' -l $LOG/pg.log status" >/dev/null 2>&1 \
+  || su postgres -c "$PGBIN/pg_ctl -D $STACK_DIR/pgdata -o '-p $PGPORT -k /tmp' -l $LOG/pg.log start -w" >/dev/null
+
+if [[ "${FRESH:-}" == "1" ]]; then
+  $PSQL -f "$ROOT/scripts/local-stack/roles.sql"
+fi
+
+# ── Supabase Auth (runs its own migrations into schema auth) ──
+if ! pgrep -f "$STACK_DIR/auth/auth" >/dev/null; then
+  cd "$STACK_DIR/auth"
+  GOTRUE_DB_DRIVER=postgres GOTRUE_JWT_SECRET="$JWT_SECRET" API_EXTERNAL_URL=http://127.0.0.1:54321/auth/v1 \
+    GOTRUE_SITE_URL=http://localhost:3000 \
+    DATABASE_URL="postgres://supabase_auth_admin:local-auth-admin@127.0.0.1:$PGPORT/postgres?search_path=auth" \
+    "$STACK_DIR/auth/auth" migrate >"$LOG/auth-migrate.log" 2>&1
+  GOTRUE_DB_DRIVER=postgres \
+    DATABASE_URL="postgres://supabase_auth_admin:local-auth-admin@127.0.0.1:$PGPORT/postgres?search_path=auth" \
+    GOTRUE_DB_DATABASE_URL="postgres://supabase_auth_admin:local-auth-admin@127.0.0.1:$PGPORT/postgres?search_path=auth" \
+    GOTRUE_SITE_URL="http://localhost:3000" API_EXTERNAL_URL="http://127.0.0.1:54321/auth/v1" \
+    GOTRUE_URI_ALLOW_LIST="http://localhost:3000/**" \
+    GOTRUE_JWT_SECRET="$JWT_SECRET" GOTRUE_JWT_EXP=3600 GOTRUE_JWT_AUD=authenticated \
+    GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated GOTRUE_JWT_ADMIN_ROLES=service_role \
+    GOTRUE_DISABLE_SIGNUP=true GOTRUE_EXTERNAL_EMAIL_ENABLED=true GOTRUE_MAILER_AUTOCONFIRM=false \
+    GOTRUE_SMTP_HOST=127.0.0.1 GOTRUE_SMTP_PORT=2500 GOTRUE_SMTP_ADMIN_EMAIL=noreply@localhost \
+    GOTRUE_RATE_LIMIT_EMAIL_SENT=1000 \
+    PORT=9999 GOTRUE_API_HOST=127.0.0.1 \
+    nohup "$STACK_DIR/auth/auth" serve >"$LOG/auth.log" 2>&1 </dev/null &
+  cd "$ROOT"
+  for i in $(seq 1 40); do curl -sf http://127.0.0.1:9999/health >/dev/null && break; sleep 0.5; done
+  curl -sf http://127.0.0.1:9999/health >/dev/null || { echo "auth failed"; tail -20 "$LOG/auth.log"; exit 1; }
+fi
+
+$PSQL -c "grant usage on schema auth to anon, authenticated, service_role; grant execute on all functions in schema auth to anon, authenticated, service_role;"
+
+if [[ "${FRESH:-}" == "1" ]]; then
+  for f in "$ROOT"/supabase/migrations/*.sql; do echo "migrate $(basename "$f")"; $PSQL -f "$f"; done
+  $PSQL -f "$ROOT/supabase/seed.sql"
+fi
+
+# ── PostgREST ──
+if ! pgrep -f "$STACK_DIR/postgrest" >/dev/null; then
+  PGRST_DB_URI="postgres://authenticator:local-authenticator@127.0.0.1:$PGPORT/postgres" \
+  PGRST_DB_SCHEMAS=public PGRST_DB_ANON_ROLE=anon PGRST_JWT_SECRET="$JWT_SECRET" \
+  PGRST_SERVER_PORT=3001 PGRST_SERVER_HOST=127.0.0.1 PGRST_DB_CHANNEL_ENABLED=true \
+  nohup "$STACK_DIR/postgrest" >"$LOG/postgrest.log" 2>&1 &
+  sleep 1.5
+fi
+$PSQL -c "notify pgrst, 'reload schema'"
+
+# ── keys ──
+eval "$(node "$ROOT/scripts/local-stack/keys.mjs" "$JWT_SECRET")"
+
+# ── edge functions (Deno) ──
+if ! pgrep -f "deno run.*admin-users" >/dev/null; then
+  SUPABASE_URL="http://127.0.0.1:54321" SUPABASE_ANON_KEY="$LOCAL_ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$LOCAL_SERVICE_KEY" \
+  BOOTSTRAP_SECRET="local-bootstrap-secret" APP_URL="http://localhost:3000" LOCAL_FUNCTIONS_PORT=54323 \
+  nohup "$STACK_DIR/deno" run --allow-net --allow-env --allow-read "$ROOT/supabase/functions/admin-users/index.ts" >"$LOG/functions.log" 2>&1 &
+  for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:54323/ && break; sleep 0.5; done
+fi
+
+# ── gateway ──
+if ! pgrep -f "scripts/local-stack/gateway.mjs" >/dev/null; then
+  nohup node "$ROOT/scripts/local-stack/gateway.mjs" >"$LOG/gateway.log" 2>&1 &
+  sleep 0.5
+fi
+
+cat > "$ROOT/.env.test.local" <<EOF
+# generated by scripts/local-stack/start.sh — local test stack only, not secrets
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=$LOCAL_ANON_KEY
+LOCAL_SERVICE_ROLE_KEY=$LOCAL_SERVICE_KEY
+LOCAL_BOOTSTRAP_SECRET=local-bootstrap-secret
+LOCAL_DATABASE_URL=postgres://postgres@127.0.0.1:$PGPORT/postgres
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+EOF
+echo "local stack ready → http://127.0.0.1:54321 (env written to .env.test.local)"

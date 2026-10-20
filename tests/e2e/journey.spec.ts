@@ -1,0 +1,169 @@
+// The MVP definition-of-done journey, driven through the real UI on the LOCAL stack.
+// Admin creates a couple → couple activates → onboarding → DJ selection → preferences →
+// admin approves → DJ sees the profile and recommends → couple responds. Both languages.
+import { test, expect, type Page, type Browser } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+import { adminClient, createDj, TEST_PASSWORD, uniq } from '../helpers/stack';
+
+const SHOTS = 'test-results/screens';
+mkdirSync(SHOTS, { recursive: true });
+/** wait until the page is hydrated and idle before interacting */
+const settle = (page: Page) => page.waitForLoadState('networkidle');
+const shot = (page: Page, name: string) => page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
+
+async function login(browser: Browser, email: string, locale: 'he' | 'en' = 'he') {
+  const ctx = await browser.newContext({ ...test.info().project.use, locale: locale === 'he' ? 'he-IL' : 'en-US' });
+  const page = await ctx.newPage();
+  await page.goto('/login'); await settle(page);
+  await page.locator('#email').fill(email);
+  await page.locator('#password').fill(TEST_PASSWORD);
+  await page.locator('form button[type=submit]').click();
+  await page.waitForURL((u) => !u.pathname.startsWith('/login')); await settle(page);
+  return page;
+}
+
+test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
+  await adminClient();                       // bootstraps the local admin with a per-run test password
+  const djName = `E2E DJ ${Date.now() % 100000}`;
+  const dj = await createDj(djName);         // DJ with an activated login
+  const coupleEmail = uniq('e2e-couple');
+
+  // ── 1. Admin creates the couple in the UI (Hebrew, RTL) ──
+  const admin = await login(browser, 'admin@wmc.test');
+  await expect(admin.locator('html')).toHaveAttribute('dir', 'rtl');
+  await admin.goto('/admin/couples?new=1'); await settle(admin);
+  await admin.locator('#n-p1').fill('נועה');
+  await admin.locator('#n-p2').fill('דניאל');
+  await admin.locator('#n-email').fill(coupleEmail);
+  await admin.locator('#n-date').fill('2027-06-18');
+  await admin.locator('#n-v').fill('גן אירועים לדוגמה');
+  await admin.getByRole('dialog').locator('button[type=submit]').click();
+  const linkEl = admin.getByRole('dialog').locator('code');
+  await expect(linkEl).toContainText('/auth/confirm?token_hash=');
+  const activation = (await linkEl.textContent())!.trim();
+  await shot(admin, '01-admin-couple-created');
+  await admin.getByRole('button', { name: 'פתיחת סביבת העבודה' }).click();
+  await admin.waitForURL(/\/admin\/couples\/[0-9a-f-]{36}/);
+  const coupleAdminUrl = admin.url();
+
+  // ── 2. Couple activates the account and sets a password ──
+  const coupleCtx = await browser.newContext({ ...test.info().project.use, locale: 'he-IL' });
+  const couple = await coupleCtx.newPage();
+  await couple.goto(activation); await settle(couple);
+  await couple.waitForURL('**/activate'); await settle(couple);
+  await shot(couple, '02-activate');
+  await couple.locator('#password').fill(TEST_PASSWORD);
+  await couple.locator('#confirm').fill(TEST_PASSWORD);
+  await couple.locator('form button[type=submit]').click();
+
+  // ── 3. First-time onboarding ──
+  await couple.waitForURL('**/onboarding'); await settle(couple);
+  await shot(couple, '03-onboarding-welcome');
+  await couple.getByRole('button', { name: 'מתחילים' }).click();
+  await expect(couple.getByRole('heading', { name: 'בחרו את הדיג׳יי שלכם' })).toBeVisible();
+  await shot(couple, '04-onboarding-djs');
+  await couple.getByRole('button', { name: djName }).click();
+  await couple.getByRole('dialog').getByRole('button', { name: new RegExp(djName) }).click();
+  await expect(couple.getByText('ממתינים לאישור החברה')).toBeVisible();
+  await couple.getByRole('button', { name: 'המשך' }).click();
+  await expect(couple.locator('#venue')).toHaveValue('גן אירועים לדוגמה');   // prepopulated
+  await couple.locator('#guests').fill('280');
+  await couple.locator('#city').fill('תל אביב');
+  await shot(couple, '05-onboarding-details');
+  await couple.getByRole('button', { name: 'כניסה לסביבה שלנו' }).click();
+  await couple.waitForURL('**/home'); await settle(couple);
+  await expect(couple.getByRole('heading', { name: 'היי נועה & דניאל' })).toBeVisible();
+  await shot(couple, '06-home');
+
+  // returning users go straight home
+  await couple.goto('/'); await settle(couple);
+  await couple.waitForURL('**/home'); await settle(couple);
+
+  // ── 4. Discover: search + save ──
+  await couple.goto('/discover?q=September'); await settle(couple);
+  await couple.getByRole('button', { name: /שמירה: September/ }).click();
+  await expect(couple.getByRole('button', { name: /נשמר: September/ })).toBeVisible();
+  await shot(couple, '07-discover');
+
+  // ── 5. Questionnaire with autosave ──
+  await couple.goto('/wedding/questionnaire/personality'); await settle(couple);
+  await couple.getByRole('button', { name: 'דיסקו ופאנק' }).first().click();
+  await couple.getByRole('button', { name: 'האוס' }).first().click();
+  await couple.locator('fieldset', { hasText: 'מיינסטרים או אלטרנטיבי' }).getByRole('button', { name: '2', exact: true }).click();
+  await expect(couple.getByText('נשמר אוטומטית')).toBeVisible();
+  await shot(couple, '08-questionnaire');
+  await couple.goto('/wedding/questionnaire/energy'); await settle(couple);
+  await couple.getByRole('radio', { name: 'שיא הערב: שיא' }).click();
+  await couple.getByRole('radio', { name: 'קבלת פנים: קליל' }).click();
+  await expect(couple.getByText('נשמר אוטומטית')).toBeVisible();
+
+  // ── 6. Never play (absolute) ──
+  await couple.goto('/wedding/restrictions'); await settle(couple);
+  await couple.locator('#col-never_play').locator('..').locator('..').getByRole('button', { name: 'הוספה' }).click();
+  const sheet = couple.getByRole('dialog');
+  await sheet.getByRole('button', { name: 'אמן' }).click();
+  await sheet.locator('input[role=combobox]').fill('ABBA');
+  await sheet.getByRole('option', { name: /ABBA/ }).click();
+  await sheet.locator('#reason').fill('לא בחתונה שלנו');
+  await sheet.locator('button[type=submit]').click();
+  await expect(couple.getByText('ABBA')).toBeVisible();
+  await shot(couple, '09-restrictions');
+
+  // ── 7. Special moment: choose and confirm ──
+  await couple.goto('/wedding/moments/first-dance'); await settle(couple);
+  await couple.getByRole('button', { name: 'השיר הראשי' }).first().click();
+  await expect(couple.getByText('ממתין לאישור שלכם').first()).toBeVisible();
+  await couple.getByRole('button', { name: 'אישור הבחירה' }).click();
+  await expect(couple.getByText('מאושר').first()).toBeVisible();
+  await shot(couple, '10-moment-confirmed');
+
+  // ── 8. Review and send the brief ──
+  await couple.goto('/wedding/brief'); await settle(couple);
+  await expect(couple.getByText('ABBA')).toBeVisible();
+  await couple.getByRole('button', { name: 'שליחת התקציר לדיג׳יי' }).click();
+  await expect(couple.getByRole('button', { name: 'שליחת תקציר מעודכן' })).toBeVisible();
+  await shot(couple, '11-brief');
+
+  // ── 9. Admin approves the DJ choice ──
+  await admin.goto(coupleAdminUrl); await settle(admin);
+  await admin.getByRole('button', { name: 'אישור', exact: true }).click();
+  await expect(admin.getByText('מאושר').first()).toBeVisible();
+  await shot(admin, '12-admin-approved');
+
+  // ── 10. DJ sees the profile (English, LTR) ──
+  const djPage = await login(browser, dj.email, 'en');
+  await expect(djPage.locator('html')).toHaveAttribute('dir', 'ltr');
+  await djPage.goto('/dj'); await settle(djPage);
+  await djPage.getByRole('link', { name: /נועה & דניאל/ }).first().click();
+  await expect(djPage.getByRole('note')).toContainText('ABBA');          // absolute ban banner
+  await expect(djPage.getByText('Brief submitted').first()).toBeVisible();
+  await shot(djPage, '13-dj-brief');
+  await djPage.getByRole('link', { name: 'Recommend' }).click();
+  await djPage.locator('input[role=combobox]').fill('Dancing Queen');
+  await djPage.getByRole('option', { name: /Dancing Queen/ }).click();
+  await expect(djPage.getByText('Blocked by the couple’s NEVER PLAY list')).toBeVisible();
+  await djPage.getByRole('button', { name: 'Clear' }).click();
+  await djPage.locator('input[role=combobox]').fill('Get Lucky');
+  await djPage.getByRole('option', { name: /Get Lucky/ }).click();
+  await djPage.locator('#rec-msg').fill('Perfect for opening the dancefloor');
+  await djPage.getByRole('button', { name: 'Send' }).click();
+  await expect(djPage.getByText('Recommendation sent')).toBeVisible();
+  await djPage.getByRole('link', { name: 'Activity' }).click();
+  await expect(djPage.getByText('Confirmed a moment song').first()).toBeVisible();
+  await shot(djPage, '14-dj-activity');
+
+  // ── 11. Couple sees the DJ action and responds ──
+  await couple.goto('/wedding/recommendations'); await settle(couple);
+  await expect(couple.getByText('Get Lucky')).toBeVisible();
+  await couple.getByRole('button', { name: 'אהבנו' }).click();
+  await expect(couple.getByText('אושר').first()).toBeVisible();
+  await shot(couple, '15-couple-recommendation');
+
+  // ── 12. Language switch on the couple side ──
+  await couple.goto('/profile'); await settle(couple);
+  await couple.getByRole('button', { name: 'EN' }).click();
+  await expect(couple.locator('html')).toHaveAttribute('dir', 'ltr');
+  await couple.goto('/home'); await settle(couple);
+  await expect(couple.getByText('Planning progress')).toBeVisible();
+  await shot(couple, '16-home-en');
+});
