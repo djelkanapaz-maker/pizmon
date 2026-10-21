@@ -3,12 +3,12 @@ import { requireCouple } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getI18n } from '@/i18n/server';
 import { fmt, relativeTime, formatDate } from '@/i18n/format';
-import { getEvent, getProgressFacts, getTracksByIds, TRACK_SELECT, type Track } from '@/server/queries';
+import { getEvent, getProgressFacts, TRACK_SELECT, type Track } from '@/server/queries';
 import { getTrackContext } from '@/server/track-context';
 import { daysUntil, nextAction, planningTasks, progressPercent, type NextAction } from '@/core/progress';
-import { ButtonLink, DemoBadge, Portrait, Progress, SectionHeader, Badge, cx } from '@/components/ui';
+import { DemoBadge, Portrait, Progress, SectionHeader, Badge, cx } from '@/components/ui';
 import { TrackList } from '@/components/music/TrackList';
-import { IconCheck, IconChevron } from '@/components/icons';
+import { IconCheck, IconChevron, IconList } from '@/components/icons';
 import { MeetingPrompt } from '@/components/meeting/MeetingPrompt';
 import { MEETING_WINDOW_DAYS } from '@/core/meeting';
 
@@ -23,11 +23,10 @@ export default async function HomePage() {
   const s = await requireCouple();
   const { m, locale } = await getI18n();
   const db = await supabaseServer();
-  const [event, facts, ctx, savedRows, recRows, updates] = await Promise.all([
+  const [event, facts, ctx, recRows, updates] = await Promise.all([
     getEvent(s.eventId),
     getProgressFacts(s.eventId, s.company.id),
     getTrackContext(s.eventId, s.company.id),
-    db.from('saved_tracks').select('track_id').eq('event_id', s.eventId).order('created_at', { ascending: false }).limit(5),
     db.from('dj_recommendations').select(`id, message, created_at, track:music_tracks(${TRACK_SELECT}), response:recommendation_responses(status)`).eq('event_id', s.eventId).order('created_at', { ascending: false }).limit(6),
     db.from('notifications').select('id, title_he, title_en, link, created_at, read_at').eq('user_id', s.userId).order('created_at', { ascending: false }).limit(3),
   ]);
@@ -39,8 +38,6 @@ export default async function HomePage() {
   const actionCopy = m.home.action[action.kind];
   const days = daysUntil(event.wedding_date);
   const names = [event.partner_one_name, event.partner_two_name].filter(Boolean).join(' & ');
-  const saved = await getTracksByIds((savedRows.data ?? []).map((r) => r.track_id as string));
-  const savedOrdered = (savedRows.data ?? []).map((r) => saved.find((t) => t.id === r.track_id)).filter(Boolean) as Track[];
   const recs = ((recRows.data ?? []) as unknown as { id: string; track: Track | null; response: { status: string } | null }[]);
   const pendingRecTracks = recs.filter((r) => !r.response && r.track).map((r) => r.track!) ;
   const dj = facts.djStatusRaw?.dj;
@@ -131,11 +128,16 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* recently saved */}
-      <section className="mt-12">
-        <SectionHeader title={m.home.savedRecently} href="/wedding/saved" action={m.common.seeAll} />
-        {savedOrdered.length ? <TrackList tracks={savedOrdered} ctx={ctx} compare={false} />
-          : <div className="gutter"><div className="card p-5 flex items-center justify-between gap-4"><p className="text-paper-dim text-sm">{m.home.emptySaved}</p><ButtonLink href="/discover" size="sm">{m.home.exploreNow}</ButtonLink></div></div>}
+      {/* our playlist */}
+      <section className="gutter mt-12">
+        <Link href="/wedding/playlists" className="card-hard p-5 flex items-center gap-4 hover:brightness-110 transition">
+          <span className="size-12 rounded-full bg-ember text-ink grid place-items-center shrink-0"><IconList size={22} /></span>
+          <span className="min-w-0 flex-1">
+            <span className="block display text-xl">{m.playlists.ours}</span>
+            <span className="block text-sm text-paper-dim">{fmt(m.playlists.tracks, { count: ctx.ours?.length ?? 0 })}</span>
+          </span>
+          <IconChevron size={20} className="text-paper-dim shrink-0" />
+        </Link>
       </section>
 
     </div>
