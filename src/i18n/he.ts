@@ -75,7 +75,7 @@ export const he: Messages = {
     title: 'מאגר המוזיקה', sub: 'מצאו את השירים שנשמעים כמוכם.', searchPlaceholder: 'שיר או אמן',
     genre: 'ז׳אנר', mood: 'אווירה', language: 'שפה', energy: 'אנרגיה', moment: 'רגע בחתונה', category: 'קטגוריה',
     results: '{count} שירים', noResults: 'אין התאמות עדיין. נסו פחות מסננים או איות אחר.',
-    chuppahIdeas: 'רעיונות לשירי חופה', collections: 'אוספים נבחרים', shelves: 'עיון', save: 'שמירה', saved: 'נשמר', reject: 'לא בשבילנו', rejected: 'הוסתר',
+    fromSpotify: 'עוד מספוטיפיי', fromSpotifyHint: 'שירים שעוד לא במאגר שלנו. לחצו + כדי להוסיף לפלייליסט שלכם.', chuppahIdeas: 'רעיונות לשירי חופה', collections: 'אוספים נבחרים', shelves: 'עיון', save: 'שמירה', saved: 'נשמר', reject: 'לא בשבילנו', rejected: 'הוסתר',
     addToPlaylist: 'הוספה לפלייליסט', addToMoment: 'לרגע מיוחד', listen: 'האזנה', searchOn: 'חיפוש ב־{service}',
     externalNote: 'נפתח חיפוש חיצוני. זכויות ההשמעה לשיר הזה אינן מורשות באפליקציה.',
     preview: 'קטע', play: 'ניגון', pause: 'השהיה', compare: 'השוואה', compareTitle: 'השוואת שירים', compareHint: 'בחרו עד 3 שירים להשוואה.',

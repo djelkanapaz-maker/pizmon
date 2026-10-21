@@ -6,6 +6,8 @@ import { getSession } from '@/server/session';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { deriveStatus, EMPTY_SELECTION, type SelectionState } from '@/core/moments';
 import { sanitizeAnswers } from '@/core/questionnaire/answers';
+import { appAccessToken } from '@/server/spotify-auth';
+import { getSpotifyTrack } from '@/server/spotify';
 import type { QuestionnaireDefinition } from '@/core/questionnaire/types';
 
 const uuid = z.guid();
@@ -136,6 +138,23 @@ async function mainPlaylistId(c: NonNullable<Awaited<ReturnType<typeof coupleCtx
     throw error;
   }
   return created.id as string;
+}
+
+/** Add a song found in Spotify's catalog to the couple's playlist (it joins the catalog as metadata). */
+export async function addSpotifyToOurPlaylist(spotifyId: string, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ trackId: string }>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  if (!/^[A-Za-z0-9]{22}$/.test(spotifyId)) return fail('validation');
+  const token = await appAccessToken();
+  if (!token) return fail('network');
+  let t: Awaited<ReturnType<typeof getSpotifyTrack>>;
+  try { t = await getSpotifyTrack(spotifyId, token); } catch { return fail('network'); }
+  if (!t) return fail('validation');
+  const art = t.artworkUrl && /^https:\/\/i\.scdn\.co\/image\/[A-Za-z0-9]+$/.test(t.artworkUrl) ? t.artworkUrl : null;
+  const { data, error } = await c.db.rpc('couple_add_spotify_track', { p_spotify: t.id, p_title: t.title, p_artists: t.artists, p_artwork: art });
+  if (error || !data) return fail(errorCode(error));
+  const r = await toggleOurPlaylist(data as string, true, title);
+  if (!r.ok) return fail(r.error);
+  return ok({ trackId: data as string });
 }
 
 /** Add a track to (or remove it from) the couple's main playlist. */

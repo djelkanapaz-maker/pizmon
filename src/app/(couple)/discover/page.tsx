@@ -8,6 +8,9 @@ import { getTrackContext } from '@/server/track-context';
 import { PageHeader, SectionHeader, Cover, EmptyState } from '@/components/ui';
 import { TrackList } from '@/components/music/TrackList';
 import { DiscoverFilters } from './DiscoverFilters';
+import { SpotifyResults } from './SpotifyResults';
+import { appAccessToken } from '@/server/spotify-auth';
+import { searchSpotifyTracks, type SpotifySearchHit } from '@/server/spotify';
 
 type SP = { q?: string; genre?: string; mood?: string; cat?: string; lang?: string; energy?: string; moment?: string; hidden?: string };
 const isUuid = (v?: string) => !!v && /^[0-9a-f-]{36}$/i.test(v);
@@ -34,7 +37,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
     const tagFilter = [sp.mood, sp.cat].filter(isUuid) as string[];
     let query = db.from('music_tracks')
       .select(`${TRACK_SELECT}${tagFilter.length ? ', track_tags!inner(tag_id)' : ''}${isUuid(sp.moment) ? ', moment_tracks!inner(moment_id)' : ''}`)
-      .eq('company_id', s.company.id).eq('status', 'published').order('title').limit(120);
+      .eq('company_id', s.company.id).eq('status', 'published').or(`added_by_event.is.null,added_by_event.eq.${s.eventId}`).order('title').limit(120);
     if (isUuid(sp.genre)) query = query.eq('genre_id', sp.genre!);
     if (sp.lang && /^[a-z]{2,12}$/.test(sp.lang)) query = query.eq('language', sp.lang);
     if (sp.energy && /^[1-5]$/.test(sp.energy)) query = query.eq('energy', Number(sp.energy));
@@ -56,6 +59,24 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       results = results.filter((r) => counts.get(r.id) === 2);
     }
     if (sp.hidden !== '1') results = results.filter((t) => !ctx.rejected.includes(t.id));
+  }
+
+  // songs from Spotify's whole catalog for a text search (not already shown from the library)
+  let spotifyHits: SpotifySearchHit[] = [];
+  let spotifyAdded: string[] = [];
+  if (q.length >= 2) {
+    const token = await appAccessToken();
+    if (token) {
+      try {
+        const shown = new Set(results.map((t) => t.provider_track_id).filter(Boolean));
+        spotifyHits = (await searchSpotifyTracks(q, token, 15)).filter((h) => !shown.has(h.id)).slice(0, 10);
+        if (spotifyHits.length) {
+          const { data: known } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', s.company.id).eq('provider', 'spotify').in('provider_track_id', spotifyHits.map((h) => h.id));
+          const ours = new Set(ctx.ours ?? []);
+          spotifyAdded = (known ?? []).filter((k) => ours.has(k.id as string)).map((k) => k.provider_track_id as string);
+        }
+      } catch { spotifyHits = []; }
+    }
   }
 
   // browse mode: a few shelves by category
@@ -81,7 +102,8 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       {filtering ? (
         <section className="mt-6" aria-live="polite">
           <p className="gutter label mb-2">{fmt(m.discover.results, { count: results.length })}</p>
-          {results.length ? <TrackList tracks={results} ctx={ctx} /> : <div className="gutter"><EmptyState title={m.discover.noResults} /></div>}
+          {results.length ? <TrackList tracks={results} ctx={ctx} /> : !spotifyHits.length && <div className="gutter"><EmptyState title={m.discover.noResults} /></div>}
+          <SpotifyResults hits={spotifyHits} added={spotifyAdded} />
         </section>
       ) : (
         <>

@@ -57,3 +57,15 @@ export async function companyAccessToken(db: SupabaseClient, companyId: string):
     return t.access_token;
   } catch { return null; }
 }
+
+let appToken: { value: string; exp: number } | null = null;
+/** App-only token (no user): enough for catalog search and track lookups. */
+export async function appAccessToken() {
+  if (!spotifyConfigured()) return null;
+  if (appToken && appToken.exp > Date.now() + 60_000) return appToken.value;
+  try {
+    const t = await tokenRequest({ grant_type: 'client_credentials' });
+    appToken = { value: t.access_token, exp: Date.now() + t.expires_in * 1000 };
+    return appToken.value;
+  } catch { return null; }
+}

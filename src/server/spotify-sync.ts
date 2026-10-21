@@ -43,6 +43,12 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
     if (error) throw error;
     (data ?? []).forEach((t) => trackId.set(t.provider_track_id as string, t.id as string));
   }
+  // songs a couple added on their own become regular catalog songs once the company playlist has them
+  const adopted = [...trackId.values()];
+  for (const part of chunk(adopted)) {
+    const { error } = await db.from('music_tracks').update({ added_by_event: null }).in('id', part).not('added_by_event', 'is', null);
+    if (error) throw error;
+  }
   const missing = pl.tracks.filter((t, i, a) => !trackId.has(t.id) && a.findIndex((x) => x.id === t.id) === i && artistId.has(t.artists));
   for (const part of chunk(missing)) {
     const { data, error } = await db.from('music_tracks').upsert(part.map((t) => ({

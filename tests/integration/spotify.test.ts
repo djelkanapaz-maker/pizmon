@@ -83,3 +83,19 @@ describe('spotify connection storage', () => {
     await admin.rpc('admin_clear_spotify_connection', { p_company: COMPANY_ID });
   });
 });
+
+describe('couples adding songs from Spotify', () => {
+  it('adds a validated Spotify song once, scoped to the wedding that added it', async () => {
+    const couple = await createCouple('SpotifySearch');
+    const id1 = await couple.client.rpc('couple_add_spotify_track', { p_spotify: 'Sx0000000000000000add1', p_title: 'Found on Spotify', p_artists: 'Some Artist', p_artwork: 'https://i.scdn.co/image/ab67616d00004851abc' });
+    expect(id1.error).toBeNull();
+    const again = await couple.client.rpc('couple_add_spotify_track', { p_spotify: 'Sx0000000000000000add1', p_title: 'Renamed', p_artists: 'X', p_artwork: null });
+    expect(again.data).toBe(id1.data);
+    const [row] = await sql<{ title: string; added_by_event: string; status: string }>(`select title, added_by_event, status from public.music_tracks where id = $1`, [id1.data]);
+    expect(row).toEqual({ title: 'Found on Spotify', added_by_event: couple.eventId, status: 'published' });
+    const bad = await couple.client.rpc('couple_add_spotify_track', { p_spotify: 'Sx0000000000000000add2', p_title: 'x', p_artists: 'y', p_artwork: 'https://evil.example/x.png' });
+    expect(bad.error?.code).toBe('22023');
+    const notCouple = await admin.rpc('couple_add_spotify_track', { p_spotify: 'Sx0000000000000000add3', p_title: 'x', p_artists: 'y', p_artwork: null });
+    expect(notCouple.error?.code).toBe('42501');
+  });
+});

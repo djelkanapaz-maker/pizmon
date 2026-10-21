@@ -62,3 +62,19 @@ export async function listOwnPlaylists(token: string) {
   }
   return ids;
 }
+
+export type SpotifySearchHit = { id: string; title: string; artists: string; artworkUrl: string | null };
+const hit = (t: ApiTrack): SpotifySearchHit | null => (t.id ? {
+  id: t.id, title: t.name.slice(0, 300), artists: (t.artists ?? []).map((a) => a.name).join(', ').slice(0, 300) || 'Unknown',
+  artworkUrl: (t.album?.images?.at(-1)?.url ?? null),
+} : null);
+
+/** Spotify's whole catalog (market IL). */
+export async function searchSpotifyTracks(q: string, token: string, limit = 10): Promise<SpotifySearchHit[]> {
+  const j = await api<{ tracks?: { items: ApiTrack[] } }>(`/search?type=track&market=IL&limit=${limit}&q=${encodeURIComponent(q.slice(0, 100))}`, token);
+  return (j.tracks?.items ?? []).map(hit).filter(Boolean) as SpotifySearchHit[];
+}
+
+export async function getSpotifyTrack(id: string, token: string) {
+  return hit(await api<ApiTrack>(`/tracks/${id}?market=IL`, token));
+}
