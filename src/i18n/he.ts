@@ -43,7 +43,7 @@ export const he: Messages = {
     djLocked: 'הדיג׳יי שלכם מאושר. שינויים נעשים דרך החברה.',
     djAwaitAssign: 'החברה משבצת לכם דיג׳יי. תקבלו התראה ברגע שזה יקרה.',
     detailsTitle: 'פרטי החתונה', detailsSub: 'אשרו את מה שאנחנו יודעים והשלימו את החסר.',
-    partnerOne: 'שם', partnerTwo: 'שם בן/בת הזוג', date: 'תאריך החתונה', venue: 'מקום האירוע', city: 'עיר',
+    partnerOne: 'שם החתן', partnerTwo: 'שם הכלה', date: 'תאריך החתונה', venue: 'מקום האירוע', city: 'עיר',
     guests: 'מספר אורחים משוער', languages: 'שפות המוזיקה', cultural: 'הערות תרבותיות או מוזיקליות',
     culturalHint: 'מסורות, מנהגים משפחתיים, כל דבר מיוחד.',
     finish: 'כניסה לסביבה שלנו', specialties: 'התמחויות', mixes: 'סטים נבחרים', viewProfile: 'פרופיל',

@@ -41,7 +41,7 @@ export const en = {
     djLocked: 'Your DJ is confirmed. Changes go through the company.',
     djAwaitAssign: 'The company is assigning your DJ. You’ll get a notification as soon as it’s done.',
     detailsTitle: 'Your wedding details', detailsSub: 'Confirm what we know and fill in what’s missing.',
-    partnerOne: 'Partner name', partnerTwo: 'Partner name', date: 'Wedding date', venue: 'Venue', city: 'City',
+    partnerOne: "Groom's name", partnerTwo: "Bride's name", date: 'Wedding date', venue: 'Venue', city: 'City',
     guests: 'Estimated guests', languages: 'Music languages', cultural: 'Cultural or musical notes',
     culturalHint: 'Traditions, family customs, anything special.',
     finish: 'Enter my workspace', specialties: 'Specialties', mixes: 'Featured sets', viewProfile: 'Profile',
