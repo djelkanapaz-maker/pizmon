@@ -154,7 +154,8 @@ export const en = {
     hostedBy: 'with {dj}', streamError: 'The stream couldn’t be reached.', reconnecting: 'Reconnecting…', backgroundNote: 'On phones, playback may stop when the screen locks.',
     kinds: { mix: 'Mix', training_set: 'Training set', genre_set: 'Genre set', editorial: 'Editorial', new_music: 'New music', behind_the_scenes: 'Behind the scenes', release: 'Release', seasonal: 'Seasonal', wedding_collection: 'Wedding collection', video: 'Video' },
   },
-  player: { nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },
+  player: {
+    tapSpotify: 'On iPhone: tap ▶ in the player to start', nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },
   profile: {
     deleteTitle: 'Delete account', deleteHint: 'You can ask us to delete your account and your data. The company will handle it and confirm by email.', deleteCta: 'Request account deletion', deleteConfirm: 'Send an account deletion request?', deleteRequested: 'Request sent. The company will handle it and confirm by email.', privacy: 'Privacy policy',
     title: 'Profile', account: 'Account', name: 'Your name', languageHint: 'Hebrew is right-to-left; English left-to-right.',

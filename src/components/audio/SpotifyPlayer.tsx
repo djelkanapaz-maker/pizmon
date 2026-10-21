@@ -45,6 +45,9 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
   const [current, setCurrent] = useState<string | null>(null);
   const [paused, setPaused] = useState(true);
   const [open, setOpen] = useState(false);
+  // Safari on iPhone blocks starting audio inside the Spotify embed without a tap in it
+  const [needsTap, setNeedsTap] = useState(false);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // the app's own player and the Spotify embed never play at the same time
   const audioPlaying = audio.status === 'playing';
@@ -63,6 +66,9 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
     if (audio.source) audio.stop();
     setOpen(true); setCurrent(trackId); setPaused(false);
     pending.current = uri;
+    setNeedsTap(false);
+    if (tapTimer.current) clearTimeout(tapTimer.current);
+    tapTimer.current = setTimeout(() => { if (pending.current === uri) setNeedsTap(true); }, 3000);
     if (ctrl.current) { ctrl.current.loadUri(uri); return; }
     if (!creating.current) {
       creating.current = (async () => {
@@ -81,6 +87,7 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
           });
           c.addListener('playback_update', (e) => {
             setPaused(!!e.data.isPaused);
+            if (!e.data.isPaused) setNeedsTap(false);
             if (pending.current && e.data.playingURI === pending.current && !e.data.isPaused) pending.current = null;
           });
           resolve();
@@ -99,7 +106,7 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
   }, [current, start]);
 
   const close = useCallback(() => {
-    pending.current = null; ctrl.current?.pause(); setOpen(false); setPaused(true);
+    pending.current = null; setNeedsTap(false); ctrl.current?.pause(); setOpen(false); setPaused(true);
   }, []);
 
   const value = useMemo(() => ({ current: open ? current : null, paused, toggle, close }), [current, open, paused, toggle, close]);
@@ -108,7 +115,8 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
       {children}
       <div className={cx('fixed inset-x-0 z-40 bottom-[calc(var(--nav-h)+var(--safe-b)+4px)] md:bottom-4 md:inset-x-auto md:end-4 md:w-[420px] px-2 md:px-0', !open && 'invisible pointer-events-none h-0 overflow-hidden')}
         aria-hidden={!open} role="region" aria-label={m.player.nowPlaying}>
-        <div className="relative rounded-[14px] overflow-hidden bg-ink-2 shadow-[var(--shadow-hard)]">
+        {needsTap && <p role="status" className="mb-1.5 mx-auto w-fit rounded-full bg-ember text-ink text-xs font-bold px-3 py-1.5 shadow-[var(--shadow-hard)] animate-rise">{m.player.tapSpotify}</p>}
+        <div className={cx('relative rounded-[14px] overflow-hidden bg-ink-2 shadow-[var(--shadow-hard)]', needsTap && 'ring-2 ring-ember')}>
           <div ref={host} className="h-[80px]" />
           <button type="button" onClick={close} aria-label={m.player.close}
             className="absolute top-1 end-1 size-7 grid place-items-center rounded-full bg-black/60 text-paper hover:bg-black/80"><IconX size={14} /></button>

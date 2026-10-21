@@ -156,7 +156,8 @@ export const he: Messages = {
     hostedBy: 'עם {dj}', streamError: 'לא הצלחנו להתחבר לשידור.', reconnecting: 'מתחברים מחדש…', backgroundNote: 'בטלפון, ההשמעה עלולה להיעצר כשהמסך ננעל.',
     kinds: { mix: 'מיקס', training_set: 'סט אימון', genre_set: 'סט ז׳אנר', editorial: 'מערכת', new_music: 'מוזיקה חדשה', behind_the_scenes: 'מאחורי הקלעים', release: 'הוצאה', seasonal: 'עונתי', wedding_collection: 'אוסף לחתונה', video: 'וידאו' },
   },
-  player: { nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
+  player: {
+    tapSpotify: 'באייפון: לחצו ▶ בנגן כדי להתחיל', nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
   profile: {
     deleteTitle: 'מחיקת החשבון', deleteHint: 'אפשר לבקש למחוק את החשבון ואת המידע שלכם. החברה תטפל בבקשה ותעדכן אתכם במייל.', deleteCta: 'בקשה למחיקת החשבון', deleteConfirm: 'לשלוח בקשה למחיקת החשבון?', deleteRequested: 'הבקשה נשלחה. החברה תטפל בה ותעדכן אתכם במייל.', privacy: 'מדיניות פרטיות',
     title: 'פרופיל', account: 'חשבון', name: 'השם שלכם', languageHint: 'עברית מימין לשמאל; English משמאל לימין.',
