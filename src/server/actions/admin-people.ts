@@ -142,9 +142,10 @@ export async function adminUpdateSettings(input: unknown): Promise<ActionResult>
     brand_name: z.string().trim().min(1).max(60), brand_tagline_he: z.string().trim().max(160).optional(), brand_tagline_en: z.string().trim().max(160).optional(),
     assignment_policy: z.enum(['couple_selects', 'company_assigned']), couple_selection_requires_approval: z.boolean(),
     default_locale: z.enum(['he', 'en']), contact_email: z.email().optional().or(z.literal('')),
+    app_url: z.string().trim().max(300).regex(/^https?:\/\/[^\s/]+(\/\S*)?$/).optional().or(z.literal('')),
   }).safeParse(input);
   if (!p.success) return fail('validation');
-  const { error } = await c.db.from('companies').update({ ...p.data, contact_email: p.data.contact_email || null }).eq('id', c.s.company.id);
+  const { error } = await c.db.from('companies').update({ ...p.data, contact_email: p.data.contact_email || null, app_url: p.data.app_url ? p.data.app_url.replace(/\/$/, '') : null }).eq('id', c.s.company.id);
   if (error) return fail(errorCode(error));
   revalidatePath('/', 'layout');
   return ok(undefined);

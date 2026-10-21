@@ -6,7 +6,7 @@ import { formObject, useCms, useErrText, useRun } from '../_cms/client';
 
 export type Settings = {
   brand_name: string; brand_tagline_he: string | null; brand_tagline_en: string | null; assignment_policy: 'couple_selects' | 'company_assigned';
-  couple_selection_requires_approval: boolean; default_locale: 'he' | 'en'; contact_email: string | null;
+  couple_selection_requires_approval: boolean; default_locale: 'he' | 'en'; contact_email: string | null; app_url: string | null;
 };
 
 export function SettingsForm({ settings }: { settings: Settings }) {
@@ -22,7 +22,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
       setError(null);
       run(() => adminUpdateSettings({
         brand_name: f.brand_name, brand_tagline_he: f.brand_tagline_he, brand_tagline_en: f.brand_tagline_en, assignment_policy: policy,
-        couple_selection_requires_approval: f.couple_selection_requires_approval === 'on', default_locale: f.default_locale, contact_email: f.contact_email,
+        couple_selection_requires_approval: f.couple_selection_requires_approval === 'on', default_locale: f.default_locale, contact_email: f.contact_email, app_url: f.app_url,
       }), { silentError: true, success: s.settingsSaved, onFail: (r) => { if (!r.ok) setError(err(r.error)); } });
     }}>
       {error && <ErrorNote>{error}</ErrorNote>}
@@ -58,6 +58,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             <option value="en">{m.common.english}</option>
           </Select>
         </Field>
+        <Field label="App URL" hint="https://… — activation links point here" htmlFor="set-url"><Input id="set-url" name="app_url" type="url" defaultValue={settings.app_url ?? ''} dir="ltr" maxLength={300} /></Field>
         <Field label={m.admin.contactEmail} htmlFor="set-email"><Input id="set-email" name="contact_email" type="email" defaultValue={settings.contact_email ?? ''} dir="ltr" maxLength={254} /></Field>
       </fieldset>
       <div><Button type="submit" disabled={busy}>{busy ? m.common.saving : m.common.save}</Button></div>

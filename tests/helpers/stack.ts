@@ -71,8 +71,7 @@ export async function adminClient() {
     adminCache = await activate(boot.body.activation_link);
   } else {
     // already bootstrapped by an earlier run of this local database: set a fresh local test password
-    await sql(`create extension if not exists pgcrypto`);
-    await sql(`update auth.users set encrypted_password = crypt($2, gen_salt('bf')), email_confirmed_at = coalesce(email_confirmed_at, now()) where email = $1`, [email, TEST_PASSWORD]);
+    await sql(`update auth.users set encrypted_password = extensions.crypt($2, extensions.gen_salt('bf')), email_confirmed_at = coalesce(email_confirmed_at, now()) where email = $1`, [email, TEST_PASSWORD]);
     adminCache = await signIn(email);
   }
   return adminCache!;

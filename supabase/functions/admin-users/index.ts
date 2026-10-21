@@ -6,7 +6,13 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const APP_URL = (Deno.env.get('APP_URL') ?? 'http://localhost:3000').replace(/\/$/, '');
+const ENV_APP_URL = Deno.env.get('APP_URL');
+
+/** Activation links point at the company's configured app URL (companies.app_url), else the APP_URL secret. */
+async function appUrlFor(companyId: string) {
+  const { data } = await admin.from('companies').select('app_url').eq('id', companyId).maybeSingle();
+  return ((data?.app_url as string | null) ?? ENV_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+}
 const BOOTSTRAP_SECRET = Deno.env.get('BOOTSTRAP_SECRET');
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const EMAIL_FROM = Deno.env.get('EMAIL_FROM');
@@ -71,7 +77,8 @@ async function findUserByEmail(e: string) {
 }
 
 /** Returns an activation link for a new or existing user. */
-async function activationLink(e: string, meta: Record<string, unknown>) {
+async function activationLink(companyId: string, e: string, meta: Record<string, unknown>) {
+  const APP_URL = await appUrlFor(companyId);
   const existing = await findUserByEmail(e);
   // first contact → invite (creates the user); afterwards → recovery (sets a new password)
   const type = existing ? 'recovery' : 'invite';
@@ -109,15 +116,19 @@ const inviteHtml = (name: string, link: string) =>
 type Body = Record<string, unknown>;
 const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
   async bootstrap(req, b) {
-    if (!BOOTSTRAP_SECRET || req.headers.get('x-bootstrap-secret') !== BOOTSTRAP_SECRET) throw new HttpError(403, 'forbidden');
     const slug = str(b.company_slug, 'company_slug', { required: true })!;
     const e = email(b.email)!;
     const { data: company } = await admin.from('companies').select('id').eq('slug', slug).maybeSingle();
-    if (!company) throw new HttpError(404, 'company_not_found');
+    const presented = req.headers.get('x-bootstrap-secret') ?? '';
+    if (!company || !presented) throw new HttpError(403, 'forbidden');
+    // either the BOOTSTRAP_SECRET function secret, or a one-time token stored (hashed) in private.bootstrap_tokens
+    const envOk = !!BOOTSTRAP_SECRET && presented === BOOTSTRAP_SECRET;
+    const tokenOk = envOk ? false : (await admin.rpc('consume_bootstrap_token', { p_token: presented, p_company: company.id })).data === true;
+    if (!envOk && !tokenOk) throw new HttpError(403, 'forbidden');
     const { count } = await admin.from('company_members').select('*', { count: 'exact', head: true })
       .eq('company_id', company.id).eq('role', 'admin');
     if ((count ?? 0) > 0) throw new HttpError(409, 'already_bootstrapped');
-    const { userId, link } = await activationLink(e, { full_name: str(b.full_name, 'full_name') });
+    const { userId, link } = await activationLink(company.id, e, { full_name: str(b.full_name, 'full_name') });
     await ensureMembership(admin, company.id, userId, 'admin');
     return { company_id: company.id, user_id: userId, activation_link: link };
   },
@@ -147,7 +158,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     if (error) throw new HttpError(400, 'create_failed', error.message);
 
     try {
-      const { userId, link } = await activationLink(e, { full_name: p1, locale: b.locale === 'en' ? 'en' : 'he' });
+      const { userId, link } = await activationLink(companyId, e, { full_name: p1, locale: b.locale === 'en' ? 'en' : 'he' });
       await ensureMembership(admin, companyId, userId, 'couple');
       const { error: cmErr } = await admin.from('couple_members').insert({ event_id: ev.id, user_id: userId });
       if (cmErr) throw new HttpError(500, 'membership_failed', cmErr.message);
@@ -176,7 +187,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     if (!ev) throw new HttpError(404, 'event_not_found');
     await requireAdmin(req, ev.company_id);
     const e = email(b.email)!;
-    const { userId, link } = await activationLink(e, { full_name: ev.partner_two_name ?? '' });
+    const { userId, link } = await activationLink(ev.company_id, e, { full_name: ev.partner_two_name ?? '' });
     await ensureMembership(admin, ev.company_id, userId, 'couple');
     const { data: other } = await admin.from('couple_members').select('event_id').eq('user_id', userId).neq('event_id', eventId).maybeSingle();
     if (other) throw new HttpError(409, 'already_in_other_event');
@@ -201,7 +212,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     } else throw new HttpError(400, 'invalid_input', 'event_id or dj_id required');
     await requireAdmin(req, companyId);
     if (!e) throw new HttpError(404, 'no_email');
-    const { link, type } = await activationLink(e, {});
+    const { link, type } = await activationLink(companyId, e, {});
     const email_result = b.send_email ? await maybeEmail(e, 'Your account link', inviteHtml('', link)) : { sent: false, reason: 'not_requested' };
     return { activation_link: link, type, email: email_result };
   },
@@ -225,7 +236,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
         const { data: m } = await admin.from('company_members').select('role').eq('company_id', companyId).eq('user_id', existing.id).maybeSingle();
         if (m && m.role === 'couple') throw new HttpError(409, 'role_conflict', 'this email belongs to a couple');
       }
-      const res = await activationLink(e, { full_name: name });
+      const res = await activationLink(companyId, e, { full_name: name });
       userId = res.userId; link = res.link;
       await ensureMembership(admin, companyId, res.userId, 'dj');
     }
@@ -245,7 +256,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     await requireAdmin(req, dj.company_id);
     if (dj.user_id) throw new HttpError(409, 'already_linked');
     const e = email(b.email)!;
-    const { userId, link } = await activationLink(e, { full_name: dj.display_name });
+    const { userId, link } = await activationLink(dj.company_id, e, { full_name: dj.display_name });
     await ensureMembership(admin, dj.company_id, userId, 'dj');
     const { error } = await admin.from('djs').update({ user_id: userId }).eq('id', djId);
     if (error) throw new HttpError(400, 'link_failed', error.message);
