@@ -7,7 +7,7 @@ import { saveSelection, setTrackPreference, toggleOurPlaylist } from '@/server/a
 import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, Cover, cx } from '@/components/ui';
 import { TrackPlay } from './TrackPlay';
-import { IconBan, IconCheck, IconCompare, IconExternal, IconHeart, IconList, IconPlus, IconStar } from '@/components/icons';
+import { IconBan, IconCheck, IconCompare, IconExternal, IconPlus, IconStar } from '@/components/icons';
 import { externalOptions, playableSource } from './listening';
 import type { Track } from '@/server/queries';
 
@@ -24,7 +24,6 @@ export type TrackContext = {
 
 export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: Track[]; ctx: TrackContext; compare?: boolean; emptyText?: string }) {
   const { m, locale } = useI18n();
-  const [saved, setSaved] = useState(() => new Set(ctx.saved));
   const [rejected, setRejected] = useState(() => new Set(ctx.rejected));
   const [ours, setOurs] = useState(() => new Set(ctx.ours ?? []));
   const [active, setActive] = useState<Track | null>(null);
@@ -37,7 +36,6 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
   const pref = (t: Track, p: 'save' | 'unsave' | 'reject' | 'unreject') => start(async () => {
     const r = await setTrackPreference(t.id, p);
     if (!r.ok) return toast(errMsg(r.error), 'error');
-    setSaved((s) => { const n = new Set(s); if (p === 'save') n.add(t.id); else if (p === 'unsave' || p === 'reject') n.delete(t.id); return n; });
     setRejected((s) => { const n = new Set(s); if (p === 'reject') n.add(t.id); else if (p === 'unreject' || p === 'save') n.delete(t.id); return n; });
     toast(p === 'save' ? m.discover.saved : p === 'reject' ? m.discover.rejected : m.common.saved);
   });
@@ -59,7 +57,6 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
         {tracks.map((t) => {
           const r = restrictionFor(t, ctx.restrictions as Restriction[]);
           const blocked = r?.kind === 'never_play' && r.strength === 'absolute';
-          const isSaved = saved.has(t.id);
           return (
             <li key={t.id} className={cx('gutter flex items-center gap-3 py-2.5 border-b border-line/50 last:border-0', rejected.has(t.id) && 'opacity-50')}>
               <button type="button" onClick={() => setActive(t)} className="flex items-center gap-3 min-w-0 flex-1 text-start" aria-haspopup="dialog">
@@ -84,13 +81,6 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
                 </button>
               )}
               <TrackPlay track={t} />
-              {!ctx.readOnly && (
-                <button type="button" disabled={pending} onClick={() => pref(t, isSaved ? 'unsave' : 'save')}
-                  aria-pressed={isSaved} aria-label={`${isSaved ? m.discover.saved : m.discover.save}: ${t.title}`}
-                  className={cx('size-11 grid place-items-center rounded-full transition-colors', isSaved ? 'text-ember' : 'text-paper-dim hover:text-paper')}>
-                  <IconHeart filled={isSaved} />
-                </button>
-              )}
               {!ctx.readOnly && (
                 <button type="button" disabled={pending} onClick={() => toggleOurs(t)}
                   aria-pressed={ours.has(t.id)} aria-label={`${ours.has(t.id) ? m.playlists.inOurs : m.playlists.addOurs}: ${t.title}`}
@@ -128,20 +118,20 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
                   <div><dt className="label">{m.track.era}</dt><dd>{t.decade ? m.discover.decade.replace('{decade}', String(t.decade).slice(locale === 'he' ? 2 : 0)) : '—'}</dd></div>
                 </dl>
                 <TrackPlay track={t} />
-                {!ctx.readOnly && <Button size="sm" variant={saved.has(t.id) ? 'gold' : 'secondary'} onClick={() => pref(t, saved.has(t.id) ? 'unsave' : 'save')}>{saved.has(t.id) ? m.discover.saved : m.discover.save}</Button>}
+                {!ctx.readOnly && <Button size="sm" variant={ours.has(t.id) ? 'gold' : 'secondary'} onClick={() => toggleOurs(t)}>{ours.has(t.id) ? <IconCheck size={14} /> : <IconPlus size={14} />}{ours.has(t.id) ? m.playlists.inOurs : m.playlists.addOurs}</Button>}
               </div>
             );
           })}
         </div>
       </Sheet>
 
-      {active && <TrackSheet track={active} ctx={ctx} onClose={() => setActive(null)} isSaved={saved.has(active.id)} isRejected={rejected.has(active.id)} onPref={(p) => pref(active, p)} inOurs={ours.has(active.id)} onOurs={() => toggleOurs(active)} />}
+      {active && <TrackSheet track={active} ctx={ctx} onClose={() => setActive(null)} isRejected={rejected.has(active.id)} onPref={(p) => pref(active, p)} inOurs={ours.has(active.id)} onOurs={() => toggleOurs(active)} />}
     </>
   );
 }
 
-function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOurs, onOurs }: {
-  track: Track; ctx: TrackContext; onClose: () => void; isSaved: boolean; isRejected: boolean; onPref: (p: 'save' | 'unsave' | 'reject' | 'unreject') => void;
+function TrackSheet({ track: t, ctx, onClose, isRejected, onPref, inOurs, onOurs }: {
+  track: Track; ctx: TrackContext; onClose: () => void; isRejected: boolean; onPref: (p: 'save' | 'unsave' | 'reject' | 'unreject') => void;
   inOurs: boolean; onOurs: () => void;
 }) {
   const { m, locale, fmt } = useI18n();
@@ -191,9 +181,8 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOur
           )}
           {!ctx.readOnly && (
             <div className="grid grid-cols-2 gap-2">
-              <Button variant={isSaved ? 'gold' : 'primary'} onClick={() => onPref(isSaved ? 'unsave' : 'save')}><IconHeart size={18} filled={isSaved} />{isSaved ? m.discover.saved : m.discover.save}</Button>
+              <Button variant={inOurs ? 'gold' : 'primary'} className="col-span-2" onClick={onOurs}>{inOurs ? <IconCheck size={18} /> : <IconPlus size={18} />}{inOurs ? m.playlists.inOurs : m.playlists.addOurs}</Button>
               <Button variant="secondary" onClick={() => onPref(isRejected ? 'unreject' : 'reject')}><IconBan size={18} />{isRejected ? m.discover.rejected : m.discover.reject}</Button>
-              <Button variant={inOurs ? 'gold' : 'ghost'} className={inOurs ? '' : 'border border-line'} onClick={onOurs}>{inOurs ? <IconCheck size={18} /> : <IconList size={18} />}{inOurs ? m.playlists.inOurs : m.playlists.addOurs}</Button>
               <Button variant="ghost" className="border border-line" onClick={() => setMode('moment')}><IconStar size={18} />{m.discover.addToMoment}</Button>
             </div>
           )}

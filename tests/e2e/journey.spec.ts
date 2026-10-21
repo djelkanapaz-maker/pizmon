@@ -79,10 +79,9 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.goto('/'); await settle(couple);
   await couple.waitForURL('**/home'); await settle(couple);
 
-  // ── 4. Discover: search + save ──
+  // ── 4. Discover: search + add with the plus ──
   await couple.goto('/discover?q=September'); await settle(couple);
-  await couple.getByRole('button', { name: /שמירה: September/ }).click();
-  await expect(couple.getByRole('button', { name: /נשמר: September/ })).toBeVisible();
+  await expect(couple.getByRole('button', { name: /שמירה: September/ })).toHaveCount(0);
   // every pick converges into the couple's one playlist
   await couple.getByRole('button', { name: /הוספה לפלייליסט שלנו: September/ }).click();
   await expect(couple.getByRole('button', { name: /בפלייליסט שלנו: September/ })).toBeVisible();
