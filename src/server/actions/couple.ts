@@ -24,7 +24,7 @@ const details = z.object({
   venue_name: z.string().trim().max(120).optional().transform((v) => v || null),
   venue_city: z.string().trim().max(80).optional().transform((v) => v || null),
   guest_count: z.union([z.literal(''), z.coerce.number().int().min(1).max(5000)]).optional().transform((v) => (v === '' || v === undefined ? null : v)),
-  languages: z.array(z.enum(['he', 'en', 'ar', 'fr', 'es', 'ru'])).max(6).default([]),
+  languages: z.array(z.enum(['he', 'en', 'ar', 'fr', 'es', 'ru'])).max(6).optional(),
   cultural_notes: z.string().trim().max(1500).optional().transform((v) => v || null),
 });
 

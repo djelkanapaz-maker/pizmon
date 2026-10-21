@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n/client';
 import { isolate } from '@/i18n/format';
 import { confirmAssignedDj, saveEventDetails, selectDj, setOnboardingStep } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
-import { Badge, Button, Chip, cx, DemoBadge, ErrorNote, Field, Input, Portrait, Textarea } from '@/components/ui';
+import { Badge, Button, cx, DemoBadge, ErrorNote, Field, Input, Portrait, Textarea } from '@/components/ui';
 import { PlayToggle } from '@/components/audio/MiniPlayer';
 import { BrandMark } from '@/components/brand';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
@@ -15,7 +15,6 @@ import { DjBio, DjLinks, DjLogo } from '@/components/DjProfile';
 
 type Step = 'welcome' | 'dj' | 'details';
 type Mix = { id: string; title: string; kind: string; media_url: string; creator_dj_id: string; is_demo: boolean };
-const LANGS = ['he', 'en', 'ar', 'fr', 'es', 'ru'] as const;
 
 export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, policy, brand }: {
   initialStep: Step; event: WeddingEvent; assignment: Assignment | null; djs: Dj[]; mixes: Mix[]; policy: 'company_assigned' | 'couple_selects'; brand: string;
@@ -187,7 +186,6 @@ function DjSheet({ dj, mixes, onClose, onChoose, pending }: { dj: Dj | null; mix
 
 function DetailsStep({ event, onDone, onBack }: { event: WeddingEvent; onDone: () => void; onBack: () => void }) {
   const { m } = useI18n();
-  const [langs, setLangs] = useState<string[]>(event.languages ?? ['he']);
   const [error, setError] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [busy, start] = useTransition();
@@ -196,7 +194,7 @@ function DetailsStep({ event, onDone, onBack }: { event: WeddingEvent; onDone: (
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     start(async () => {
-      const r = await saveEventDetails({ ...f, languages: langs });
+      const r = await saveEventDetails(f);
       if (!r.ok) { setFields(r.fields ?? {}); setError((m.errors as Record<string, string>)[r.error] ?? m.common.error); return; }
       onDone();
     });
@@ -217,17 +215,7 @@ function DetailsStep({ event, onDone, onBack }: { event: WeddingEvent; onDone: (
           <Field label={m.onboarding.venue} htmlFor="venue"><Input id="venue" name="venue_name" defaultValue={event.venue_name ?? ''} maxLength={120} /></Field>
           <Field label={m.onboarding.city} htmlFor="city"><Input id="city" name="venue_city" defaultValue={event.venue_city ?? ''} maxLength={80} /></Field>
         </div>
-        <fieldset>
-          <legend className="text-sm font-bold mb-2">{m.onboarding.languages}</legend>
-          <div className="flex flex-wrap gap-2">
-            {LANGS.map((l) => (
-              <Chip key={l} selected={langs.includes(l)} onClick={() => setLangs((x) => x.includes(l) ? x.filter((y) => y !== l) : [...x, l])}>
-                {{ he: m.common.hebrew, en: 'English', ar: m.discover.languages.ar, fr: m.discover.languages.fr, es: m.discover.languages.es, ru: 'Русский' }[l]}
-              </Chip>
-            ))}
-          </div>
-        </fieldset>
-        <Field label={m.onboarding.cultural} hint={m.onboarding.culturalHint} htmlFor="cultural">
+        <Field label={m.onboarding.cultural} htmlFor="cultural">
           <Textarea id="cultural" name="cultural_notes" defaultValue={event.cultural_notes ?? ''} maxLength={1500} />
         </Field>
         <div className="flex gap-3 mt-4">

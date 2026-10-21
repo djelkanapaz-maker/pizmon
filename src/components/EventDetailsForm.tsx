@@ -4,10 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/client';
 import { saveEventDetails } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
-import { Button, Chip, ErrorNote, Field, Input, Textarea } from '@/components/ui';
+import { Button, ErrorNote, Field, Input, Textarea } from '@/components/ui';
 import type { WeddingEvent } from '@/server/queries';
-
-const LANGS = ['he', 'en', 'ar', 'fr', 'es', 'ru'] as const;
 
 export function EventDetailsButton({ event, label }: { event: WeddingEvent; label: string }) {
   const [open, setOpen] = useState(false);
@@ -26,17 +24,15 @@ export function EventDetailsForm({ event, onSaved }: { event: WeddingEvent; onSa
   const { m } = useI18n();
   const router = useRouter();
   const toast = useToast();
-  const [langs, setLangs] = useState<string[]>(event.languages ?? []);
   const [error, setError] = useState<string | null>(null);
   const [busy, start] = useTransition();
-  const langLabel = { he: m.common.hebrew, en: 'English', ar: m.discover.languages.ar, fr: m.discover.languages.fr, es: m.discover.languages.es, ru: 'Русский' };
 
   return (
     <form noValidate className="flex flex-col gap-4" onSubmit={(e) => {
       e.preventDefault();
       const f = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
       start(async () => {
-        const r = await saveEventDetails({ ...f, languages: langs });
+        const r = await saveEventDetails(f);
         if (!r.ok) return setError((m.errors as Record<string, string>)[r.error] ?? m.common.error);
         toast(m.common.saved); router.refresh(); onSaved?.();
       });
@@ -50,11 +46,7 @@ export function EventDetailsForm({ event, onSaved }: { event: WeddingEvent; onSa
         <Field label={m.onboarding.venue} htmlFor="e-venue"><Input id="e-venue" name="venue_name" defaultValue={event.venue_name ?? ''} maxLength={120} /></Field>
         <Field label={m.onboarding.city} htmlFor="e-city"><Input id="e-city" name="venue_city" defaultValue={event.venue_city ?? ''} maxLength={80} /></Field>
       </div>
-      <fieldset>
-        <legend className="text-sm font-bold mb-2">{m.onboarding.languages}</legend>
-        <div className="flex flex-wrap gap-2">{LANGS.map((l) => <Chip key={l} selected={langs.includes(l)} onClick={() => setLangs((x) => x.includes(l) ? x.filter((y) => y !== l) : [...x, l])}>{langLabel[l]}</Chip>)}</div>
-      </fieldset>
-      <Field label={m.onboarding.cultural} hint={m.onboarding.culturalHint} htmlFor="e-cult"><Textarea id="e-cult" name="cultural_notes" defaultValue={event.cultural_notes ?? ''} maxLength={1500} /></Field>
+      <Field label={m.onboarding.cultural} htmlFor="e-cult"><Textarea id="e-cult" name="cultural_notes" defaultValue={event.cultural_notes ?? ''} maxLength={1500} /></Field>
       <Button type="submit" disabled={busy}>{busy ? m.common.saving : m.common.save}</Button>
     </form>
   );

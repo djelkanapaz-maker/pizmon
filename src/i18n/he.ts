@@ -44,7 +44,7 @@ export const he: Messages = {
     djAwaitAssign: 'החברה משבצת לכם דיג׳יי. תקבלו התראה ברגע שזה יקרה.',
     detailsTitle: 'פרטי החתונה', detailsSub: 'אשרו את מה שאנחנו יודעים והשלימו את החסר.',
     partnerOne: 'שם החתן', partnerTwo: 'שם הכלה', date: 'תאריך החתונה', venue: 'מקום האירוע', city: 'עיר',
-    guests: 'מספר אורחים משוער', languages: 'שפות המוזיקה', cultural: 'הערות תרבותיות או מוזיקליות',
+    guests: 'מספר אורחים משוער', languages: 'שפות המוזיקה', cultural: 'דברים שחשוב שה-DJ שלכם ידע עליכם ועל הקהל שלכם',
     culturalHint: 'מסורות, מנהגים משפחתיים, כל דבר מיוחד.',
     finish: 'כניסה לסביבה שלנו', specialties: 'התמחויות', mixes: 'סטים נבחרים', viewProfile: 'פרופיל',
   },

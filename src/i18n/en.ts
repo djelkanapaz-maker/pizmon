@@ -42,7 +42,7 @@ export const en = {
     djAwaitAssign: 'The company is assigning your DJ. You’ll get a notification as soon as it’s done.',
     detailsTitle: 'Your wedding details', detailsSub: 'Confirm what we know and fill in what’s missing.',
     partnerOne: "Groom's name", partnerTwo: "Bride's name", date: 'Wedding date', venue: 'Venue', city: 'City',
-    guests: 'Estimated guests', languages: 'Music languages', cultural: 'Cultural or musical notes',
+    guests: 'Estimated guests', languages: 'Music languages', cultural: 'What your DJ should know about you and your crowd',
     culturalHint: 'Traditions, family customs, anything special.',
     finish: 'Enter my workspace', specialties: 'Specialties', mixes: 'Featured sets', viewProfile: 'Profile',
   },
