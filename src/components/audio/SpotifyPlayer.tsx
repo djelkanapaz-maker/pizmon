@@ -53,30 +53,53 @@ export function SpotifyPlayerProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.spotify = open ? 'on' : 'off';
   }, [open]);
 
+  // Spotify drops play() calls made while a new track is still loading, so playback is
+  // started from the embed's "ready" event for the most recently requested track.
+  const pending = useRef<string | null>(null);
+  const creating = useRef<Promise<void> | null>(null);
   const start = useCallback(async (trackId: string) => {
     if (!ID.test(trackId)) return;
     const uri = `spotify:track:${trackId}`;
     if (audio.source) audio.stop();
     setOpen(true); setCurrent(trackId); setPaused(false);
-    if (ctrl.current) { ctrl.current.loadUri(uri); ctrl.current.play(); return; }
-    const api = await loadApi();
-    if (!host.current) return;
-    const mount = document.createElement('div');
-    host.current.replaceChildren(mount);
-    api.createController(mount, { uri, width: '100%', height: 80 }, (c) => {
-      ctrl.current = c;
-      c.addListener('ready', () => c.play());
-      c.addListener('playback_update', (e) => setPaused(!!e.data.isPaused));
-    });
+    pending.current = uri;
+    if (ctrl.current) { ctrl.current.loadUri(uri); return; }
+    if (!creating.current) {
+      creating.current = (async () => {
+        const api = await loadApi();
+        if (!host.current) return;
+        const mount = document.createElement('div');
+        host.current.replaceChildren(mount);
+        await new Promise<void>((resolve) => api.createController(mount, { uri, width: '100%', height: 80 }, (c) => {
+          ctrl.current = c;
+          c.addListener('ready', () => {
+            if (!pending.current) return;
+            c.play();
+            const want = pending.current;
+            // retry once if the embed ignored the first call
+            setTimeout(() => { if (pending.current === want) c.play(); }, 1500);
+          });
+          c.addListener('playback_update', (e) => {
+            setPaused(!!e.data.isPaused);
+            if (pending.current && e.data.playingURI === pending.current && !e.data.isPaused) pending.current = null;
+          });
+          resolve();
+        }));
+      })().catch(() => { creating.current = null; });
+    }
+    await creating.current;
+    // a different track was requested while the player was being created
+    const c = ctrl.current as Controller | null;
+    if (c && pending.current && pending.current !== uri) c.loadUri(pending.current);
   }, [audio]);
 
   const toggle = useCallback((trackId: string) => {
-    if (current === trackId && ctrl.current) { ctrl.current.togglePlay(); return; }
+    if (current === trackId && ctrl.current && !pending.current) { ctrl.current.togglePlay(); return; }
     void start(trackId);
   }, [current, start]);
 
   const close = useCallback(() => {
-    ctrl.current?.pause(); setOpen(false); setPaused(true);
+    pending.current = null; ctrl.current?.pause(); setOpen(false); setPaused(true);
   }, []);
 
   const value = useMemo(() => ({ current: open ? current : null, paused, toggle, close }), [current, open, paused, toggle, close]);
