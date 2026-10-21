@@ -38,7 +38,7 @@ export const en = {
     djConfirm: 'Confirm my DJ', djSelect: 'Choose {name}', djSelected: 'Selected',
     djPending: 'Waiting for the company to approve your choice. You can keep planning meanwhile.',
     djNone: 'No DJs are available for selection right now. The company will assign your DJ and you’ll be notified.',
-    djLocked: 'Your DJ is confirmed. Changes go through the company.',
+    djLocked: 'Your DJ is confirmed',
     djAwaitAssign: 'The company is assigning your DJ. You’ll get a notification as soon as it’s done.',
     detailsTitle: 'Your wedding details', detailsSub: 'Confirm what we know and fill in what’s missing.',
     partnerOne: "Groom's name", partnerTwo: "Bride's name", date: 'Wedding date', venue: 'Venue', city: 'City',
