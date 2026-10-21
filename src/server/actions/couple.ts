@@ -202,7 +202,10 @@ export async function reorderPlaylist(playlistId: string, orderedIds: string[]):
 const selectionInput = z.object({
   primary_track_id: uuid.nullable().optional(),
   backup_track_id: uuid.nullable().optional(),
-  custom_song: z.string().trim().max(200).nullable().optional(),
+  custom_song: z.string().trim().max(500).nullable().optional(),
+  split: z.boolean().optional(),
+  second_track_id: uuid.nullable().optional(),
+  second_custom_song: z.string().trim().max(500).nullable().optional(),
   shortlist: z.array(uuid).max(20).optional(),
   addShortlist: uuid.optional(),
   removeShortlist: uuid.optional(),
@@ -214,11 +217,14 @@ export async function saveSelection(momentId: string, input: unknown): Promise<A
   const p = selectionInput.safeParse(input);
   if (!p.success || !uuid.safeParse(momentId).success) return fail('validation');
   const { data: cur } = await c.db.from('moment_selections').select('*').eq('event_id', c.s.eventId).eq('moment_id', momentId).maybeSingle();
-  const prev: SelectionState = cur ? { status: cur.status, primary_track_id: cur.primary_track_id, backup_track_id: cur.backup_track_id, custom_song: cur.custom_song, shortlist: cur.shortlist ?? [] } : EMPTY_SELECTION;
+  const prev: SelectionState = cur ? { status: cur.status, primary_track_id: cur.primary_track_id, backup_track_id: cur.backup_track_id, custom_song: cur.custom_song, shortlist: cur.shortlist ?? [], split: !!cur.split, second_track_id: cur.second_track_id ?? null, second_custom_song: cur.second_custom_song ?? null } : EMPTY_SELECTION;
   const next = {
     primary_track_id: p.data.primary_track_id !== undefined ? p.data.primary_track_id : prev.primary_track_id,
     backup_track_id: p.data.backup_track_id !== undefined ? p.data.backup_track_id : prev.backup_track_id,
     custom_song: p.data.custom_song !== undefined ? (p.data.custom_song || null) : prev.custom_song,
+    split: p.data.split !== undefined ? p.data.split : !!prev.split,
+    second_track_id: p.data.second_track_id !== undefined ? p.data.second_track_id : prev.second_track_id ?? null,
+    second_custom_song: p.data.second_custom_song !== undefined ? (p.data.second_custom_song || null) : prev.second_custom_song ?? null,
     shortlist: (() => {
       let list = p.data.shortlist ?? prev.shortlist;
       if (p.data.addShortlist && !list.includes(p.data.addShortlist)) list = [...list, p.data.addShortlist].slice(-20);
@@ -238,8 +244,8 @@ export async function saveSelection(momentId: string, input: unknown): Promise<A
 
 export async function confirmSelection(momentId: string): Promise<ActionResult> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
-  const { data: cur } = await c.db.from('moment_selections').select('id, primary_track_id, custom_song').eq('event_id', c.s.eventId).eq('moment_id', momentId).maybeSingle();
-  if (!cur || (!cur.primary_track_id && !cur.custom_song)) return fail('validation');
+  const { data: cur } = await c.db.from('moment_selections').select('id, primary_track_id, custom_song, split, second_track_id, second_custom_song').eq('event_id', c.s.eventId).eq('moment_id', momentId).maybeSingle();
+  if (!cur || (!cur.primary_track_id && !cur.custom_song) || (cur.split && !cur.second_track_id && !cur.second_custom_song)) return fail('validation');
   const { error } = await c.db.from('moment_selections').update({ status: 'confirmed', confirmed_at: new Date().toISOString(), updated_by: c.s.userId }).eq('id', cur.id);
   if (error) return fail(errorCode(error));
   revalidatePath('/wedding', 'layout'); revalidatePath('/home');

@@ -37,8 +37,8 @@ CATEGORIES.forEach(([slug, he, en], i) =>
 MOODS.forEach(([slug, he, en], i) =>
   out.push(`insert into public.tags (id, company_id, kind, slug, name_he, name_en, sort_order) values (${id('mood', slug)}, ${C}, 'mood', ${q(slug)}, ${q(he)}, ${q(en)}, ${i}) on conflict do nothing;`));
 MOMENTS.forEach((m, i) =>
-  out.push(`insert into public.wedding_moments (id, company_id, slug, name_he, name_en, description_he, description_en, sort_order, is_required, has_language_collections)
-values (${id('moment', m.slug)}, ${C}, ${q(m.slug)}, ${q(m.he)}, ${q(m.en)}, ${q(m.dhe)}, ${q(m.den)}, ${i}, ${m.required}, ${!!m.lang}) on conflict do nothing;`));
+  out.push(`insert into public.wedding_moments (id, company_id, slug, name_he, name_en, description_he, description_en, sort_order, is_required, has_language_collections, allows_split)
+values (${id('moment', m.slug)}, ${C}, ${q(m.slug)}, ${q(m.he)}, ${q(m.en)}, ${q(m.dhe)}, ${q(m.den)}, ${i}, ${m.required}, ${!!m.lang}, ${!!m.split}) on conflict do nothing;`));
 
 const artists = [...new Set(TRACKS.map((t) => t.artist))];
 artists.forEach((a) => out.push(`insert into public.artists (id, company_id, name) values (${id('artist', a)}, ${C}, ${q(a)}) on conflict do nothing;`));

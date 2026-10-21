@@ -94,6 +94,7 @@ export const en = {
     chooseOne: 'Choose a playlist', added: 'Added to {name}', tracks: '{count} tracks', editorial: 'Curated',
   },
   moments: {
+    choose: 'Choose', chosen: 'Chosen', yourSong: 'Your song', modeOne: 'One song for both of us', modeTwo: 'Two songs: groom and bride', groomSong: 'Groom’s song', brideSong: 'Bride’s song', forGroom: 'Groom', forBride: 'Bride', groom: 'Groom', bride: 'Bride', typeSong: 'Type the song you chose: title and artist, or a link', modeLabel: 'How would you like to enter?',
     title: 'Special moments', sub: 'Pick the songs for the moments that matter.', primary: 'Main song', backup: 'Backup song',
     custom: 'Song not in the catalog', customHint: 'Song name and artist', notes: 'Notes for your DJ',
     confirm: 'Confirm this choice', confirmedAt: 'Confirmed {time}', change: 'Change song', shortlist: 'Shortlist',

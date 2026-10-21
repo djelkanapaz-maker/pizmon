@@ -119,11 +119,21 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
 
   // ── 7. Special moment: choose and confirm ──
   await couple.goto('/wedding/moments/first-dance'); await settle(couple);
-  await couple.getByRole('button', { name: 'השיר הראשי' }).first().click();
+  await couple.getByRole('button', { name: 'בחירה', exact: true }).first().click();
   await expect(couple.getByText('ממתין לאישור שלכם').first()).toBeVisible();
   await couple.getByRole('button', { name: 'אישור הבחירה' }).click();
   await expect(couple.getByText('מאושר').first()).toBeVisible();
   await shot(couple, '10-moment-confirmed');
+
+  // chuppah entrance: two songs, typed freely
+  await couple.goto('/wedding/moments/chuppah-entrance'); await settle(couple);
+  await couple.getByRole('button', { name: 'שני שירים: לחתן ולכלה' }).click();
+  await expect(couple.getByLabel('שיר לכלה')).toBeVisible();
+  await couple.getByLabel('שיר לחתן').fill('Perfect - Ed Sheeran');
+  await couple.getByLabel('שיר לכלה').fill('ממעמקים - עידן רייכל');
+  await couple.getByLabel('שיר לכלה').blur();
+  await expect(couple.getByText('ממתין לאישור שלכם').first()).toBeVisible();
+  await shot(couple, '10b-chuppah-two-songs');
 
   // ── 8. Review and send the brief ──
   await couple.goto('/wedding/brief'); await settle(couple);

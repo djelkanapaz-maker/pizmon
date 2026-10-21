@@ -155,8 +155,8 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOur
   const r = restrictionFor(t, ctx.restrictions as Restriction[]);
   const errMsg = (code: string) => (m.errors as Record<string, string>)[code] ?? m.common.error;
 
-  const moment = (momentId: string, how: 'shortlist' | 'primary' | 'backup') => start(async () => {
-    const res = await saveSelection(momentId, how === 'primary' ? { primary_track_id: t.id } : how === 'backup' ? { backup_track_id: t.id } : { addShortlist: t.id });
+  const moment = (momentId: string, how: 'shortlist' | 'primary') => start(async () => {
+    const res = await saveSelection(momentId, how === 'primary' ? { primary_track_id: t.id } : { addShortlist: t.id });
     if (!res.ok) return toast(errMsg(res.error), 'error');
     toast(m.common.saved); onClose(); router.refresh();
   });
@@ -211,8 +211,7 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOur
               <p className="font-bold">{locale === 'he' ? mo.name_he : mo.name_en}</p>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="secondary" disabled={busy} onClick={() => moment(mo.id, 'shortlist')}><IconPlus size={14} />{m.moments.addShortlist}</Button>
-                <Button size="sm" disabled={busy} onClick={() => moment(mo.id, 'primary')}><IconCheck size={14} />{m.moments.setPrimary}</Button>
-                <Button size="sm" variant="ghost" className="border border-line" disabled={busy} onClick={() => moment(mo.id, 'backup')}>{m.moments.setBackup}</Button>
+                <Button size="sm" disabled={busy} onClick={() => moment(mo.id, 'primary')}><IconCheck size={14} />{m.moments.choose}</Button>
               </div>
             </div>
           ))}

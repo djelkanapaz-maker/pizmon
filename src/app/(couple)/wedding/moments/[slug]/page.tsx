@@ -22,7 +22,7 @@ export default async function MomentPage({ params, searchParams }: { params: Pro
     db.from('moment_tracks').select(`collection, sort_order, track:music_tracks(${TRACK_SELECT})`).eq('moment_id', moment.id).order('sort_order'),
   ]);
   const sel = selections.find((x) => x.moment_id === moment.id) ?? null;
-  const extra = await getTracksByIds([...(sel?.shortlist ?? []), sel?.primary_track_id ?? '', sel?.backup_track_id ?? '']);
+  const extra = await getTracksByIds([...(sel?.shortlist ?? []), sel?.primary_track_id ?? '', sel?.backup_track_id ?? '', sel?.second_track_id ?? '']);
   const suggestions = ((curated ?? []) as unknown as { collection: 'he' | 'intl' | null; track: Track | null }[])
     .filter((x) => x.track).map((x) => ({ collection: x.collection, track: x.track! }));
   return (

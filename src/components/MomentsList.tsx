@@ -4,14 +4,14 @@ import { fmt, relativeTime } from '@/i18n/format';
 import { getMoments, getSelections, getTracksByIds, trackLabel } from '@/server/queries';
 import { Badge, Progress, cx } from '@/components/ui';
 import { IconCheck, IconChevron } from '@/components/icons';
-import type { SelectionStatus } from '@/core/moments';
+import { songText, type SelectionStatus } from '@/core/moments';
 import { STATUS_TONE } from '@/components/music/status';
 
 /** Progress + list of every special moment; used by the moments page and questionnaire section. */
 export async function MomentsList({ eventId, companyId, from }: { eventId: string; companyId: string; from?: 'questionnaire' }) {
   const { m, locale } = await getI18n();
   const [moments, selections] = await Promise.all([getMoments(companyId), getSelections(eventId)]);
-  const tracks = await getTracksByIds(selections.map((x) => x.primary_track_id ?? ''));
+  const tracks = await getTracksByIds(selections.flatMap((x) => [x.primary_track_id ?? '', x.second_track_id ?? '']));
   const required = moments.filter((x) => x.is_required);
   const confirmed = required.filter((x) => selections.find((y) => y.moment_id === x.id)?.status === 'confirmed').length;
   const qs = from ? `?from=${from}` : '';
@@ -25,7 +25,7 @@ export async function MomentsList({ eventId, companyId, from }: { eventId: strin
         {moments.map((mo, i) => {
           const sel = selections.find((x) => x.moment_id === mo.id);
           const status: SelectionStatus = sel?.status ?? 'not_started';
-          const song = sel?.primary_track_id ? trackLabel(tracks.find((t) => t.id === sel.primary_track_id)) : sel?.custom_song;
+          const song = songText(sel, (id) => (id ? trackLabel(tracks.find((t) => t.id === id)) : null), { first: m.moments.groom, second: m.moments.bride });
           return (
             <li key={mo.id}>
               <Link href={`/wedding/moments/${mo.slug}${qs}`} className={cx('card p-4 flex items-center gap-4 hover:border-paper-dim', status === 'confirmed' && 'border-gold/60')}>

@@ -120,3 +120,18 @@ describe('questionnaire', () => {
     expect(formatAnswer(pairs, { disco_vs_house: 'b' }, 'en', (x) => x)).toBe('Contemporary house');
   });
 });
+
+describe('two-song moments (groom + bride)', () => {
+  it('needs both songs before it can be confirmed', async () => {
+    const { canConfirm, deriveStatus, songText, EMPTY_SELECTION: E } = await import('./moments');
+    const one = { ...E, split: true, custom_song: 'Groom song' };
+    expect(canConfirm({ ...one, status: deriveStatus(E, one) })).toBe(false);
+    expect(deriveStatus(E, one)).toBe('shortlisted');
+    const both = { ...one, second_custom_song: 'Bride song' };
+    expect(deriveStatus(E, both)).toBe('awaiting_confirmation');
+    expect(canConfirm({ ...both, status: 'awaiting_confirmation' })).toBe(true);
+    expect(deriveStatus({ ...both, status: 'confirmed' }, { ...both, split: false })).toBe('change_requested');
+    expect(songText({ ...both, status: 'confirmed' }, () => null, { first: 'Groom', second: 'Bride' })).toBe('Groom: Groom song · Bride: Bride song');
+    expect(songText({ ...E, custom_song: 'Ours' }, () => null, { first: 'Groom', second: 'Bride' })).toBe('Ours');
+  });
+});

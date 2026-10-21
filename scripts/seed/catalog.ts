@@ -54,9 +54,8 @@ export const MOODS: [slug: string, he: string, en: string][] = [
   ['nostalgic', 'נוסטלגי', 'Nostalgic'],
 ];
 
-export const MOMENTS: { slug: string; he: string; en: string; dhe: string; den: string; required: boolean; lang?: boolean }[] = [
-  { slug: 'groom-entrance', he: 'כניסת החתן', en: 'Groom’s entrance', dhe: 'השיר שמלווה את החתן אל החופה.', den: 'The song that walks the groom to the chuppah.', required: true },
-  { slug: 'bride-entrance', he: 'כניסת הכלה', en: 'Bride’s entrance', dhe: 'הרגע שכולם מחכים לו.', den: 'The moment everyone is waiting for.', required: true },
+export const MOMENTS: { slug: string; he: string; en: string; dhe: string; den: string; required: boolean; lang?: boolean; split?: boolean }[] = [
+  { slug: 'chuppah-entrance', he: 'שיר כניסה לחופה', en: 'Chuppah entrance song', dhe: 'שיר אחד לשניכם, או שיר לחתן ושיר לכלה.', den: 'One song for both of you, or one for the groom and one for the bride.', required: true, split: true },
   { slug: 'couple-entrance', he: 'כניסת הזוג לרחבה', en: 'Couple’s entrance', dhe: 'הכניסה המשותפת אחרי החופה.', den: 'Your entrance together after the ceremony.', required: true },
   { slug: 'breaking-the-glass', he: 'שבירת הכוס', en: 'Breaking the glass', dhe: 'שנייה של שקט — ואז פיצוץ שמחה. בחרו עברי או בינלאומי.', den: 'A second of silence — then joy. Choose Hebrew or international.', required: true, lang: true },
   { slug: 'first-dance', he: 'הריקוד הראשון', en: 'First dance', dhe: 'הריקוד הראשון שלכם כזוג נשוי.', den: 'Your first dance as a married couple.', required: true },
@@ -73,9 +72,9 @@ type T = {
 
 export const TRACKS: T[] = [
   // Israeli & Jewish
-  { title: 'ירושלים של זהב', artist: 'נעמי שמר', genre: 'israeli-classics', energy: 2, lang: 'he', decade: 1960, cats: ['jewish-traditional', 'singalong'], moods: ['emotional', 'nostalgic'], moments: ['bride-entrance', ['breaking-the-glass', 'he']] },
+  { title: 'ירושלים של זהב', artist: 'נעמי שמר', genre: 'israeli-classics', energy: 2, lang: 'he', decade: 1960, cats: ['jewish-traditional', 'singalong'], moods: ['emotional', 'nostalgic'], moments: ['chuppah-entrance', ['breaking-the-glass', 'he']] },
   { title: 'אני ואתה', artist: 'אריק איינשטיין', genre: 'israeli-classics', energy: 2, lang: 'he', decade: 1970, cats: ['singalong', 'throwback'], moods: ['nostalgic', 'romantic'], moments: ['first-dance', 'dedications'] },
-  { title: 'ממעמקים', artist: 'הפרויקט של עידן רייכל', genre: 'israeli-pop', energy: 2, lang: 'he', decade: 2000, moods: ['romantic', 'emotional'], moments: ['bride-entrance', 'first-dance'] },
+  { title: 'ממעמקים', artist: 'הפרויקט של עידן רייכל', genre: 'israeli-pop', energy: 2, lang: 'he', decade: 2000, moods: ['romantic', 'emotional'], moments: ['chuppah-entrance', 'first-dance'] },
   { title: 'הפרח בגני', artist: 'זוהר ארגוב', genre: 'mizrahi', energy: 3, lang: 'he', decade: 1980, cats: ['mediterranean-mizrahi', 'singalong', 'throwback'], moods: ['nostalgic'], moments: ['dedications', 'family-dances'] },
   { title: 'Im Nin’alu', artist: 'Ofra Haza', genre: 'mizrahi', energy: 4, lang: 'he', decade: 1980, cats: ['mediterranean-mizrahi', 'throwback'], moods: ['euphoric'] },
   { title: 'Tudo Bom', artist: 'Static & Ben El', genre: 'israeli-pop', energy: 5, lang: 'he', decade: 2010, cats: ['israeli-wedding-hits', 'pop'], moods: ['euphoric'], moments: ['couple-entrance', 'reception-opening'] },
@@ -89,14 +88,14 @@ export const TRACKS: T[] = [
   { title: 'עוד ישמע', artist: 'שלמה קרליבך', genre: 'jewish', energy: 4, lang: 'he', decade: null, cats: ['jewish-traditional'], moods: ['euphoric'], moments: [['breaking-the-glass', 'he'], 'couple-entrance'] },
   { title: 'הבה נגילה', artist: 'Traditional', genre: 'jewish', energy: 5, lang: 'he', decade: null, cats: ['jewish-traditional', 'singalong'], moods: ['euphoric'], moments: ['family-dances'] },
   // Ceremony & first dance
-  { title: 'Canon in D', artist: 'Johann Pachelbel', genre: 'classical', energy: 1, lang: 'instrumental', decade: null, moods: ['elegant', 'romantic'], moments: ['bride-entrance', 'groom-entrance'] },
-  { title: 'Con te partirò', artist: 'Andrea Bocelli', genre: 'classical', energy: 2, lang: 'other', decade: 1990, moods: ['elegant', 'emotional'], moments: ['bride-entrance'] },
-  { title: 'A Thousand Years', artist: 'Christina Perri', genre: 'pop', energy: 2, lang: 'en', decade: 2010, moods: ['romantic'], moments: ['bride-entrance', 'first-dance'] },
+  { title: 'Canon in D', artist: 'Johann Pachelbel', genre: 'classical', energy: 1, lang: 'instrumental', decade: null, moods: ['elegant', 'romantic'], moments: ['chuppah-entrance'] },
+  { title: 'Con te partirò', artist: 'Andrea Bocelli', genre: 'classical', energy: 2, lang: 'other', decade: 1990, moods: ['elegant', 'emotional'], moments: ['chuppah-entrance'] },
+  { title: 'A Thousand Years', artist: 'Christina Perri', genre: 'pop', energy: 2, lang: 'en', decade: 2010, moods: ['romantic'], moments: ['chuppah-entrance', 'first-dance'] },
   { title: 'Perfect', artist: 'Ed Sheeran', genre: 'pop', energy: 2, lang: 'en', decade: 2010, cats: ['international-hits'], moods: ['romantic'], moments: ['first-dance'] },
   { title: 'At Last', artist: 'Etta James', genre: 'soul', energy: 2, lang: 'en', decade: 1960, cats: ['throwback'], moods: ['romantic', 'elegant'], moments: ['first-dance'] },
-  { title: 'Can’t Help Falling in Love', artist: 'Elvis Presley', genre: 'soul', energy: 1, lang: 'en', decade: 1960, cats: ['throwback'], moods: ['romantic', 'nostalgic'], moments: ['first-dance', 'groom-entrance'] },
+  { title: 'Can’t Help Falling in Love', artist: 'Elvis Presley', genre: 'soul', energy: 1, lang: 'en', decade: 1960, cats: ['throwback'], moods: ['romantic', 'nostalgic'], moments: ['first-dance', 'chuppah-entrance'] },
   { title: 'All of Me', artist: 'John Legend', genre: 'soul', energy: 2, lang: 'en', decade: 2010, moods: ['romantic'], moments: ['first-dance'] },
-  { title: 'Somewhere Over the Rainbow', artist: 'Israel Kamakawiwoʻole', genre: 'pop', energy: 1, lang: 'en', decade: 1990, moods: ['emotional'], moments: ['groom-entrance', 'family-dances'] },
+  { title: 'Somewhere Over the Rainbow', artist: 'Israel Kamakawiwoʻole', genre: 'pop', energy: 1, lang: 'en', decade: 1990, moods: ['emotional'], moments: ['chuppah-entrance', 'family-dances'] },
   { title: 'The Way You Look Tonight', artist: 'Frank Sinatra', genre: 'soul', energy: 2, lang: 'en', decade: 1960, moods: ['elegant', 'romantic'], moments: ['family-dances'] },
   { title: 'Marry You', artist: 'Bruno Mars', genre: 'pop', energy: 4, lang: 'en', decade: 2010, cats: ['international-hits'], moods: ['euphoric'], moments: ['couple-entrance', ['breaking-the-glass', 'intl']] },
   // Dancefloor — disco, funk, pop

@@ -34,11 +34,12 @@ export const DJ_SELECT = 'id, display_name, slug, bio_he, bio_en, specialties, p
 
 export type Assignment = { id: string; status: 'proposed' | 'pending_approval' | 'confirmed' | 'declined' | 'ended'; source: string; created_at: string; dj: Dj | null };
 
-export type Moment = { id: string; slug: string; name_he: string; name_en: string; description_he: string | null; description_en: string | null; sort_order: number; is_required: boolean; has_language_collections: boolean };
+export type Moment = { id: string; slug: string; name_he: string; name_en: string; description_he: string | null; description_en: string | null; sort_order: number; is_required: boolean; has_language_collections: boolean; allows_split?: boolean };
 
 export type Selection = {
   id: string; moment_id: string; status: SelectionStatus; primary_track_id: string | null; backup_track_id: string | null;
   custom_song: string | null; shortlist: string[]; notes: string | null; confirmed_at: string | null; updated_at: string;
+  split?: boolean; second_track_id?: string | null; second_custom_song?: string | null;
 };
 
 export const trackLabel = (t: Pick<Track, 'title' | 'artist'> | null | undefined) => (t ? `${t.title} — ${t.artist?.name ?? ''}` : '');

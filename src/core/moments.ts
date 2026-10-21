@@ -10,24 +10,37 @@ export type SelectionState = {
   backup_track_id: string | null;
   custom_song: string | null;
   shortlist: string[];
+  /** two songs (e.g. groom + bride) instead of one shared song */
+  split?: boolean;
+  second_track_id?: string | null;
+  second_custom_song?: string | null;
 };
 
 export const EMPTY_SELECTION: SelectionState = {
   status: 'not_started', primary_track_id: null, backup_track_id: null, custom_song: null, shortlist: [],
+  split: false, second_track_id: null, second_custom_song: null,
 };
 
-const hasSong = (s: SelectionState) => !!s.primary_track_id || !!s.custom_song?.trim();
+const firstSong = (s: SelectionState) => !!s.primary_track_id || !!s.custom_song?.trim();
+const secondSong = (s: SelectionState) => !!s.second_track_id || !!s.second_custom_song?.trim();
+/** Every required slot has a song (both slots when split). */
+const hasSong = (s: SelectionState) => firstSong(s) && (!s.split || secondSong(s));
+const anySong = (s: SelectionState) => firstSong(s) || (!!s.split && secondSong(s));
 
 /** Derive the status a selection should have after an edit (never silently "confirmed"). */
 export function deriveStatus(prev: SelectionState, next: Omit<SelectionState, 'status'>): SelectionStatus {
   const songChanged =
     prev.primary_track_id !== next.primary_track_id ||
     (prev.custom_song ?? '') !== (next.custom_song ?? '') ||
-    prev.backup_track_id !== next.backup_track_id;
-  if (prev.status === 'confirmed' && songChanged) return hasSong({ ...next, status: 'browsing' }) ? 'change_requested' : 'browsing';
+    prev.backup_track_id !== next.backup_track_id ||
+    !!prev.split !== !!next.split ||
+    (prev.second_track_id ?? null) !== (next.second_track_id ?? null) ||
+    (prev.second_custom_song ?? '') !== (next.second_custom_song ?? '');
+  const n = { ...next, status: 'browsing' as SelectionStatus };
+  if (prev.status === 'confirmed' && songChanged) return hasSong(n) ? 'change_requested' : 'browsing';
   if (prev.status === 'confirmed') return 'confirmed';
-  if (hasSong({ ...next, status: 'browsing' })) return 'awaiting_confirmation';
-  if (next.shortlist.length > 0) return 'shortlisted';
+  if (hasSong(n)) return 'awaiting_confirmation';
+  if (anySong(n) || next.shortlist.length > 0) return 'shortlisted';
   return 'browsing';
 }
 
@@ -37,3 +50,13 @@ export function canConfirm(s: SelectionState) {
 
 /** Statuses the DJ treats as "still open". */
 export const isUnresolved = (s: SelectionStatus) => s !== 'confirmed';
+
+/** Human text for the chosen song(s), e.g. "Groom: X · Bride: Y". */
+export function songText(s: SelectionState | null | undefined, label: (id: string | null) => string | null, names: { first: string; second: string }) {
+  if (!s) return null;
+  const a = label(s.primary_track_id) ?? (s.custom_song?.trim() || null);
+  if (!s.split) return a;
+  const b = label(s.second_track_id ?? null) ?? (s.second_custom_song?.trim() || null);
+  if (!a && !b) return null;
+  return `${names.first}: ${a ?? '—'} · ${names.second}: ${b ?? '—'}`;
+}

@@ -118,7 +118,7 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
   );
 
   async function MomentsTab() {
-    const tracks = await getTracksByIds(selections.flatMap((s) => [s.primary_track_id ?? '', s.backup_track_id ?? '', ...s.shortlist]));
+    const tracks = await getTracksByIds(selections.flatMap((s) => [s.primary_track_id ?? '', s.backup_track_id ?? '', s.second_track_id ?? '', ...s.shortlist]));
     const label = (id: string | null) => (id ? trackLabel(tracks.find((t) => t.id === id)) : null);
     return (
       <ul className="flex flex-col gap-3">
@@ -133,8 +133,13 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
                 <Badge tone={STATUS_TONE[status]}>{m.moments.status[status]}</Badge>
               </div>
               <dl className="mt-2 grid sm:grid-cols-2 gap-2 text-sm">
-                <div><dt className="text-paper-dim">{m.moments.primary}</dt><dd className="font-bold" dir="auto">{label(s?.primary_track_id ?? null) ?? s?.custom_song ?? '—'}</dd></div>
-                <div><dt className="text-paper-dim">{m.moments.backup}</dt><dd dir="auto">{label(s?.backup_track_id ?? null) ?? '—'}</dd></div>
+                {s?.split ? (<>
+                  <div><dt className="text-paper-dim">{m.moments.groomSong}</dt><dd className="font-bold whitespace-pre-wrap" dir="auto">{label(s.primary_track_id) ?? s.custom_song ?? '—'}</dd></div>
+                  <div><dt className="text-paper-dim">{m.moments.brideSong}</dt><dd className="font-bold whitespace-pre-wrap" dir="auto">{label(s.second_track_id ?? null) ?? s.second_custom_song ?? '—'}</dd></div>
+                </>) : (
+                  <div className="sm:col-span-2"><dt className="text-paper-dim">{m.moments.yourSong}</dt><dd className="font-bold whitespace-pre-wrap" dir="auto">{label(s?.primary_track_id ?? null) ?? s?.custom_song ?? '—'}</dd></div>
+                )}
+                {s?.backup_track_id && <div><dt className="text-paper-dim">{m.moments.backup}</dt><dd dir="auto">{label(s.backup_track_id)}</dd></div>}
                 {s && s.shortlist.length > 0 && <div className="sm:col-span-2"><dt className="text-paper-dim">{m.moments.shortlist}</dt><dd dir="auto">{s.shortlist.map((id) => label(id)).filter(Boolean).join(' · ')}</dd></div>}
                 {s?.notes && <div className="sm:col-span-2"><dt className="text-paper-dim">{m.moments.notes}</dt><dd className="whitespace-pre-wrap" dir="auto">{s.notes}</dd></div>}
               </dl>
