@@ -5,10 +5,10 @@
 
 export const COMPANY = {
   id: '00000000-0000-4000-8000-000000000001',
-  slug: 'wmc',
-  brand_name: 'WEDDING MUSIC CLUB',
-  brand_tagline_he: 'הפסקול של החתונה שלכם',
-  brand_tagline_en: 'The soundtrack of your wedding',
+  slug: 'atisuto',
+  brand_name: 'ATISUTO',
+  brand_tagline_he: 'הפסקול של החתונה שלכם — אטיסוטו',
+  brand_tagline_en: 'The soundtrack of your wedding — by Atisuto',
 };
 
 export const GENRES: [slug: string, he: string, en: string][] = [

@@ -66,7 +66,7 @@ let adminCache: SupabaseClient | null = null;
 export async function adminClient() {
   if (adminCache) return adminCache;
   const email = 'admin@wmc.test';
-  const boot = await fn('bootstrap', { company_slug: 'wmc', email, full_name: 'Test Admin' }, undefined, { 'x-bootstrap-secret': env.bootstrap });
+  const boot = await fn('bootstrap', { company_slug: 'atisuto', email, full_name: 'Test Admin' }, undefined, { 'x-bootstrap-secret': env.bootstrap });
   if (boot.status === 200) {
     adminCache = await activate(boot.body.activation_link);
   } else {

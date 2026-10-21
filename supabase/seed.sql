@@ -2,7 +2,7 @@
 -- DEVELOPMENT / DEMO CONTENT. Rows are flagged is_demo where the table supports it.
 begin;
 insert into public.companies (id, slug, brand_name, brand_tagline_he, brand_tagline_en)
-values ('00000000-0000-4000-8000-000000000001', 'wmc', 'WEDDING MUSIC CLUB', 'הפסקול של החתונה שלכם', 'The soundtrack of your wedding')
+values ('00000000-0000-4000-8000-000000000001', 'atisuto', 'ATISUTO', 'הפסקול של החתונה שלכם — אטיסוטו', 'The soundtrack of your wedding — by Atisuto')
 on conflict (id) do nothing;
 insert into public.genres (id, company_id, slug, name_he, name_en, sort_order) values (md5('00000000-0000-4000-8000-000000000001:genre:pop')::uuid, '00000000-0000-4000-8000-000000000001', 'pop', 'פופ', 'Pop', 0) on conflict do nothing;
 insert into public.genres (id, company_id, slug, name_he, name_en, sort_order) values (md5('00000000-0000-4000-8000-000000000001:genre:israeli-pop')::uuid, '00000000-0000-4000-8000-000000000001', 'israeli-pop', 'פופ ישראלי', 'Israeli pop', 1) on conflict do nothing;

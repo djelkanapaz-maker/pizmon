@@ -1,8 +1,8 @@
-# WEDDING MUSIC CLUB
+# Atisuto — Wedding Music App
 
-A mobile-first music platform for a wedding DJ company. Couples discover music, pick songs for the big moments, set MUST / NEVER play rules and fill a guided questionnaire; their assigned DJ gets a live, structured musical brief; the company manages people, catalog, content and radio — all on one Supabase backend that a future iOS/Android app can reuse.
+A mobile-first music platform built for **Atisuto** (אטיסוטו), the Tel Aviv wedding DJ company. Working title: WEDDING MUSIC CLUB. Couples discover music, pick songs for the big moments, set MUST / NEVER play rules and fill a guided questionnaire; their assigned DJ gets a live, structured musical brief; the company manages people, catalog, content and radio — all on one Supabase backend that a future iOS/Android app can reuse.
 
-Hebrew is the default (RTL); English is fully supported (LTR). The product name is configurable per company.
+Hebrew is the default (RTL); English is fully supported (LTR). The product name is configurable per company (seeded as `ATISUTO`; change it in Admin → Settings).
 
 - Design analysis & system: [docs/DESIGN.md](docs/DESIGN.md)
 - Architecture, data model, permissions, native-app path: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
@@ -29,7 +29,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind 4 · Supabase (Postgres + RLS, 
 ```bash
 curl -X POST "$SUPABASE_URL/functions/v1/admin-users" \
   -H "content-type: application/json" -H "x-bootstrap-secret: $BOOTSTRAP_SECRET" \
-  -d '{"action":"bootstrap","company_slug":"wmc","email":"you@example.com","full_name":"Your Name"}'
+  -d '{"action":"bootstrap","company_slug":"atisuto","email":"you@example.com","full_name":"Your Name"}'
 ```
 
 The response contains a one-time activation link. It only works while the company has no admin. Afterwards, rotate or delete `BOOTSTRAP_SECRET`.
