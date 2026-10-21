@@ -65,7 +65,7 @@ export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, pol
 }
 
 function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: Assignment | null; djs: Dj[]; mixes: Mix[]; policy: string; onNext: () => void; busy: boolean }) {
-  const { m, locale, fmt } = useI18n();
+  const { m, fmt } = useI18n();
   const router = useRouter();
   const toast = useToast();
   const [open, setOpen] = useState<Dj | null>(null);
@@ -86,15 +86,13 @@ function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: 
   });
 
   const djCard = (dj: Dj, action?: React.ReactNode) => (
-    <div className="card p-5 flex flex-col sm:flex-row gap-5 items-center sm:items-start text-center sm:text-start">
-      <Portrait name={dj.display_name} src={dj.photo_url} size={112} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-          <h3 className="display text-2xl">{dj.display_name}</h3>{dj.is_demo && <DemoBadge label={m.common.demo} />}
+    <div className="card p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-center text-center sm:text-start max-w-2xl">
+      <Portrait name={dj.display_name} src={dj.photo_url} size={140} />
+      <div className="flex-1 min-w-0 flex flex-col items-center sm:items-start gap-5">
+        <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+          <h3 className="display text-3xl">{dj.display_name}</h3>{dj.is_demo && <DemoBadge label={m.common.demo} />}
         </div>
-        <div className="mt-3"><DjBio dj={dj} locale={locale} clamp /></div>
-        <div className="flex flex-wrap gap-1.5 mt-3 justify-center sm:justify-start">{dj.specialties.map((s) => <Badge key={s}>{s}</Badge>)}</div>
-        {action && <div className="mt-4">{action}</div>}
+        {action}
       </div>
     </div>
   );
