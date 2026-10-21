@@ -20,8 +20,8 @@ export async function updateMyName(name: string): Promise<ActionResult> {
 export async function updateMyDjProfile(input: unknown): Promise<ActionResult> {
   const s = await getSession(); if (!s || s.role !== 'dj' || !s.djId) return fail('forbidden');
   const p = z.object({
-    display_name: z.string().trim().min(1).max(80), bio_he: z.string().trim().max(2000).optional(), bio_en: z.string().trim().max(2000).optional(),
-    specialties: z.string().max(400).optional(), photo_url: z.url().max(1000).optional().or(z.literal('')), accepts_new_couples: z.boolean(),
+    display_name: z.string().trim().min(1).max(80), bio_he: z.string().trim().max(5000).optional(), bio_en: z.string().trim().max(5000).optional(),
+    specialties: z.string().max(400).optional(), photo_url: z.string().trim().max(1000).regex(/^(https:\/\/|\/(?!\/))\S+$/).optional().or(z.literal('')), accepts_new_couples: z.boolean(),
   }).safeParse(input);
   if (!p.success) return fail('validation');
   const db = await supabaseServer();

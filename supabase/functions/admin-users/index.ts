@@ -231,7 +231,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     }
     const { data: dj, error } = await admin.from('djs').insert({
       company_id: companyId, user_id: userId, display_name: name, slug,
-      bio_he: str(b.bio_he, 'bio_he', { max: 2000 }), bio_en: str(b.bio_en, 'bio_en', { max: 2000 }),
+      bio_he: str(b.bio_he, 'bio_he', { max: 5000 }), bio_en: str(b.bio_en, 'bio_en', { max: 5000 }),
       specialties,
     }).select('id').single();
     if (error) throw new HttpError(400, 'create_failed', error.message);

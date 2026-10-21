@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireRole } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getI18n } from '@/i18n/server';
-import { formatDate, formatNumber } from '@/i18n/format';
+import { formatDate, formatNumber, isolate } from '@/i18n/format';
 import { Badge, ButtonLink, PageHeader } from '@/components/ui';
 
 type Metrics = {
@@ -56,7 +56,7 @@ export default async function AdminOverview() {
                 <li key={p.id}>
                   <Link href={`/admin/couples/${p.event_id}`} className="card p-4 flex items-center justify-between gap-3 border-ember/50 hover:border-ember">
                     <span className="font-bold" dir="auto">{[ev.partner_one_name, ev.partner_two_name].filter(Boolean).join(' & ')}</span>
-                    <span className="text-sm text-paper-dim">{m.admin.pendingApproval.replace('{dj}', (p.dj as unknown as { display_name: string }).display_name)}</span>
+                    <span className="text-sm text-paper-dim">{m.admin.pendingApproval.replace('{dj}', isolate((p.dj as unknown as { display_name: string }).display_name))}</span>
                     {ev.wedding_date && <span className="text-xs text-paper-dim hidden sm:block">{formatDate(ev.wedding_date, locale)}</span>}
                   </Link>
                 </li>

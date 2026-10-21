@@ -2,6 +2,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/client';
+import { isolate } from '@/i18n/format';
 import { confirmAssignedDj, saveEventDetails, selectDj, setOnboardingStep } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, Chip, cx, DemoBadge, ErrorNote, Field, Input, Portrait, Textarea } from '@/components/ui';
@@ -10,6 +11,7 @@ import { BrandMark } from '@/components/brand';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { IconCheck, IconLock } from '@/components/icons';
 import type { Assignment, Dj, WeddingEvent } from '@/server/queries';
+import { DjBio, DjLinks, DjLogo } from '@/components/DjProfile';
 
 type Step = 'welcome' | 'dj' | 'details';
 type Mix = { id: string; title: string; kind: string; media_url: string; creator_dj_id: string; is_demo: boolean };
@@ -90,7 +92,7 @@ function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: 
         <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
           <h3 className="display text-2xl">{dj.display_name}</h3>{dj.is_demo && <DemoBadge label={m.common.demo} />}
         </div>
-        <p className="text-paper-dim mt-2">{locale === 'he' ? dj.bio_he : dj.bio_en}</p>
+        <div className="mt-3"><DjBio dj={dj} locale={locale} clamp /></div>
         <div className="flex flex-wrap gap-1.5 mt-3 justify-center sm:justify-start">{dj.specialties.map((s) => <Badge key={s}>{s}</Badge>)}</div>
         {action && <div className="mt-4">{action}</div>}
       </div>
@@ -161,8 +163,10 @@ function DjSheet({ dj, mixes, onClose, onChoose, pending }: { dj: Dj | null; mix
     <Sheet open onClose={onClose} title={dj.display_name}>
       <div className="flex flex-col items-center text-center gap-4">
         <Portrait name={dj.display_name} src={dj.photo_url} size={140} />
+        <DjLogo dj={dj} />
         {dj.is_demo && <DemoBadge label={m.common.demo} />}
-        <p className="text-paper-dim">{locale === 'he' ? dj.bio_he : dj.bio_en}</p>
+        <DjBio dj={dj} locale={locale} />
+        <DjLinks links={dj.links} />
         <div className="flex flex-wrap gap-1.5 justify-center">{dj.specialties.map((s) => <Badge key={s}>{s}</Badge>)}</div>
       </div>
       {own.length > 0 && (
@@ -178,7 +182,7 @@ function DjSheet({ dj, mixes, onClose, onChoose, pending }: { dj: Dj | null; mix
           </ul>
         </div>
       )}
-      <Button size="lg" full className="mt-8" onClick={() => onChoose(dj)} disabled={pending}>{fmt(m.onboarding.djSelect, { name: dj.display_name })}</Button>
+      <Button size="lg" full className="mt-8" onClick={() => onChoose(dj)} disabled={pending}>{fmt(m.onboarding.djSelect, { name: isolate(dj.display_name) })}</Button>
     </Sheet>
   );
 }

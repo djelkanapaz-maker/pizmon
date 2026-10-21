@@ -56,7 +56,7 @@ export function PlayToggle({ source, label, className, size = 'md' }: { source: 
   return (
     <button type="button" onClick={() => toggle(source)} aria-pressed={playing}
       aria-label={`${playing ? m.player.pause : m.player.play}: ${label ?? source.title}`}
-      className={cx(dim, 'shrink-0 rounded-full grid place-items-center transition-colors', playing ? 'bg-paper text-ink' : 'bg-ember text-ink hover:bg-[#ff6e4d]', className)}>
+      className={cx(dim, 'shrink-0 rounded-full grid place-items-center transition-colors', playing ? 'bg-paper text-ink' : 'bg-ember text-ink hover:bg-[#ffdc33]', className)}>
       {busy ? <span className="size-4 rounded-full border-2 border-ink border-t-transparent animate-spin" /> : playing ? <IconPause size={size === 'lg' ? 22 : 16} /> : <IconPlay size={size === 'lg' ? 22 : 16} />}
     </button>
   );

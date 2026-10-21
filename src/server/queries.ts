@@ -26,7 +26,10 @@ export type WeddingEvent = {
 export type Dj = {
   id: string; display_name: string; slug: string; bio_he: string | null; bio_en: string | null; specialties: string[];
   photo_url: string | null; is_active: boolean; accepts_new_couples: boolean; is_demo: boolean; user_id?: string | null;
+  logo_url: string | null; links: Record<string, string>; kind: 'dj' | 'live';
 };
+
+export const DJ_SELECT = 'id, display_name, slug, bio_he, bio_en, specialties, photo_url, is_active, accepts_new_couples, is_demo, logo_url, links, kind';
 
 export type Assignment = { id: string; status: 'proposed' | 'pending_approval' | 'confirmed' | 'declined' | 'ended'; source: string; created_at: string; dj: Dj | null };
 
@@ -48,7 +51,7 @@ export const getEvent = cache(async (eventId: string) => {
 export const getActiveAssignment = cache(async (eventId: string) => {
   const db = await supabaseServer();
   const { data } = await db.from('dj_assignments')
-    .select('id, status, source, created_at, dj:djs(id, display_name, slug, bio_he, bio_en, specialties, photo_url, is_active, accepts_new_couples, is_demo)')
+    .select(`id, status, source, created_at, dj:djs(${DJ_SELECT})`)
     .eq('event_id', eventId).in('status', ['proposed', 'pending_approval', 'confirmed']).maybeSingle();
   return data as unknown as Assignment | null;
 });

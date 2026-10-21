@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
-  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'WEDDING MUSIC CLUB';
+  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO';
   return {
     name,
     short_name: name.split(' ').slice(0, 2).join(' '),
@@ -9,8 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#0f0e0d',
-    theme_color: '#0f0e0d',
+    background_color: '#c01f22',
+    theme_color: '#c01f22',
     lang: 'he',
     dir: 'rtl',
     icons: [

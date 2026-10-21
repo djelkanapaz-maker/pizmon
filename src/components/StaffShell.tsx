@@ -40,7 +40,7 @@ export function StaffShell({ brand, title, items, email, unread = 0, notificatio
   );
   return (
     <>
-      <header className="lg:hidden sticky top-0 z-30 bg-ink/95 backdrop-blur border-b border-line gutter h-14 flex items-center justify-between pt-[env(safe-area-inset-top)]">
+      <header className="lg:hidden sticky top-0 z-30 brand-frame gutter h-14 flex items-center justify-between pt-[env(safe-area-inset-top)]">
         <BrandMark name={brand} />
         <button type="button" onClick={() => setOpen(true)} aria-label={title} aria-expanded={open} className="size-11 grid place-items-center rounded-full hover:bg-ink-3"><IconList /></button>
       </header>
@@ -54,7 +54,7 @@ export function StaffShell({ brand, title, items, email, unread = 0, notificatio
         </div>
       )}
       <aside className="hidden lg:flex fixed inset-y-0 start-0 w-60 flex-col border-e border-line bg-ink px-3 py-5 overflow-y-auto">
-        <div className="px-2 mb-2"><BrandMark name={brand} /></div>
+        <div className="-mx-3 -mt-5 brand-frame px-5 py-4"><BrandMark name={brand} /></div>
         <p className="label px-3 mt-6 mb-2">{title}</p>
         {nav}{foot}
       </aside>

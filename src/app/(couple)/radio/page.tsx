@@ -54,7 +54,7 @@ export default async function RadioPage() {
               return (
                 <li key={sh.id} className={`card p-4 flex items-center gap-4 ${onAir ? 'border-ember' : ''}`}>
                   <time className="text-sm font-bold tabular w-28 shrink-0" dateTime={sh.starts_at}>{formatDateTime(sh.starts_at, locale)}</time>
-                  <div className="min-w-0"><p className="font-bold">{sh.title}</p><p className="text-sm text-paper-dim">{sh.host ? m.radio.hostedBy.replace('{dj}', sh.host.display_name) : sh.description}</p></div>
+                  <div className="min-w-0"><p className="font-bold">{sh.title}</p><p className="text-sm text-paper-dim">{sh.host ? m.radio.hostedBy.replace('{dj}', `\u2068${sh.host.display_name}\u2069`) : sh.description}</p></div>
                   {onAir && live && <Badge tone="danger" className="ms-auto">{m.radio.live}</Badge>}
                 </li>
               );

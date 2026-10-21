@@ -3,7 +3,16 @@
 // The output is idempotent (deterministic ids + ON CONFLICT) and safe to re-run.
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { COMPANY, GENRES, CATEGORIES, MOODS, MOMENTS, TRACKS, DJS, CONTENT, EDITORIAL_PLAYLISTS } from './catalog';
+import { readFileSync } from 'node:fs';
+import { COMPANY, GENRES, CATEGORIES, MOODS, MOMENTS, TRACKS, SPECIALTIES, CONTENT, EDITORIAL_PLAYLISTS } from './catalog';
+
+type RosterEntry = { name: string; bio: string; social: Record<string, string> };
+const ROSTER = JSON.parse(readFileSync(join(import.meta.dirname, 'atisuto/roster.json'), 'utf8')) as { roster: RosterEntry[]; live: (Omit<RosterEntry, 'name'>)[] };
+const slugOf = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const DJS = [
+  ...ROSTER.roster.map((r) => ({ ...r, kind: 'dj' as const })),
+  ...ROSTER.live.map((r) => ({ ...r, name: 'EILON HAZAN', kind: 'live' as const })),
+];
 import { definitionV1 } from '../../src/core/questionnaire/definition-v1';
 
 const q = (s: string | null | undefined) => (s === null || s === undefined ? 'null' : `'${s.replace(/'/g, "''")}'`);
@@ -44,13 +53,18 @@ values (${tid}, ${C}, ${q(t.title)}, ${id('artist', t.artist)}, ${id('genre', t.
   });
 });
 
-DJS.forEach((d, i) =>
-  out.push(`insert into public.djs (id, company_id, display_name, slug, bio_he, bio_en, specialties, sort_order, is_demo)
-values (${id('dj', d.slug)}, ${C}, ${q(d.name)}, ${q(d.slug)}, ${q(d.bio_he)}, ${q(d.bio_en)}, ${arr(d.specialties)}, ${i}, true) on conflict do nothing;`));
+DJS.forEach((d, i) => {
+  const slug = slugOf(d.name);
+  const links = Object.fromEntries(Object.entries(d.social).filter(([, v]) => v));
+  const display = d.name === d.name.toUpperCase() ? d.name.toLowerCase().replace(/(^|[\s-])\p{L}/gu, (c) => c.toUpperCase()) : d.name;
+  out.push(`insert into public.djs (id, company_id, display_name, slug, bio_en, specialties, photo_url, logo_url, links, kind, accepts_new_couples, sort_order, is_demo)
+values (${id('dj', slug)}, ${C}, ${q(display)}, ${q(slug)}, ${q(d.bio)}, ${arr(SPECIALTIES[d.name] ?? [])}, ${q(`/djs/${slug}.webp`)}, ${q(`/djs/${slug}-logo.svg`)}, ${q(JSON.stringify(links))}::jsonb, ${q(d.kind)}, ${d.kind === 'dj'}, ${i}, false)
+on conflict (company_id, slug) do update set display_name = excluded.display_name, bio_en = excluded.bio_en, photo_url = excluded.photo_url, logo_url = excluded.logo_url, links = excluded.links, kind = excluded.kind;`);
+});
 
 CONTENT.forEach((c) =>
   out.push(`insert into public.content_items (id, company_id, kind, title, description, creator_dj_id, media_url, genre_tags, status, is_featured, is_demo, published_at)
-values (${id('content', c.title)}, ${C}, ${q(c.kind)}, ${q(c.title)}, 'Original placeholder audio generated for development.', ${id('dj', c.dj)}, ${q(c.file)}, ${arr(c.tags)}, 'published', ${c.featured}, true, now()) on conflict do nothing;`));
+values (${id('content', c.title)}, ${C}, ${q(c.kind)}, ${q(c.title)}, 'Original placeholder audio generated for development.', ${c.dj ? id('dj', c.dj) : 'null'}, ${q(c.file)}, ${arr(c.tags)}, 'published', ${c.featured}, true, now()) on conflict do nothing;`));
 
 EDITORIAL_PLAYLISTS.forEach((p) => {
   const pid = id('playlist', p.title_en);
@@ -66,9 +80,9 @@ values (${pid}, ${C}, 'editorial', ${q(p.title)}, ${q(p.title_en)}, ${q(p.purpos
 out.push(`insert into public.radio_stations (id, company_id, name, description, mode, stream_url)
 values (${id('radio', 'main')}, ${C}, 'Club Radio', 'Demo mode: an original looping placeholder, not a live broadcast. Configure a stream URL in Admin → Radio.', 'demo', '/demo-audio/golden-hour.mp3') on conflict do nothing;
 insert into public.radio_schedule_items (id, station_id, title, description, host_dj_id, starts_at, ends_at) values
- (${id('show', '1')}, ${id('radio', 'main')}, 'Golden Hour (Demo show)', 'Warm reception grooves', ${id('dj', 'maya')}, date_trunc('day', now()) + interval '1 day 18 hours', date_trunc('day', now()) + interval '1 day 20 hours'),
- (${id('show', '2')}, ${id('radio', 'main')}, 'Mizrahi Nights (Demo show)', 'Israeli party classics', ${id('dj', 'tal')}, date_trunc('day', now()) + interval '2 days 20 hours', date_trunc('day', now()) + interval '2 days 22 hours'),
- (${id('show', '3')}, ${id('radio', 'main')}, 'Ceremony Lab (Demo show)', 'Entrances, strings and first dances', ${id('dj', 'dana')}, date_trunc('day', now()) + interval '4 days 19 hours', date_trunc('day', now()) + interval '4 days 20 hours')
+ (${id('show', '1')}, ${id('radio', 'main')}, 'Golden Hour (Demo show)', 'Warm reception grooves', null, date_trunc('day', now()) + interval '1 day 18 hours', date_trunc('day', now()) + interval '1 day 20 hours'),
+ (${id('show', '2')}, ${id('radio', 'main')}, 'Mizrahi Nights (Demo show)', 'Israeli party classics', null, date_trunc('day', now()) + interval '2 days 20 hours', date_trunc('day', now()) + interval '2 days 22 hours'),
+ (${id('show', '3')}, ${id('radio', 'main')}, 'Ceremony Lab (Demo show)', 'Entrances, strings and first dances', null, date_trunc('day', now()) + interval '4 days 19 hours', date_trunc('day', now()) + interval '4 days 20 hours')
 on conflict do nothing;`);
 
 out.push(`insert into public.questionnaires (id, company_id, name) values (${id('questionnaire', 'main')}, ${C}, 'Wedding music questionnaire') on conflict do nothing;
@@ -77,4 +91,4 @@ values (${id('qversion', '1')}, ${id('questionnaire', 'main')}, 1, $json$${JSON.
 commit;`);
 
 writeFileSync(join(import.meta.dirname, '../../supabase/seed.sql'), out.join('\n') + '\n');
-console.log(`seed.sql written: ${TRACKS.length} tracks, ${artists.length} artists, ${DJS.length} demo DJs`);
+console.log(`seed.sql written: ${TRACKS.length} tracks, ${artists.length} artists, ${DJS.length} Atisuto artists`);

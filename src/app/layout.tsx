@@ -6,7 +6,7 @@ import { I18nProvider } from '@/i18n/client';
 import { AudioProvider } from '@/components/audio/AudioProvider';
 import { ToastProvider } from '@/components/overlay';
 
-const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'WEDDING MUSIC CLUB';
+const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO';
 
 export const metadata: Metadata = {
   title: { default: BRAND, template: `%s · ${BRAND}` },
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0f0e0d',
+  themeColor: '#c01f22',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

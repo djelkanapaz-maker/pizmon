@@ -6,6 +6,18 @@ import { callAdminFn } from '@/server/admin-fn';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 
 const uuid = z.guid();
+// absolute https URL or a path served by this app (seeded portraits live under /djs/)
+const assetUrl = z.string().trim().max(1000).regex(/^(https:\/\/|\/(?!\/))\S+$/).optional().or(z.literal(''));
+const LINK_KEYS = ['instagram', 'soundcloud', 'spotify', 'youtube', 'facebook', 'beatport', 'tiktok', 'website'] as const;
+/** "instagram: https://…" per line → { instagram: 'https://…' } (https only) */
+function parseLinks(text: string | undefined) {
+  const out: Record<string, string> = {};
+  for (const line of (text ?? '').split('\n')) {
+    const m = line.match(/^\s*([a-z]+)\s*:\s*(https:\/\/\S+)\s*$/i);
+    if (m && (LINK_KEYS as readonly string[]).includes(m[1].toLowerCase())) out[m[1].toLowerCase()] = m[2];
+  }
+  return out;
+}
 
 
 const coupleInput = z.object({
@@ -79,8 +91,8 @@ export async function adminGrantAccess(eventId: string, userId: string, grant: b
 const djInput = z.object({
   display_name: z.string().trim().min(1).max(80),
   email: z.email().max(254).optional().or(z.literal('')),
-  bio_he: z.string().trim().max(2000).optional(),
-  bio_en: z.string().trim().max(2000).optional(),
+  bio_he: z.string().trim().max(5000).optional(),
+  bio_en: z.string().trim().max(5000).optional(),
   specialties: z.string().max(400).optional(),
 });
 
@@ -101,13 +113,13 @@ export async function adminCreateDj(input: unknown): Promise<ActionResult<{ djId
 export async function adminUpdateDj(djId: string, input: unknown): Promise<ActionResult> {
   const c = await adminCtx(); if (!c) return fail('admin_only');
   const p = z.object({
-    display_name: z.string().trim().min(1).max(80), bio_he: z.string().trim().max(2000).optional(), bio_en: z.string().trim().max(2000).optional(),
-    specialties: z.string().max(400).optional(), photo_url: z.url().max(1000).optional().or(z.literal('')),
+    display_name: z.string().trim().min(1).max(80), bio_he: z.string().trim().max(5000).optional(), bio_en: z.string().trim().max(5000).optional(),
+    specialties: z.string().max(400).optional(), photo_url: assetUrl, logo_url: assetUrl, links: z.string().max(2000).optional(),
     is_active: z.boolean(), accepts_new_couples: z.boolean(), sort_order: z.coerce.number().int().min(0).max(999).default(0),
   }).safeParse(input);
   if (!p.success || !uuid.safeParse(djId).success) return fail('validation');
   const { error } = await c.db.from('djs').update({
-    ...p.data, photo_url: p.data.photo_url || null, bio_he: p.data.bio_he || null, bio_en: p.data.bio_en || null,
+    ...p.data, photo_url: p.data.photo_url || null, logo_url: p.data.logo_url || null, links: parseLinks(p.data.links), bio_he: p.data.bio_he || null, bio_en: p.data.bio_en || null,
     specialties: (p.data.specialties ?? '').split(',').map((x) => x.trim()).filter(Boolean),
   }).eq('id', djId).eq('company_id', c.s.company.id);
   if (error) return fail(errorCode(error));

@@ -39,7 +39,7 @@ export function AppNav({ items, brand, unread }: { items: NavItem[]; brand: stri
 
       {/* tablet / desktop: side rail */}
       <aside className="hidden md:flex fixed inset-y-0 start-0 z-30 w-[240px] flex-col border-e border-line bg-ink px-4 py-6">
-        <div className="px-2 mb-10"><BrandMark name={brand} /></div>
+        <div className="-mx-4 -mt-6 mb-8 brand-frame px-6 py-5"><BrandMark name={brand} /></div>
         <nav aria-label="Main" className="flex flex-col gap-1">
           {items.map((it) => {
             const Icon = ICONS[it.icon];

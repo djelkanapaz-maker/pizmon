@@ -32,8 +32,8 @@ export function NewDjButton() {
             {error && <ErrorNote>{error}</ErrorNote>}
             <Field label={m.admin.displayName} htmlFor="dj-n"><Input id="dj-n" name="display_name" required maxLength={80} /></Field>
             <Field label={m.admin.djEmail} htmlFor="dj-e"><Input id="dj-e" name="email" type="email" dir="ltr" /></Field>
-            <Field label={`${m.admin.bio} (עב)`} htmlFor="dj-bh"><Textarea id="dj-bh" name="bio_he" maxLength={2000} dir="rtl" /></Field>
-            <Field label={`${m.admin.bio} (EN)`} htmlFor="dj-be"><Textarea id="dj-be" name="bio_en" maxLength={2000} dir="ltr" /></Field>
+            <Field label={`${m.admin.bio} (עב)`} htmlFor="dj-bh"><Textarea id="dj-bh" name="bio_he" maxLength={5000} dir="rtl" /></Field>
+            <Field label={`${m.admin.bio} (EN)`} htmlFor="dj-be"><Textarea id="dj-be" name="bio_en" maxLength={5000} dir="ltr" /></Field>
             <Field label={m.admin.specialties} htmlFor="dj-s"><Input id="dj-s" name="specialties" maxLength={400} /></Field>
             <Button type="submit" disabled={busy}>{busy ? m.common.saving : m.common.create}</Button>
           </form>
@@ -43,7 +43,7 @@ export function NewDjButton() {
   );
 }
 
-type Dj = { id: string; display_name: string; bio_he: string | null; bio_en: string | null; specialties: string[]; photo_url: string | null; is_active: boolean; accepts_new_couples: boolean; sort_order: number; user_id: string | null };
+type Dj = { id: string; display_name: string; bio_he: string | null; bio_en: string | null; specialties: string[]; photo_url: string | null; logo_url: string | null; links: Record<string, string> | null; is_active: boolean; accepts_new_couples: boolean; sort_order: number; user_id: string | null };
 
 export function DjEditForm({ dj }: { dj: Dj }) {
   const { m } = useI18n();
@@ -65,10 +65,14 @@ export function DjEditForm({ dj }: { dj: Dj }) {
         run(() => adminUpdateDj(dj.id, { ...f, is_active: f.is_active === 'on', accepts_new_couples: f.accepts_new_couples === 'on' }));
       }}>
         <Field label={m.admin.displayName} htmlFor="d-n"><Input id="d-n" name="display_name" defaultValue={dj.display_name} required maxLength={80} /></Field>
-        <Field label={`${m.admin.bio} (עב)`} htmlFor="d-bh"><Textarea id="d-bh" name="bio_he" defaultValue={dj.bio_he ?? ''} maxLength={2000} dir="rtl" /></Field>
-        <Field label={`${m.admin.bio} (EN)`} htmlFor="d-be"><Textarea id="d-be" name="bio_en" defaultValue={dj.bio_en ?? ''} maxLength={2000} dir="ltr" /></Field>
+        <Field label={`${m.admin.bio} (עב)`} htmlFor="d-bh"><Textarea id="d-bh" name="bio_he" defaultValue={dj.bio_he ?? ''} maxLength={5000} dir="rtl" /></Field>
+        <Field label={`${m.admin.bio} (EN)`} htmlFor="d-be"><Textarea id="d-be" name="bio_en" defaultValue={dj.bio_en ?? ''} maxLength={5000} dir="ltr" /></Field>
         <Field label={m.admin.specialties} htmlFor="d-s"><Input id="d-s" name="specialties" defaultValue={dj.specialties.join(', ')} maxLength={400} /></Field>
-        <Field label={m.admin.artworkUrl} htmlFor="d-p"><Input id="d-p" name="photo_url" type="url" defaultValue={dj.photo_url ?? ''} dir="ltr" /></Field>
+        <Field label={m.admin.artworkUrl} htmlFor="d-p"><Input id="d-p" name="photo_url" defaultValue={dj.photo_url ?? ''} dir="ltr" /></Field>
+        <Field label="Logo URL" htmlFor="d-l"><Input id="d-l" name="logo_url" defaultValue={dj.logo_url ?? ''} dir="ltr" /></Field>
+        <Field label="Links" hint="instagram: https://… (one per line — instagram, soundcloud, spotify, youtube, facebook, beatport, tiktok, website)" htmlFor="d-links">
+          <Textarea id="d-links" name="links" dir="ltr" className="min-h-28 font-mono text-sm" defaultValue={Object.entries(dj.links ?? {}).map(([k, v]) => `${k}: ${v}`).join('\n')} />
+        </Field>
         <Field label="#" htmlFor="d-o"><Input id="d-o" name="sort_order" type="number" min={0} max={999} defaultValue={dj.sort_order} /></Field>
         <label className="flex items-center gap-2 text-sm font-bold"><input type="checkbox" name="is_active" defaultChecked={dj.is_active} className="size-5 accent-ember" />{m.admin.active}</label>
         <label className="flex items-center gap-2 text-sm font-bold"><input type="checkbox" name="accepts_new_couples" defaultChecked={dj.accepts_new_couples} className="size-5 accent-ember" />{m.admin.acceptsNew}</label>

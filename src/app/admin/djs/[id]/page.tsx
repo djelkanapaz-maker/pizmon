@@ -10,7 +10,7 @@ export default async function AdminDj({ params }: { params: Promise<{ id: string
   const s = await requireRole('admin');
   const { m } = await getI18n();
   const db = await supabaseServer();
-  const { data: dj } = await db.from('djs').select('id, display_name, bio_he, bio_en, specialties, photo_url, is_active, accepts_new_couples, sort_order, user_id').eq('id', id).eq('company_id', s.company.id).maybeSingle();
+  const { data: dj } = await db.from('djs').select('id, display_name, bio_he, bio_en, specialties, photo_url, logo_url, links, is_active, accepts_new_couples, sort_order, user_id').eq('id', id).eq('company_id', s.company.id).maybeSingle();
   if (!dj) notFound();
   return (
     <div>

@@ -1,6 +1,6 @@
 import { requireCouple } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
-import { getActiveAssignment, getEvent, type Dj } from '@/server/queries';
+import { DJ_SELECT, getActiveAssignment, getEvent, type Dj } from '@/server/queries';
 import { OnboardingFlow } from './OnboardingFlow';
 
 export const metadata = { title: 'Welcome' };
@@ -12,8 +12,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   const [event, assignment, { data: djs }, { data: mixes }] = await Promise.all([
     getEvent(s.eventId),
     getActiveAssignment(s.eventId),
-    db.from('djs').select('id, display_name, slug, bio_he, bio_en, specialties, photo_url, is_active, accepts_new_couples, is_demo')
-      .eq('company_id', s.company.id).eq('is_active', true).order('sort_order'),
+    db.from('djs').select(DJ_SELECT).eq('company_id', s.company.id).eq('is_active', true).eq('kind', 'dj').order('sort_order'),
     db.from('content_items').select('id, title, kind, media_url, creator_dj_id, is_demo').eq('company_id', s.company.id)
       .eq('status', 'published').not('creator_dj_id', 'is', null).not('media_url', 'is', null),
   ]);

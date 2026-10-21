@@ -26,7 +26,7 @@ export default async function CoupleLayout({ children }: { children: ReactNode }
   ];
   return (
     <>
-      <div className="md:hidden sticky top-0 z-30 bg-ink/90 backdrop-blur gutter pt-[env(safe-area-inset-top)] h-[calc(56px+env(safe-area-inset-top))] flex items-center justify-between border-b border-line/60">
+      <div className="md:hidden sticky top-0 z-30 brand-frame gutter pt-[env(safe-area-inset-top)] h-[calc(56px+env(safe-area-inset-top))] flex items-center justify-between">
         <BrandMark name={s.company.brand_name} href="/home" />
         <TopBell unread={count ?? 0} />
       </div>

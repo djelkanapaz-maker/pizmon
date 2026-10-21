@@ -2,6 +2,9 @@ import type { Locale } from '@/core/i18n-text';
 import { en, type Messages } from './en';
 import { he } from './he';
 
+/** Wrap a value in Unicode isolates so a Latin name inside a Hebrew sentence keeps the right order. */
+export const isolate = (v: string) => `\u2068${v}\u2069`;
+
 export const dictionaries: Record<Locale, Messages> = { he, en };
 
 /** "{name} likes {thing}" → fills placeholders. */

@@ -14,7 +14,26 @@ Inspected live in a real browser (mobile-width viewport ~600px, computed styles 
 | Motion | Scroll cues and section anchors; a small loading dots animation. Motion is functional, not decorative. |
 | Personality | Loud, warm, confident, a little retro — nightlife poster rather than wedding stationery. Communication-first (call / WhatsApp everywhere). |
 
-## 2. Principles translated (not copied)
+## 2. Atisuto brand (applied with Atisuto's permission, 2026-10-21)
+
+The app now uses Atisuto's own identity:
+
+| Token | Value | Use |
+|---|---|---|
+| `crimson` | `#C01F22` | Brand frame: mobile header bars, desktop rail header, the poster frame around sign-in, hard offset shadows on display titles and primary buttons |
+| `ember` (signal yellow) | `#FBD100` | Primary actions, focus rings, active tab, "now playing" |
+| `ink` / `ink-2` / `ink-3` | `#0B0909` / `#171212` / `#241C1C` | App background and surfaces |
+| `paper` | `#FFFFFF` | Text |
+| `gold` (confirmed) | `#4ADE80` | Confirmed selections / MUST PLAY — kept distinct from the yellow primary so "confirmed" never looks like a button |
+| `danger` | `#FF5A5F` | NEVER PLAY, errors (brighter than crimson for legible text on black) |
+
+- **Logo:** the Atisuto wordmark (`public/brand/atisuto-slick.svg`) in every header; the star mark (`atisuto-main.svg`) is the app icon on crimson. `NEXT_PUBLIC_BRAND_LOGO` overrides it.
+- **DJ roster:** names, bios, social links, circular portraits and personal artist logos from atisuto.com (`public/djs/`, `scripts/seed/atisuto/roster.json`), shown in Atisuto's staggered circular grid.
+- **Typography:** Atisuto's site uses Proxima Nova (licensed per-site through Adobe Fonts, so not bundled here). Rubik 900 is the closest free match with first-class Hebrew; swap `--font-display` if Atisuto supplies a licensed webfont.
+
+The sections below describe the original analysis and the structural principles, which still apply.
+
+## 3. Principles translated (not copied)
 
 We keep the *principles* and build an original identity. We do **not** reuse Atisuto's logo, star mark, red/yellow pairing, katakana device, texture or layouts.
 
@@ -26,7 +45,7 @@ We keep the *principles* and build an original identity. We do **not** reuse Ati
 6. **Persistent bottom bar** → becomes the app's bottom navigation + mini player.
 7. **The opposite of their communication-first stance**: their site pushes you to call; our app's job is to make calls unnecessary. Structured requests replace the WhatsApp button.
 
-## 3. Original identity — "WEDDING MUSIC CLUB" (configurable)
+## 4. Original placeholder identity (superseded by §2)
 
 Dark-first, because it is a music product used in the evening, and artwork reads best on ink.
 

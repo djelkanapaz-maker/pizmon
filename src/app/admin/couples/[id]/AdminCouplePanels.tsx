@@ -34,7 +34,7 @@ export function AssignmentPanel({ eventId, active, djs }: { eventId: string; act
       ) : <p className="text-paper-dim">{m.admin.unassigned}</p>}
       {active?.status === 'pending_approval' && (
         <div className="rounded-[12px] border border-ember/50 p-3 flex flex-col gap-2">
-          <p className="text-sm font-bold">{m.admin.pendingApproval.replace('{dj}', active.djName)}</p>
+          <p className="text-sm font-bold">{m.admin.pendingApproval.replace('{dj}', `\u2068${active.djName}\u2069`)}</p>
           <div className="flex gap-2">
             <Button size="sm" variant="gold" disabled={busy} onClick={() => run(() => adminDecideAssignment(active.id, true))}>{m.admin.approve}</Button>
             <Button size="sm" variant="danger" disabled={busy} onClick={() => run(() => adminDecideAssignment(active.id, false))}>{m.admin.decline}</Button>
