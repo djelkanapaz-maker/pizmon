@@ -96,3 +96,52 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ── Opening splash (components/Splash.tsx): star flies in, spins, bursts open ── */
+.splash {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  background: radial-gradient(circle at 50% 50%, #3a0d0e 0%, #140909 45%, #0b0909 75%);
+  animation: splash-out 400ms ease-in 2600ms forwards;
+}
+html[data-splash='done'] .splash { display: none; }
+.splash > * { grid-area: 1 / 1; }
+.splash-glow {
+  width: 70vmin; height: 70vmin; border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 31, 34, .55) 0%, rgba(192, 31, 34, 0) 65%);
+  animation: splash-glow 2600ms ease-in-out forwards;
+}
+.splash-badge { width: min(34vmin, 180px); aspect-ratio: 1; animation: splash-badge 2600ms cubic-bezier(.2, .7, .2, 1) forwards; will-change: transform, opacity, filter; }
+.splash-badge svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 28px rgba(251, 209, 0, .35)); }
+.splash-ring {
+  width: min(34vmin, 180px); aspect-ratio: 1; border-radius: 50%; border: 6px solid #fbd100; opacity: 0;
+  animation: splash-ring 800ms ease-out 2050ms forwards;
+}
+.splash-pieces { width: 0; height: 0; position: relative; }
+.splash-piece {
+  position: absolute; left: 0; top: 0; translate: -50% -50%; opacity: 0;
+  animation: splash-piece 950ms cubic-bezier(.12, .8, .3, 1) calc(2050ms + var(--d, 0ms)) forwards;
+}
+@keyframes splash-badge {
+  0%   { transform: scale(.04) rotate(-120deg); opacity: 0; filter: blur(10px); }
+  38%  { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0); }
+  46%  { transform: scale(1.06) rotate(10deg); }
+  72%  { transform: scale(1) rotate(360deg); }
+  80%  { transform: scale(1.22) rotate(372deg); opacity: 1; }
+  100% { transform: scale(2.8) rotate(400deg); opacity: 0; filter: blur(4px); }
+}
+@keyframes splash-glow {
+  0% { transform: scale(.2); opacity: 0; } 40% { transform: scale(1); opacity: 1; }
+  78% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes splash-ring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(4.5); opacity: 0; border-width: 1px; } }
+@keyframes splash-piece {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(.3); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1); opacity: 0; }
+}
+@keyframes splash-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .splash { animation: splash-out 300ms ease-in 400ms forwards; }
+  .splash-badge, .splash-glow { animation: none; }
+  .splash-ring, .splash-pieces { display: none; }
+}
