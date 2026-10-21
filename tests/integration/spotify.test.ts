@@ -63,3 +63,23 @@ describe('main couple playlist', () => {
     expect(seen?.map((x) => x.id)).toEqual([first.data!.id]);
   });
 });
+
+describe('spotify connection storage', () => {
+  it('only company admins can save or read the sealed token', async () => {
+    process.env.SPOTIFY_CLIENT_SECRET = 'test-secret';
+    const { sealToken, openToken } = await import('../../src/server/spotify-auth');
+    const sealed = sealToken('refresh-token-value');
+    expect(sealed).not.toContain('refresh-token-value');
+    expect(openToken(sealed)).toBe('refresh-token-value');
+    const { error } = await admin.rpc('admin_save_spotify_connection', { p_company: COMPANY_ID, p_cipher: sealed, p_user: 'atisuto', p_name: 'ATISUTO' });
+    expect(error).toBeNull();
+    const { data } = await admin.rpc('admin_spotify_connection', { p_company: COMPANY_ID });
+    expect((data as { spotify_user_id: string }[])[0].spotify_user_id).toBe('atisuto');
+    const couple = await createCouple('NoSpotify');
+    const r = await couple.client.rpc('admin_spotify_connection', { p_company: COMPANY_ID });
+    expect(r.error?.code).toBe('42501');
+    const w = await couple.client.rpc('admin_save_spotify_connection', { p_company: COMPANY_ID, p_cipher: 'x', p_user: 'evil', p_name: 'x' });
+    expect(w.error?.code).toBe('42501');
+    await admin.rpc('admin_clear_spotify_connection', { p_company: COMPANY_ID });
+  });
+});

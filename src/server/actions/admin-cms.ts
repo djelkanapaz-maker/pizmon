@@ -5,7 +5,8 @@ import { adminCtx } from '@/server/admin-ctx';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { definitionV3 as definitionLatest } from '@/core/questionnaire/definition-v3';
 import { parsePlaylistIds } from '@/core/spotify';
-import { fetchSpotifyPlaylist } from '@/server/spotify';
+import { fetchSpotifyPlaylist, listOwnPlaylists } from '@/server/spotify';
+import { companyAccessToken } from '@/server/spotify-auth';
 import { syncSpotifyPlaylist } from '@/server/spotify-sync';
 
 // ─────────────────────────── shared helpers ───────────────────────────
@@ -277,10 +278,15 @@ export async function adminImportSpotify(text: string): Promise<ActionResult<Spo
   const c = await adminCtx(); if (!c) return fail('admin_only');
   const ids = parsePlaylistIds(String(text ?? '').slice(0, 20000)).slice(0, 30);
   if (!ids.length) return fail('validation');
+  return ok(await importIds(c, ids));
+}
+
+async function importIds(c: NonNullable<Awaited<ReturnType<typeof adminCtx>>>, ids: string[]) {
+  const token = await companyAccessToken(c.db, c.s.company.id);
   const out: SpotifyImportResult[] = [];
   for (const id of ids) {
     try {
-      const pl = await fetchSpotifyPlaylist(id);
+      const pl = await fetchSpotifyPlaylist(id, token);
       const r = await syncSpotifyPlaylist(c.db, c.s.company.id, c.s.userId, pl);
       out.push({ id, ok: true, title: r.title, tracks: r.tracks, truncated: r.truncated });
     } catch (e) {
@@ -288,7 +294,25 @@ export async function adminImportSpotify(text: string): Promise<ActionResult<Spo
     }
   }
   revalidatePath('/admin/playlists'); revalidatePath('/discover'); revalidatePath('/home');
-  return ok(out);
+  return out;
+}
+
+/** Import every public playlist owned by the connected Spotify account. */
+export async function adminImportAccountPlaylists(): Promise<ActionResult<SpotifyImportResult[]>> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  const token = await companyAccessToken(c.db, c.s.company.id);
+  if (!token) return fail('spotify_not_connected');
+  let ids: string[];
+  try { ids = await listOwnPlaylists(token); } catch { return fail('spotify_failed'); }
+  return ok(await importIds(c, ids.slice(0, 60)));
+}
+
+export async function adminDisconnectSpotify(): Promise<ActionResult> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  const { error } = await c.db.rpc('admin_clear_spotify_connection', { p_company: c.s.company.id });
+  if (error) return dbFail(error);
+  revalidatePath('/admin/playlists');
+  return ok(undefined);
 }
 
 /** Re-sync every Spotify-linked playlist of the company. */

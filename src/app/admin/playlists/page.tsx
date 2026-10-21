@@ -8,12 +8,17 @@ import { IconChevron } from '@/components/icons';
 import { cmsStrings } from '../_cms/strings';
 import { NewPlaylistButton } from './PlaylistForms';
 import { SpotifyImport } from './SpotifyImport';
+import { getConnection, spotifyConfigured } from '@/server/spotify-auth';
 
-export default async function PlaylistsAdmin() {
+export const maxDuration = 300;
+
+export default async function PlaylistsAdmin({ searchParams }: { searchParams: Promise<{ spotify?: string }> }) {
   const s = await requireRole('admin');
   const { m, locale } = await getI18n();
   const t = cmsStrings(locale);
   const db = await supabaseServer();
+  const status = (await searchParams).spotify;
+  const conn = spotifyConfigured() ? await getConnection(db, s.company.id).catch(() => null) : null;
   const { data } = await db.from('playlists').select('id, title, purpose, status, is_featured, spotify_playlist_id, synced_at, sync_truncated, playlist_tracks(count)')
     .eq('company_id', s.company.id).eq('kind', 'editorial').order('is_featured', { ascending: false }).order('updated_at', { ascending: false });
   const rows = (data ?? []) as unknown as { id: string; title: string; purpose: string | null; status: string; is_featured: boolean; spotify_playlist_id: string | null; synced_at: string | null; sync_truncated: boolean; playlist_tracks: { count: number }[] }[];
@@ -23,7 +28,7 @@ export default async function PlaylistsAdmin() {
     <div className="pb-16">
       <PageHeader title={m.admin.playlists} actions={<NewPlaylistButton />} />
       <div className="gutter">
-        <SpotifyImport hasLinked={rows.some((r) => r.spotify_playlist_id)} />
+        <SpotifyImport hasLinked={rows.some((r) => r.spotify_playlist_id)} configured={spotifyConfigured()} connection={conn ? { name: conn.display_name ?? conn.spotify_user_id } : null} status={status && /^[a-z_]{1,20}$/.test(status) ? status : undefined} />
         {rows.length === 0 ? <EmptyState title={t.emptyPlaylists} /> : (
           <ul className="flex flex-col gap-2">
             {rows.map((p) => (
