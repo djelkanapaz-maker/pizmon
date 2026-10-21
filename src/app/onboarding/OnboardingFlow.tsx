@@ -101,7 +101,7 @@ function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: 
   if (status === 'confirmed' || status === 'proposed' || status === 'pending_approval' || policy === 'company_assigned') {
     return (
       <section className="gutter pt-8 animate-rise">
-        <h1 className="display-l mb-3">{status === 'proposed' ? m.onboarding.djConfirmTitle : m.onboarding.djTitle}</h1>
+        <h1 className="display-l mb-3">{status === 'proposed' ? m.onboarding.djConfirmTitle : status === 'confirmed' ? m.onboarding.djYoursTitle : m.onboarding.djTitle}</h1>
         {status === 'proposed' && <p className="text-paper-dim mb-8">{m.onboarding.djConfirmSub}</p>}
         {assignment?.dj ? djCard(assignment.dj,
           status === 'proposed' ? <Button onClick={confirm} disabled={pending}><IconCheck size={18} />{m.onboarding.djConfirm}</Button>

@@ -34,7 +34,7 @@ export const en = {
     welcomeBody: 'Discover music, choose songs for your big moments and tell your DJ exactly what you love — and what you never want to hear. Everything is saved as you go.',
     start: 'Let’s start',
     djTitle: 'Choose your DJ', djSub: 'Listen to their sets, read their story and pick the one who feels like you.',
-    djConfirmTitle: 'Meet your DJ', djConfirmSub: 'The company has matched you with this DJ. Confirm to start working together.',
+    djYoursTitle: 'Your DJ', djConfirmTitle: 'Meet your DJ', djConfirmSub: 'The company has matched you with this DJ. Confirm to start working together.',
     djConfirm: 'Confirm my DJ', djSelect: 'Choose {name}', djSelected: 'Selected',
     djPending: 'Waiting for the company to approve your choice. You can keep planning meanwhile.',
     djNone: 'No DJs are available for selection right now. The company will assign your DJ and you’ll be notified.',
