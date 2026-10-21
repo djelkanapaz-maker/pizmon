@@ -13,9 +13,11 @@ export default async function RadioPage() {
   const { data: station } = await db.from('radio_stations').select('id, name, description, mode, stream_url').eq('company_id', s.company.id).eq('is_primary', true).maybeSingle();
   const [{ data: schedule }, { data: content }] = await Promise.all([
     station ? db.from('radio_schedule_items').select('id, title, description, starts_at, ends_at, host:djs(display_name)').eq('station_id', station.id).gte('ends_at', new Date().toISOString()).order('starts_at').limit(10) : Promise.resolve({ data: [] }),
-    db.from('content_items').select('id, kind, title, description, media_url, external_url, duration_seconds, genre_tags, is_demo, creator:djs(display_name)').eq('company_id', s.company.id).eq('status', 'published').order('published_at', { ascending: false }).limit(40),
+    db.from('content_items').select('id, kind, title, description, media_url, external_url, duration_seconds, genre_tags, is_demo, is_featured, creator:djs(display_name)').eq('company_id', s.company.id).eq('status', 'published').order('published_at', { ascending: false }).limit(40),
   ]);
-  const items = (content ?? []) as unknown as { id: string; kind: string; title: string; description: string | null; media_url: string | null; external_url: string | null; duration_seconds: number | null; genre_tags: string[]; is_demo: boolean; creator: { display_name: string } | null }[];
+  const items = (content ?? []) as unknown as { id: string; kind: string; title: string; description: string | null; media_url: string | null; external_url: string | null; duration_seconds: number | null; genre_tags: string[]; is_demo: boolean; is_featured: boolean; creator: { display_name: string } | null }[];
+  const featured = items.filter((c) => c.is_featured);
+  const rest = items.filter((c) => !c.is_featured);
   const shows = (schedule ?? []) as unknown as { id: string; title: string; description: string | null; starts_at: string; ends_at: string; host: { display_name: string } | null }[];
   const live = station?.mode === 'live';
   // request-time server component: comparing against the current time is intended
@@ -45,6 +47,27 @@ export default async function RadioPage() {
         </div>
       </section>
 
+      {featured.length > 0 && (
+        <section className="mt-10">
+          <SectionHeader title={m.home.featuredMixes} />
+          <div className="scroll-x pb-2">
+            {featured.map((c) => (
+              <div key={c.id} className="w-56 card p-3 flex flex-col gap-3">
+                <Cover seed={c.id} label={c.title} size={200} className="!w-full !h-auto aspect-square" />
+                <div className="flex items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm leading-tight line-clamp-2">{c.title}</p>
+                    <p className="text-xs text-paper-dim mt-1">{c.creator?.display_name}</p>
+                  </div>
+                  {c.media_url && <PlayToggle source={{ id: `content:${c.id}`, kind: 'company_mix', url: c.media_url, title: c.title, subtitle: c.creator?.display_name }} size="sm" />}
+                </div>
+                {c.is_demo && <DemoBadge label={m.common.demo} />}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mt-10">
         <SectionHeader title={m.radio.schedule} />
         {shows.length === 0 ? <p className="gutter text-paper-dim">{m.radio.noSchedule}</p> : (
@@ -63,11 +86,11 @@ export default async function RadioPage() {
         )}
       </section>
 
-      <section className="mt-10">
+      {(rest.length > 0 || featured.length === 0) && <section className="mt-10">
         <SectionHeader title={m.radio.mixes} />
-        {items.length === 0 ? <div className="gutter"><EmptyState title={m.radio.noMixes} /></div> : (
+        {rest.length === 0 ? <div className="gutter"><EmptyState title={m.radio.noMixes} /></div> : (
           <ul className="gutter grid sm:grid-cols-2 gap-3">
-            {items.map((c) => (
+            {rest.map((c) => (
               <li key={c.id} className="card p-3 flex items-center gap-3">
                 <Cover seed={c.id} label={c.title} size={72} />
                 <div className="min-w-0 flex-1">
@@ -82,7 +105,7 @@ export default async function RadioPage() {
             ))}
           </ul>
         )}
-      </section>
+      </section>}
     </div>
   );
 }
