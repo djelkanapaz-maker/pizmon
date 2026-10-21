@@ -8,9 +8,9 @@ import { daysUntil } from '@/core/progress';
 import { loadBrief } from '@/server/brief';
 import { getActiveAssignment, getEvent, getGenres, getMoments, getRestrictions, getSelections, getTracksByIds, describeRestriction, trackLabel, TRACK_SELECT, type Track } from '@/server/queries';
 import { BriefView } from '@/components/BriefView';
-import { Badge, Cover, DemoBadge, EmptyState, cx } from '@/components/ui';
+import { Badge, ButtonA, Cover, DemoBadge, EmptyState, cx } from '@/components/ui';
 import { STATUS_TONE } from '@/components/music/status';
-import { IconBan, IconStar } from '@/components/icons';
+import { IconBan, IconDownload, IconStar } from '@/components/icons';
 import { AskCoupleForm, DeleteNoteButton, DeleteRecButton, MarkReviewedButton, NoteForm, RecommendForm, RequestReply } from './StaffForms';
 
 export const WORKSPACE_TABS = ['brief', 'moments', 'restrictions', 'playlists', 'questionnaire', 'recommendations', 'requests', 'notes', 'activity'] as const;
@@ -106,7 +106,10 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
       </nav>
 
       <div className="gutter pt-6">
-        {tab === 'brief' && (briefData ? <BriefView brief={briefData.brief} m={m} /> : <EmptyState title={m.dj.briefEmpty} />)}
+        {tab === 'brief' && (briefData ? (<>
+          <div className="mb-4 flex justify-end"><ButtonA href={`/api/brief/pdf?event=${eventId}`} download variant="secondary" size="sm"><IconDownload size={16} />{m.brief.downloadPdf}</ButtonA></div>
+          <BriefView brief={briefData.brief} m={m} />
+        </>) : <EmptyState title={m.dj.briefEmpty} />)}
         {tab === 'moments' && <MomentsTab />}
         {tab === 'restrictions' && <RestrictionsTab />}
         {tab === 'playlists' && <PlaylistsTab />}

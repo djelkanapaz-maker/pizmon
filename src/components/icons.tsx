@@ -23,6 +23,7 @@ export const IconStar = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><pat
 export const IconExternal = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>);
 export const IconChevron = ({ size, ...p }: P) => (<svg {...base(size)} {...p} className={`rtl:-scale-x-100 ${p.className ?? ''}`}><path d="m9 6 6 6-6 6" /></svg>);
 export const IconArrowBack = ({ size, ...p }: P) => (<svg {...base(size)} {...p} className={`rtl:-scale-x-100 ${p.className ?? ''}`}><path d="M19 12H5M11 18l-6-6 6-6" /></svg>);
+export const IconDownload = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>);
 export const IconList = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>);
 export const IconFilter = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M4 5h16M7 12h10M10 19h4" /></svg>);
 export const IconMessage = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M4 5h16v11H8l-4 4z" /></svg>);

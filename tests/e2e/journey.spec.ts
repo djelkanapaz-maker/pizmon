@@ -2,7 +2,7 @@
 // Admin creates a couple → couple activates → onboarding → DJ selection → preferences →
 // admin approves → DJ sees the profile and recommends → couple responds. Both languages.
 import { test, expect, type Page, type Browser } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { adminClient, createDj, TEST_PASSWORD, uniq } from '../helpers/stack';
 
 const SHOTS = 'test-results/screens';
@@ -143,6 +143,13 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.getByRole('button', { name: 'שליחת התקציר לדיג׳יי' }).click();
   await expect(couple.getByRole('button', { name: 'שליחת תקציר מעודכן' })).toBeVisible();
   await shot(couple, '11-brief');
+  // one-page PDF of the brief, for the couple
+  const pdfRes = await couple.request.get('/api/brief/pdf');
+  expect(pdfRes.status()).toBe(200);
+  expect(pdfRes.headers()['content-type']).toBe('application/pdf');
+  const pdfBody = await pdfRes.body();
+  expect(pdfBody.subarray(0, 5).toString()).toBe('%PDF-');
+  writeFileSync(`${SHOTS}/brief-couple.pdf`, pdfBody);
 
   // ── 9. Admin approves the DJ choice ──
   await admin.goto(coupleAdminUrl); await settle(admin);
@@ -158,6 +165,12 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await expect(djPage.getByRole('note')).toContainText('ABBA');          // absolute ban banner
   await expect(djPage.getByText('Brief submitted').first()).toBeVisible();
   await shot(djPage, '13-dj-brief');
+  // …and the same PDF for the assigned DJ (download button on the brief tab)
+  const djPdfHref = await djPage.getByRole('link', { name: 'Download brief as PDF' }).getAttribute('href');
+  const djPdf = await djPage.request.get(djPdfHref!);
+  expect(djPdf.status()).toBe(200);
+  expect((await djPdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  writeFileSync(`${SHOTS}/brief-dj.pdf`, await djPdf.body());
   await djPage.getByRole('link', { name: 'Recommend' }).click();
   await djPage.locator('input[role=combobox]').fill('Dancing Queen');
   await djPage.getByRole('option', { name: /Dancing Queen/ }).click();

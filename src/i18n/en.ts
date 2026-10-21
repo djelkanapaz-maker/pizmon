@@ -123,6 +123,7 @@ export const en = {
     searchTrack: 'Search the catalog', textPlaceholder: 'e.g. “No line dances”', conflict: 'This is already on the other list.',
   },
   brief: {
+    downloadPdf: 'Download brief as PDF', downloadHint: 'One page, ready to print',
     title: 'Musical brief', personality: 'Musical personality', vibes: 'Vibes', genresLove: 'Loves', genresAvoid: 'Avoids',
     artists: 'Favourite artists', eras: 'Eras', traditions: 'Traditions', languages: 'Languages', energy: 'Energy through the night',
     israeli: 'Israeli music', adventurous: 'DJ freedom', mainstream: 'Mainstream ↔ alternative', discovery: 'Familiar ↔ discoveries',

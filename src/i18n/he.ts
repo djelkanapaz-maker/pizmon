@@ -125,6 +125,7 @@ export const he: Messages = {
     searchTrack: 'חיפוש בקטלוג', textPlaceholder: 'למשל: ״בלי ריקודי שורות״', conflict: 'זה כבר ברשימה השנייה.',
   },
   brief: {
+    downloadPdf: 'הורדת התקציר כ-PDF', downloadHint: 'קובץ של עמוד אחד, מוכן להדפסה',
     title: 'התקציר המוזיקלי', personality: 'האישיות המוזיקלית', vibes: 'אווירות', genresLove: 'אוהבים', genresAvoid: 'פחות',
     artists: 'אמנים אהובים', eras: 'תקופות', traditions: 'מסורות', languages: 'שפות', energy: 'האנרגיה לאורך הערב',
     israeli: 'מוזיקה ישראלית', adventurous: 'חופש לדיג׳יי', mainstream: 'מיינסטרים ↔ אלטרנטיבי', discovery: 'מוכר ↔ הפתעות',

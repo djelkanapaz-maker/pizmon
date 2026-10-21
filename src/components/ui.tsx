@@ -24,6 +24,10 @@ export function Button({ variant = 'primary', size = 'md', full, className, ...p
 export function ButtonLink({ variant = 'primary', size = 'md', full, className, ...p }: ComponentProps<typeof Link> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean }) {
   return <Link {...p} className={cx(btn(variant, size, full), className)} />;
 }
+/** Plain anchor styled as a button (file downloads, API routes). */
+export function ButtonA({ variant = 'primary', size = 'md', full, className, ...p }: ComponentProps<'a'> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean }) {
+  return <a {...p} className={cx(btn(variant, size, full), className)} />;
+}
 export function IconButton({ label, className, active, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; active?: boolean }) {
   return (
     <button {...p} aria-label={label} title={label}
