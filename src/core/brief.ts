@@ -24,7 +24,6 @@ export type Brief = {
   languages: string[];
   energyCurve: { phase: string; value: number }[];
   israeliShare: number | null;
-  singalong: number | null;
   adventurous: number | null;
   mainstream: number | null;
   discovery: number | null;
@@ -95,7 +94,6 @@ export function buildBrief(input: BriefInput, locale: Locale): Brief {
     languages: optLabels('languages', 'multi'),
     energyCurve: (curveQ?.phases ?? []).map((p) => ({ phase: lt(p.label, locale), value: curve[p.value] ?? 0 })),
     israeliShare: num(answers.israeli_share),
-    singalong: num(answers.singalong),
     adventurous: num(answers.adventurous),
     mainstream: num(answers.mainstream),
     discovery: num(answers.discovery),

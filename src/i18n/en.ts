@@ -125,7 +125,7 @@ export const en = {
   brief: {
     title: 'Musical brief', personality: 'Musical personality', vibes: 'Vibes', genresLove: 'Loves', genresAvoid: 'Avoids',
     artists: 'Favourite artists', eras: 'Eras', traditions: 'Traditions', languages: 'Languages', energy: 'Energy through the night',
-    israeli: 'Israeli music', singalong: 'Sing-alongs', adventurous: 'DJ freedom', mainstream: 'Mainstream ↔ alternative', discovery: 'Familiar ↔ discoveries',
+    israeli: 'Israeli music', adventurous: 'DJ freedom', mainstream: 'Mainstream ↔ alternative', discovery: 'Familiar ↔ discoveries',
     references: 'Quick picks', mustPlay: 'Must play', neverPlay: 'Never play — absolute', neverPref: 'Rather avoid', moments: 'Special moments',
     family: 'Family considerations', dislikedSpecific: 'Artists & songs they like less', djNotes: 'Notes for the DJ', unresolved: 'Remaining decisions', empty: '—', of5: '{value}/5',
   },

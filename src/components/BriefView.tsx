@@ -74,7 +74,6 @@ export function BriefView({ brief, m, compact }: { brief: Brief; m: Messages; co
           ) : <span className="text-paper-dim">—</span>}
         </section>
         <section className="card p-4 md:p-5 flex flex-col gap-3">
-          <Meter value={brief.singalong} label={b.singalong} />
           <Meter value={brief.adventurous} label={b.adventurous} />
           <Meter value={brief.mainstream} label={b.mainstream} />
           <Meter value={brief.discovery} label={b.discovery} />

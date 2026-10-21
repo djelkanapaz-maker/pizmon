@@ -127,7 +127,7 @@ export const he: Messages = {
   brief: {
     title: 'התקציר המוזיקלי', personality: 'האישיות המוזיקלית', vibes: 'אווירות', genresLove: 'אוהבים', genresAvoid: 'פחות',
     artists: 'אמנים אהובים', eras: 'תקופות', traditions: 'מסורות', languages: 'שפות', energy: 'האנרגיה לאורך הערב',
-    israeli: 'מוזיקה ישראלית', singalong: 'שירה בציבור', adventurous: 'חופש לדיג׳יי', mainstream: 'מיינסטרים ↔ אלטרנטיבי', discovery: 'מוכר ↔ הפתעות',
+    israeli: 'מוזיקה ישראלית', adventurous: 'חופש לדיג׳יי', mainstream: 'מיינסטרים ↔ אלטרנטיבי', discovery: 'מוכר ↔ הפתעות',
     references: 'בחירות מהירות', mustPlay: 'חובה לנגן', neverPlay: 'לעולם לא — מוחלט', neverPref: 'עדיף להימנע', moments: 'הרגעים המיוחדים',
     family: 'שיקולים משפחתיים', dislikedSpecific: 'אמנים ושירים שפחות אוהבים', djNotes: 'הערות לדיג׳יי', unresolved: 'החלטות שנותרו', empty: '—', of5: '{value}/5',
   },
