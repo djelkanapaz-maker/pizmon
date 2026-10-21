@@ -19,7 +19,7 @@ export const en = {
     sendLink: 'Send reset link', linkSent: 'If that email has an account, a link is on its way.',
     activateTitle: 'Activate your account', activateSub: 'Choose a password. You’ll use it with your email to sign in.',
     newPassword: 'New password', confirmPassword: 'Confirm password', setPassword: 'Set password & continue',
-    passwordRule: 'At least 10 characters.', passwordMismatch: 'Passwords don’t match.', passwordWeak: 'Use at least 10 characters.',
+    passwordRule: 'At least 8 characters. Digits only is fine, e.g. your wedding date: 16112026.', passwordMismatch: 'Passwords don’t match.', passwordWeak: 'Use at least 8 characters.',
     linkInvalid: 'This link is invalid or has expired. Ask the company for a new one.',
     noAccess: 'Your account isn’t connected to a wedding or a company yet. Please contact the company.',
     rateLimited: 'Too many attempts. Wait a minute and try again.',
