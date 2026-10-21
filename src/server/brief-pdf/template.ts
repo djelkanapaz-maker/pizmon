@@ -69,14 +69,12 @@ export function renderBriefHtml(d: BriefDoc, a: BriefAssets): string {
   const inline = (xs: string[]) => xs.length ? `<p class="inline">${xs.map((x) => `<bdi>${esc(x)}</bdi>`).join('<span class="sep">·</span>')}</p>` : `<p class="muted">${t.empty}</p>`;
   const section = (title: string, body: string, cls = '') => `<section class="sec ${cls}"><h3><span>${title}</span></h3>${body}</section>`;
   const list = (xs: string[]) => `<ul class="plain">${xs.map((x) => `<li><bdi>${esc(x)}</bdi></li>`).join('')}</ul>`;
-  const status = (s: string | null) => s ? `<span class="status s-${esc(s)}">${esc(t.status[s] ?? s)}</span>` : '';
   const logo = a.logoSvg.replace(/fill="#[0-9a-fA-F]{3,6}"/g, 'fill="#111"');
 
   const moments = d.moments.map((m) => `
     <tr>
       <th>${esc(m.name)}</th>
       <td><div class="song">${m.song ? `<bdi>${esc(m.song)}</bdi>` : `<span class="muted">${t.empty}</span>`}</div>${m.backup ? `<div class="backup">${t.backup}: <bdi>${esc(m.backup)}</bdi></div>` : ''}</td>
-      <td class="st">${status(m.status)}</td>
     </tr>`).join('');
 
   const shown = d.playlist.slice(0, PLAYLIST_MAX);
@@ -112,8 +110,7 @@ table.moments { width: 100%; border-collapse: collapse }
 table.moments tr { border-bottom: .2mm solid #ccc }
 table.moments tr:last-child { border-bottom: 0 }
 table.moments th { text-align: start; font-weight: 700; width: 31%; padding: 1.8mm 0; vertical-align: top }
-table.moments td { padding: 1.8mm 2mm; vertical-align: top }
-table.moments td.st { width: 15mm; padding-${end}: 0; text-align: end }
+table.moments td { padding: 1.8mm 2mm; padding-${end}: 0; vertical-align: top }
 .song { } .backup { font-size: 7.4pt; color: #666; }
 .status { font-size: 6.8pt; color: #555; white-space: nowrap; border: .2mm solid #999; border-radius: 3mm; padding: .2mm 1.6mm }
 .s-confirmed, .s-approved { color: #111; border-color: #111; font-weight: 700 }
