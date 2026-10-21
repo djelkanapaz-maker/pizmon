@@ -70,9 +70,25 @@ const hit = (t: ApiTrack): SpotifySearchHit | null => (t.id ? {
 } : null);
 
 /** Spotify's whole catalog (market IL). */
-export async function searchSpotifyTracks(q: string, token: string, limit = 10): Promise<SpotifySearchHit[]> {
-  const j = await api<{ tracks?: { items: ApiTrack[] } }>(`/search?type=track&market=IL&limit=${limit}&q=${encodeURIComponent(q.slice(0, 100))}`, token);
-  return (j.tracks?.items ?? []).map(hit).filter(Boolean) as SpotifySearchHit[];
+/**
+ * Search Spotify's whole catalog. Since Feb 2026 a search request returns at most 10 items,
+ * so larger result sets are fetched as parallel pages (offset 0, 10, 20, …).
+ */
+export async function searchSpotifyTracks(q: string, token: string, total = 50): Promise<SpotifySearchHit[]> {
+  const pages = Math.max(1, Math.ceil(Math.min(total, 100) / 10));
+  const query = encodeURIComponent(q.slice(0, 100));
+  const results = await Promise.allSettled(Array.from({ length: pages }, (_, i) =>
+    api<{ tracks?: { items: ApiTrack[] } }>(`/search?type=track&market=IL&limit=10&offset=${i * 10}&q=${query}`, token)));
+  const seen = new Set<string>();
+  const hits: SpotifySearchHit[] = [];
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    for (const item of r.value.tracks?.items ?? []) {
+      const h = hit(item);
+      if (h && !seen.has(h.id)) { seen.add(h.id); hits.push(h); }
+    }
+  }
+  return hits;
 }
 
 export async function getSpotifyTrack(id: string, token: string) {

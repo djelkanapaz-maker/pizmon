@@ -69,7 +69,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
     if (token) {
       try {
         const shown = new Set(results.map((t) => t.provider_track_id).filter(Boolean));
-        spotifyHits = (await searchSpotifyTracks(q, token, 15)).filter((h) => !shown.has(h.id)).slice(0, 10);
+        spotifyHits = (await searchSpotifyTracks(q, token, 50)).filter((h) => !shown.has(h.id));
         if (spotifyHits.length) {
           const { data: known } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', s.company.id).eq('provider', 'spotify').in('provider_track_id', spotifyHits.map((h) => h.id));
           const ours = new Set(ctx.ours ?? []);
