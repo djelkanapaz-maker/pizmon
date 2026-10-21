@@ -21,6 +21,8 @@ export const GENRES: [slug: string, he: string, en: string][] = [
   ['house', 'האוס', 'House'],
   ['tech-house', 'טק האוס', 'Tech house'],
   ['electronic', 'אלקטרוני / EDM', 'Electronic / EDM'],
+  ['trance', 'טראנס', 'Trance'],
+  ['techno', 'טכנו', 'Techno'],
   ['rnb-hiphop', 'R&B והיפ־הופ', 'R&B & hip-hop'],
   ['rock', 'רוק', 'Rock'],
   ['soul', 'סול וג׳אז', 'Soul & jazz'],

@@ -127,7 +127,7 @@ export const he: Messages = {
     artists: 'אמנים אהובים', eras: 'תקופות', traditions: 'מסורות', languages: 'שפות', energy: 'האנרגיה לאורך הערב',
     israeli: 'מוזיקה ישראלית', singalong: 'שירה בציבור', adventurous: 'חופש לדיג׳יי', mainstream: 'מיינסטרים ↔ אלטרנטיבי', discovery: 'מוכר ↔ הפתעות',
     references: 'בחירות מהירות', mustPlay: 'חובה לנגן', neverPlay: 'לעולם לא — מוחלט', neverPref: 'עדיף להימנע', moments: 'הרגעים המיוחדים',
-    family: 'שיקולים משפחתיים', djNotes: 'הערות לדיג׳יי', unresolved: 'החלטות שנותרו', empty: '—', of5: '{value}/5',
+    family: 'שיקולים משפחתיים', dislikedSpecific: 'אמנים ושירים שפחות אוהבים', djNotes: 'הערות לדיג׳יי', unresolved: 'החלטות שנותרו', empty: '—', of5: '{value}/5',
   },
   recommendations: {
     title: 'מהדיג׳יי שלכם', sub: 'אשרו, דלגו, שמרו להמשך — או שאלו שאלה.', approve: 'אהבנו', reject: 'לא בשבילנו', later: 'אחר כך', ask: 'שאלה',

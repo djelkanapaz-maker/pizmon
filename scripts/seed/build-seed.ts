@@ -14,6 +14,7 @@ const DJS = [
   ...ROSTER.live.map((r) => ({ ...r, name: 'EILON HAZAN', kind: 'live' as const })),
 ];
 import { definitionV1 } from '../../src/core/questionnaire/definition-v1';
+import { definitionV2 } from '../../src/core/questionnaire/definition-v2';
 
 const q = (s: string | null | undefined) => (s === null || s === undefined ? 'null' : `'${s.replace(/'/g, "''")}'`);
 const arr = (xs: readonly string[]) => `array[${xs.map(q).join(',')}]::text[]`;
@@ -87,7 +88,8 @@ on conflict do nothing;`);
 
 out.push(`insert into public.questionnaires (id, company_id, name) values (${id('questionnaire', 'main')}, ${C}, 'Wedding music questionnaire') on conflict do nothing;
 insert into public.questionnaire_versions (id, questionnaire_id, version, definition, published_at)
-values (${id('qversion', '1')}, ${id('questionnaire', 'main')}, 1, $json$${JSON.stringify(definitionV1)}$json$::jsonb, now()) on conflict do nothing;
+values (${id('qversion', '1')}, ${id('questionnaire', 'main')}, 1, $json$${JSON.stringify(definitionV1)}$json$::jsonb, now()),
+       (${id('qversion', '2')}, ${id('questionnaire', 'main')}, 2, $json$${JSON.stringify(definitionV2)}$json$::jsonb, now()) on conflict do nothing;
 commit;`);
 
 writeFileSync(join(import.meta.dirname, '../../supabase/seed.sql'), out.join('\n') + '\n');

@@ -17,6 +17,7 @@ export type Brief = {
   vibes: string[];
   favoriteGenres: string[];
   dislikedGenres: string[];
+  dislikedSpecific: string | null;
   favoriteArtists: string[];
   eras: string[];
   traditions: string[];
@@ -87,6 +88,7 @@ export function buildBrief(input: BriefInput, locale: Locale): Brief {
     vibes: optLabels('vibe', 'visual'),
     favoriteGenres: arr(answers.favorite_genres).map(genreName),
     dislikedGenres: arr(answers.disliked_genres).map(genreName),
+    dislikedSpecific: typeof answers.disliked_specific === 'string' && answers.disliked_specific.trim() ? answers.disliked_specific : null,
     favoriteArtists: arr(answers.favorite_artists),
     eras: optLabels('eras', 'multi'),
     traditions: optLabels('traditions', 'multi'),

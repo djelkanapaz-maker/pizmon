@@ -125,7 +125,7 @@ export const en = {
     artists: 'Favourite artists', eras: 'Eras', traditions: 'Traditions', languages: 'Languages', energy: 'Energy through the night',
     israeli: 'Israeli music', singalong: 'Sing-alongs', adventurous: 'DJ freedom', mainstream: 'Mainstream ↔ alternative', discovery: 'Familiar ↔ discoveries',
     references: 'Quick picks', mustPlay: 'Must play', neverPlay: 'Never play — absolute', neverPref: 'Rather avoid', moments: 'Special moments',
-    family: 'Family considerations', djNotes: 'Notes for the DJ', unresolved: 'Remaining decisions', empty: '—', of5: '{value}/5',
+    family: 'Family considerations', dislikedSpecific: 'Artists & songs they like less', djNotes: 'Notes for the DJ', unresolved: 'Remaining decisions', empty: '—', of5: '{value}/5',
   },
   recommendations: {
     title: 'From your DJ', sub: 'Approve, pass, keep for later — or ask a question.', approve: 'Love it', reject: 'Pass', later: 'Later', ask: 'Ask',

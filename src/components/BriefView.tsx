@@ -107,9 +107,10 @@ export function BriefView({ brief, m, compact }: { brief: Brief; m: Messages; co
         </ul>
       </section>
 
-      {(brief.familyNotes || brief.djNotes) && (
+      {(brief.familyNotes || brief.djNotes || brief.dislikedSpecific) && (
         <div className="grid md:grid-cols-2 gap-4">
           {brief.familyNotes && <section className="card p-4"><h3 className="label mb-2">{b.family}</h3><p className="whitespace-pre-wrap" dir="auto">{brief.familyNotes}</p></section>}
+          {brief.dislikedSpecific && <section className="card p-4"><h3 className="label mb-2">{b.dislikedSpecific}</h3><p className="whitespace-pre-wrap" dir="auto">{brief.dislikedSpecific}</p></section>}
           {brief.djNotes && <section className="card p-4"><h3 className="label mb-2">{b.djNotes}</h3><p className="whitespace-pre-wrap" dir="auto">{brief.djNotes}</p></section>}
         </div>
       )}

@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { adminCtx } from '@/server/admin-ctx';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
-import { definitionV1 } from '@/core/questionnaire/definition-v1';
+import { definitionLatest } from '@/core/questionnaire/definition-v2';
 
 // ─────────────────────────── shared helpers ───────────────────────────
 type Ctx = NonNullable<Awaited<ReturnType<typeof adminCtx>>>;
@@ -495,7 +495,7 @@ export async function adminCreateQuestionnaireDraft(): Promise<ActionResult<{ id
   const { data: latest } = await c.db.from('questionnaire_versions').select('version, definition').eq('questionnaire_id', q.id).order('version', { ascending: false }).limit(1).maybeSingle();
   const version = ((latest?.version as number | undefined) ?? 0) + 1;
   const { data, error } = await c.db.from('questionnaire_versions')
-    .insert({ questionnaire_id: q.id, version, definition: latest?.definition ?? definitionV1, published_at: null }).select('id').single();
+    .insert({ questionnaire_id: q.id, version, definition: latest?.definition ?? definitionLatest, published_at: null }).select('id').single();
   if (error || !data) return dbFail(error);
   revalidatePath('/admin/questionnaire');
   return ok({ id: data.id as string, version });
