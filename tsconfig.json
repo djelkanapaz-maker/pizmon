@@ -38,6 +38,7 @@
   ],
   "exclude": [
     "scripts/local-stack",
+    "mobile",
     "supabase/functions",
     "node_modules"
   ]

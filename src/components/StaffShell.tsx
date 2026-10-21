@@ -7,6 +7,7 @@ import { signOut } from '@/server/actions/common';
 import { BrandMark } from './brand';
 import { LocaleSwitch } from './LocaleSwitch';
 import { MiniPlayer } from './audio/MiniPlayer';
+import { NativeBridge } from './native/NativeBridge';
 import { IconBell, IconList, IconX } from './icons';
 import { cx } from './ui';
 
@@ -60,6 +61,7 @@ export function StaffShell({ brand, title, items, email, unread = 0, notificatio
       </aside>
       <main id="main" className="lg:ps-60 pb-24"><div className="mx-auto max-w-[1200px]">{children}</div></main>
       <MiniPlayer />
+      <NativeBridge />
     </>
   );
 }

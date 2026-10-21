@@ -158,6 +158,7 @@ export const he: Messages = {
   },
   player: { nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
   profile: {
+    deleteTitle: 'מחיקת החשבון', deleteHint: 'אפשר לבקש למחוק את החשבון ואת המידע שלכם. החברה תטפל בבקשה ותעדכן אתכם במייל.', deleteCta: 'בקשה למחיקת החשבון', deleteConfirm: 'לשלוח בקשה למחיקת החשבון?', deleteRequested: 'הבקשה נשלחה. החברה תטפל בה ותעדכן אתכם במייל.', privacy: 'מדיניות פרטיות',
     title: 'פרופיל', account: 'חשבון', name: 'השם שלכם', languageHint: 'עברית מימין לשמאל; English משמאל לימין.',
     signedInAs: 'מחוברים כ־{email}', role: 'תפקיד', roles: { admin: 'מנהל/ת חברה', dj: 'דיג׳יי', couple: 'זוג' }, install: 'הוספה למסך הבית',
     installHint: 'בתפריט הדפדפן או בכפתור השיתוף בחרו ״הוספה למסך הבית״ כדי לפתוח כמו אפליקציה.',

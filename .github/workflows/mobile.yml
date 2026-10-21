@@ -1,0 +1,39 @@
+name: Mobile apps
+
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', '.github/workflows/mobile.yml']
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android (installable debug APK)
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: mobile/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npx cap sync android
+      - run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atisuto-android-debug
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+
+  ios:
+    name: iOS (simulator build check)
+    runs-on: macos-15
+    defaults: { run: { working-directory: mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: mobile/package-lock.json }
+      - run: npm ci
+      - run: npx cap sync ios
+      - run: xcodebuild -project ios/App/App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build | tail -40

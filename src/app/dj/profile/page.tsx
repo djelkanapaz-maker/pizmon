@@ -6,6 +6,7 @@ import { parseHours } from '@/core/slots';
 import { googleConfigured } from '@/server/google';
 import { CalendarSettings } from '@/components/meeting/CalendarSettings';
 import { DjProfileForm } from './DjProfileForm';
+import { AccountDeletion } from '@/components/AccountDeletion';
 
 export default async function DjProfilePage({ searchParams }: { searchParams: Promise<{ google?: string }> }) {
   const s = await requireDj();
@@ -25,6 +26,7 @@ export default async function DjProfilePage({ searchParams }: { searchParams: Pr
         <CalendarSettings djId={s.djId!} connectedEmail={email} hours={parseHours(dj?.meeting_hours)} configured={googleConfigured()}
           status={status && /^[a-z_]{1,20}$/.test(status) ? status : undefined} connectHref="/api/google/connect" />
         {dj && <DjProfileForm dj={dj} />}
+        <AccountDeletion />
       </div>
     </div>
   );

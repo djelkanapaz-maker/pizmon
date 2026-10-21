@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { NativeBridge } from '@/components/native/NativeBridge';
 import { redirect } from 'next/navigation';
 import { requireCouple } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
@@ -35,6 +36,7 @@ export default async function CoupleLayout({ children }: { children: ReactNode }
         <div className="mx-auto max-w-[1100px]">{children}</div>
       </main>
       <MiniPlayer />
+      <NativeBridge />
     </>
   );
 }

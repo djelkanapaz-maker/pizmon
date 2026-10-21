@@ -5,6 +5,7 @@ import { signOut } from '@/server/actions/common';
 import { Button, PageHeader } from '@/components/ui';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ProfileName } from './ProfileName';
+import { AccountDeletion } from '@/components/AccountDeletion';
 
 export default async function ProfilePage() {
   const s = await requireCouple();
@@ -27,6 +28,7 @@ export default async function ProfilePage() {
           <p className="label">{m.profile.install}</p>
           <p className="text-sm text-paper-dim">{m.profile.installHint}</p>
         </section>
+        <AccountDeletion />
         <form action={signOut}><Button variant="secondary" full>{m.common.signOut}</Button></form>
       </div>
     </div>

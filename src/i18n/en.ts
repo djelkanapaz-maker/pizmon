@@ -156,6 +156,7 @@ export const en = {
   },
   player: { nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },
   profile: {
+    deleteTitle: 'Delete account', deleteHint: 'You can ask us to delete your account and your data. The company will handle it and confirm by email.', deleteCta: 'Request account deletion', deleteConfirm: 'Send an account deletion request?', deleteRequested: 'Request sent. The company will handle it and confirm by email.', privacy: 'Privacy policy',
     title: 'Profile', account: 'Account', name: 'Your name', languageHint: 'Hebrew is right-to-left; English left-to-right.',
     signedInAs: 'Signed in as {email}', role: 'Role', roles: { admin: 'Company admin', dj: 'DJ', couple: 'Couple' }, install: 'Add to home screen',
     installHint: 'Use your browser’s share or menu → “Add to Home Screen” to open this like an app.',
