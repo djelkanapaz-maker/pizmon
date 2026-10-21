@@ -27,11 +27,13 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  const { data } = await supabase.auth.getUser();
+  // getClaims verifies the token locally (asymmetric signing keys), so no Auth round trip per navigation
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = !!data?.claims?.sub;
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
-  if (!data.user && !isPublic) {
+  if (!signedIn && !isPublic) {
     const login = new URL('/login', request.url);
     if (path !== '/') login.searchParams.set('next', path + request.nextUrl.search);
     return NextResponse.redirect(login);

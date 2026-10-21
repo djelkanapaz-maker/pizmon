@@ -25,26 +25,23 @@ export type SessionContext = {
 /** Data Access Layer entry point: one verified user lookup per request. */
 export const getSession = cache(async (): Promise<SessionContext | null> => {
   const db = await supabaseServer();
-  const { data: auth } = await db.auth.getUser();
-  if (!auth.user) return null;
-  const uid = auth.user.id;
-  const [{ data: profile }, { data: members }] = await Promise.all([
+  // verified locally from the session token; falls back to the Auth server when needed
+  const { data: auth } = await db.auth.getClaims();
+  const uid = auth?.claims?.sub;
+  if (!uid) return null;
+  // all lookups at once instead of one after another
+  const [{ data: profile }, { data: members }, { data: couple }, { data: dj }] = await Promise.all([
     db.from('profiles').select('full_name, locale').eq('id', uid).maybeSingle(),
     db.from('company_members').select('role, company:companies(*)').eq('user_id', uid).order('created_at'),
+    db.from('couple_members').select('event_id').eq('user_id', uid).order('created_at').limit(1).maybeSingle(),
+    db.from('djs').select('id').eq('user_id', uid).maybeSingle(),
   ]);
   const member = (members ?? [])[0] as unknown as { role: Role; company: Company } | undefined;
-  let eventId: string | null = null;
-  let djId: string | null = null;
-  if (member?.role === 'couple') {
-    const { data } = await db.from('couple_members').select('event_id').eq('user_id', uid).order('created_at').limit(1).maybeSingle();
-    eventId = data?.event_id ?? null;
-  } else if (member?.role === 'dj') {
-    const { data } = await db.from('djs').select('id').eq('user_id', uid).maybeSingle();
-    djId = data?.id ?? null;
-  }
+  const eventId: string | null = member?.role === 'couple' ? couple?.event_id ?? null : null;
+  const djId: string | null = member?.role === 'dj' ? dj?.id ?? null : null;
   return {
     userId: uid,
-    email: auth.user.email ?? '',
+    email: typeof auth.claims.email === 'string' ? auth.claims.email : '',
     fullName: profile?.full_name ?? null,
     locale: profile?.locale === 'en' ? 'en' : 'he',
     role: member?.role ?? null,
