@@ -47,6 +47,7 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 :root[data-player='on'] { --player-h: 64px; }
+:root[data-spotify='on'] { --player-h: 88px; }
 
 html { background: var(--color-ink); }
 body {

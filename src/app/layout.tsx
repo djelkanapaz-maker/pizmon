@@ -4,6 +4,7 @@ import './globals.css';
 import { getI18n } from '@/i18n/server';
 import { I18nProvider } from '@/i18n/client';
 import { AudioProvider } from '@/components/audio/AudioProvider';
+import { SpotifyPlayerProvider } from '@/components/audio/SpotifyPlayer';
 import { ToastProvider } from '@/components/overlay';
 
 const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO';
@@ -31,7 +32,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-[70] focus:bg-paper focus:text-ink focus:px-4 focus:py-2 focus:rounded-full">{m.nav.skip}</a>
         <I18nProvider locale={locale}>
           <ToastProvider>
-            <AudioProvider>{children}</AudioProvider>
+            <AudioProvider><SpotifyPlayerProvider>{children}</SpotifyPlayerProvider></AudioProvider>
           </ToastProvider>
         </I18nProvider>
       </body>

@@ -8,10 +8,9 @@ import { restrictionFor, type Restriction } from '@/core/restrictions';
 import { confirmSelection, saveSelection } from '@/server/actions/couple';
 import { useToast } from '@/components/overlay';
 import { Badge, Button, Chip, Cover, Field, Textarea, cx } from '@/components/ui';
-import { PlayToggle } from '@/components/audio/MiniPlayer';
+import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconCheck, IconDiscover, IconPlus, IconX, IconBan } from '@/components/icons';
 import { STATUS_TONE } from '@/components/music/status';
-import { playableSource } from '@/components/music/listening';
 import type { TrackContext } from '@/components/music/TrackList';
 import { relativeTime } from '@/i18n/format';
 import type { Moment, Selection, Track } from '@/server/queries';
@@ -63,7 +62,7 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
               <p className="font-bold truncate" dir="auto">{t.title}</p>
               <p className="text-sm text-paper-dim truncate" dir="auto">{t.artist?.name}</p>
             </div>
-            {playableSource(t) && <PlayToggle source={playableSource(t)!} size="sm" />}
+            <TrackPlay track={t} />
             <button type="button" disabled={busy} onClick={() => save({ [f.track]: null })} aria-label={`${m.common.remove}: ${t.title}`} className="size-10 grid place-items-center rounded-full hover:bg-ink-3"><IconX size={18} /></button>
           </div>
         )}
@@ -76,7 +75,6 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
     const r = restrictionFor(t, ctx.restrictions as Restriction[]);
     const blocked = r?.kind === 'never_play' && r.strength === 'absolute';
     const inShort = state.shortlist.includes(t.id);
-    const src = playableSource(t);
     return (
       <li key={t.id} className="flex items-center gap-3 py-2.5 border-b border-line/50 last:border-0">
         <Cover seed={t.id} label={t.title} src={t.artwork_url} size={44} />
@@ -85,7 +83,7 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
           <p className="text-sm text-paper-dim truncate" dir="auto">{t.artist?.name}</p>
           {blocked && <Badge tone="danger" className="mt-1"><IconBan size={12} />{m.discover.neverBlocked}</Badge>}
         </div>
-        {src && <PlayToggle source={src} size="sm" />}
+        <TrackPlay track={t} />
         <div className="flex gap-1.5 shrink-0">
           {(split ? [['primary_track_id', m.moments.forGroom], ['second_track_id', m.moments.forBride]] as const : [['primary_track_id', m.moments.choose]] as const).map(([field, lbl]) => {
             const on = state[field] === t.id;

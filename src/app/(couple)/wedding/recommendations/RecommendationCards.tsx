@@ -7,7 +7,7 @@ import { relativeTime } from '@/i18n/format';
 import { respondToRecommendation } from '@/server/actions/couple';
 import { useToast } from '@/components/overlay';
 import { Badge, Button, Cover, Input, cx } from '@/components/ui';
-import { PlayToggle } from '@/components/audio/MiniPlayer';
+import { TrackPlay } from '@/components/music/TrackPlay';
 import { externalOptions, playableSource } from '@/components/music/listening';
 import { IconExternal } from '@/components/icons';
 import type { Track } from '@/server/queries';
@@ -41,7 +41,7 @@ export function RecommendationCards({ recs, momentNames }: { recs: Rec[]; moment
               <div className="flex items-center gap-3">
                 <Cover seed={r.track.id} label={r.track.title} src={r.track.artwork_url} size={64} />
                 <div className="flex-1 min-w-0"><p className="font-bold" dir="auto">{r.track.title}</p><p className="text-sm text-paper-dim" dir="auto">{r.track.artist?.name}</p></div>
-                {src ? <PlayToggle source={src} /> : (
+                {src || (r.track.provider === 'spotify' && r.track.provider_track_id) ? <TrackPlay track={r.track} size="md" /> : (
                   <a href={externalOptions(r.track)[0].url} target="_blank" rel="noopener noreferrer" aria-label={fmt(m.discover.searchOn, { service: externalOptions(r.track)[0].service })} className="size-11 grid place-items-center rounded-full border border-line hover:border-paper"><IconExternal size={18} /></a>
                 )}
               </div>

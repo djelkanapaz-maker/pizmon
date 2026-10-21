@@ -5,8 +5,7 @@ import { useI18n } from '@/i18n/client';
 import { createPlaylist, deletePlaylist, removePlaylistTrack, reorderPlaylist, updatePlaylist, updatePlaylistTrack } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, Cover, ErrorNote, Field, Input, Select, cx } from '@/components/ui';
-import { PlayToggle } from '@/components/audio/MiniPlayer';
-import { playableSource } from '@/components/music/listening';
+import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconArrowDown, IconArrowUp, IconTrash } from '@/components/icons';
 import type { Track } from '@/server/queries';
 
@@ -82,14 +81,13 @@ export function PlaylistEditor({ playlist, items, isMain = false }: { playlist: 
         <ol className="gutter flex flex-col gap-2">
           {order.map((id, idx) => {
             const it = byId.get(id); if (!it) return null;
-            const src = playableSource(it.track);
             return (
               <li key={id} className={cx('card p-3 flex flex-col gap-2', it.status === 'confirmed' && 'border-gold/60')}>
                 <div className="flex items-center gap-3">
                   <span className="w-6 text-center text-sm text-paper-dim tabular">{idx + 1}</span>
                   <Cover seed={it.track.id} label={it.track.title} src={it.track.artwork_url} size={44} />
                   <div className="flex-1 min-w-0"><p className="font-bold truncate" dir="auto">{it.track.title}</p><p className="text-sm text-paper-dim truncate" dir="auto">{it.track.artist?.name}</p></div>
-                  {src && <PlayToggle source={src} size="sm" />}
+                  <TrackPlay track={it.track} />
                   <div className="flex flex-col">
                     <button type="button" aria-label={m.playlists.moveUp} disabled={busy || idx === 0} onClick={() => move(idx, -1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowUp size={14} /></button>
                     <button type="button" aria-label={m.playlists.moveDown} disabled={busy || idx === order.length - 1} onClick={() => move(idx, 1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowDown size={14} /></button>

@@ -6,7 +6,7 @@ import { restrictionFor, type Restriction } from '@/core/restrictions';
 import { saveSelection, setTrackPreference, toggleOurPlaylist } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, Cover, cx } from '@/components/ui';
-import { PlayToggle } from '@/components/audio/MiniPlayer';
+import { TrackPlay } from './TrackPlay';
 import { IconBan, IconCheck, IconCompare, IconExternal, IconHeart, IconList, IconPlus, IconStar } from '@/components/icons';
 import { externalOptions, playableSource } from './listening';
 import type { Track } from '@/server/queries';
@@ -59,7 +59,6 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
         {tracks.map((t) => {
           const r = restrictionFor(t, ctx.restrictions as Restriction[]);
           const blocked = r?.kind === 'never_play' && r.strength === 'absolute';
-          const src = playableSource(t);
           const isSaved = saved.has(t.id);
           return (
             <li key={t.id} className={cx('gutter flex items-center gap-3 py-2.5 border-b border-line/50 last:border-0', rejected.has(t.id) && 'opacity-50')}>
@@ -84,7 +83,7 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
                   <IconCompare size={18} />
                 </button>
               )}
-              {src && <PlayToggle source={src} size="sm" />}
+              <TrackPlay track={t} />
               {!ctx.readOnly && (
                 <button type="button" disabled={pending} onClick={() => pref(t, isSaved ? 'unsave' : 'save')}
                   aria-pressed={isSaved} aria-label={`${isSaved ? m.discover.saved : m.discover.save}: ${t.title}`}
@@ -117,7 +116,6 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
       <Sheet open={showCompare} onClose={() => setShowCompare(false)} title={m.discover.compareTitle} wide>
         <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${cmpTracks.length}, minmax(0,1fr))` }}>
           {cmpTracks.map((t) => {
-            const src = playableSource(t);
             return (
               <div key={t.id} className="flex flex-col gap-2 min-w-0">
                 <Cover seed={t.id} label={t.title} src={t.artwork_url} size={96} />
@@ -129,7 +127,7 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
                   <div><dt className="label">{m.track.language}</dt><dd>{t.language ? (m.discover.languages as Record<string, string>)[t.language] : '—'}</dd></div>
                   <div><dt className="label">{m.track.era}</dt><dd>{t.decade ? m.discover.decade.replace('{decade}', String(t.decade).slice(locale === 'he' ? 2 : 0)) : '—'}</dd></div>
                 </dl>
-                {src && <PlayToggle source={src} size="sm" />}
+                <TrackPlay track={t} />
                 {!ctx.readOnly && <Button size="sm" variant={saved.has(t.id) ? 'gold' : 'secondary'} onClick={() => pref(t, saved.has(t.id) ? 'unsave' : 'save')}>{saved.has(t.id) ? m.discover.saved : m.discover.save}</Button>}
               </div>
             );
@@ -176,11 +174,8 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOur
             </div>
           </div>
           {r && <Badge tone={r.kind === 'must_play' ? 'gold' : 'danger'}>{r.kind === 'must_play' ? m.discover.mustPlay : r.strength === 'absolute' ? m.discover.neverBlocked : m.discover.neverPref}</Badge>}
-          {t.provider === 'spotify' && t.provider_track_id && /^[A-Za-z0-9]{22}$/.test(t.provider_track_id) ? (
-            <iframe title={`Spotify: ${t.title}`} src={`https://open.spotify.com/embed/track/${t.provider_track_id}?theme=0`} width="100%" height="80" loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="rounded-[12px] border-0" />
-          ) : src ? (
-            <div className="flex items-center gap-3"><PlayToggle source={src} size="lg" /><span className="font-bold">{src.kind === 'licensed_preview' ? m.discover.preview : m.discover.play}</span></div>
+          {src || (t.provider === 'spotify' && t.provider_track_id) ? (
+            <div className="flex items-center gap-3"><TrackPlay track={t} size="lg" /><span className="font-bold">{src?.kind === 'licensed_preview' ? m.discover.preview : m.discover.play}</span></div>
           ) : (
             <div className="flex flex-col gap-2">
               <p className="label">{m.discover.listen}</p>
