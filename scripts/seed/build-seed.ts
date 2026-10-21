@@ -80,7 +80,7 @@ values (${pid}, ${C}, 'editorial', ${q(p.title)}, ${q(p.title_en)}, ${q(p.purpos
 });
 
 out.push(`insert into public.radio_stations (id, company_id, name, description, mode, stream_url)
-values (${id('radio', 'main')}, ${C}, 'Club Radio', 'Demo mode: an original looping placeholder, not a live broadcast. Configure a stream URL in Admin → Radio.', 'demo', '/demo-audio/golden-hour.mp3') on conflict do nothing;
+values (${id('radio', 'main')}, ${C}, 'ATISUTO RADIO', 'Demo mode: an original looping placeholder, not a live broadcast. Configure a stream URL in Admin → Radio.', 'demo', '/demo-audio/golden-hour.mp3') on conflict do nothing;
 insert into public.radio_schedule_items (id, station_id, title, description, host_dj_id, starts_at, ends_at) values
  (${id('show', '1')}, ${id('radio', 'main')}, 'Golden Hour (Demo show)', 'Warm reception grooves', null, date_trunc('day', now()) + interval '1 day 18 hours', date_trunc('day', now()) + interval '1 day 20 hours'),
  (${id('show', '2')}, ${id('radio', 'main')}, 'Mizrahi Nights (Demo show)', 'Israeli party classics', null, date_trunc('day', now()) + interval '2 days 20 hours', date_trunc('day', now()) + interval '2 days 22 hours'),

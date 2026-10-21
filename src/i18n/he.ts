@@ -53,7 +53,7 @@ export const he: Messages = {
     noDate: 'הוסיפו את תאריך החתונה', yourDj: 'הדיג׳יי שלכם', djPending: 'ממתין לאישור', djProposed: 'ממתין לאישור שלכם',
     progress: 'התקדמות התכנון', progressDetail: '{done} מתוך {total} שלבים הושלמו', nextUp: 'הצעד הבא',
     recommended: 'הדיג׳יי שלכם ממליץ', savedRecently: 'נשמרו לאחרונה', ceremony: 'אוספים לחופה',
-    featuredMixes: 'מהדיג׳ייז שלנו', radio: 'הרדיו של המועדון', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
+    featuredMixes: 'מהדיג׳ייז שלנו', radio: 'ATISUTO RADIO', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
     emptySaved: 'שירים שתשמרו ממאגר המוזיקה יופיעו כאן.', exploreNow: 'לגלות מוזיקה',
     tasks: { onboarding: 'היכרות ופרטים', dj: 'דיג׳יי מאושר', questionnaire: 'השאלון המוזיקלי', moments: 'שירים לרגעים המיוחדים', restrictions: 'חובה / לעולם לא', submit: 'התקציר נשלח לדיג׳יי' },
     action: {
@@ -150,7 +150,7 @@ export const he: Messages = {
     savedEmpty: 'עוד לא נשמר כלום.',
   },
   radio: {
-    title: 'רדיו', sub: 'סטים, תוכניות ומיקסים מהדיג׳ייז של המועדון.', listen: 'האזנה', live: 'שידור חי', demo: 'שידור הדגמה', off: 'לא משדר',
+    title: 'רדיו', sub: 'סטים, תוכניות ומיקסים מהדיג׳ייז של אטיסוטו', listen: 'האזנה', live: 'שידור חי', demo: 'שידור הדגמה', off: 'לא משדר',
     demoNote: 'מצב הדגמה: לופ מקורי לדוגמה, לא שידור חי.', offNote: 'הרדיו לא משדר כרגע.',
     schedule: 'לוח שידורים', noSchedule: 'אין תוכניות מתוכננות.', mixes: 'מיקסים וסטים', noMixes: 'עוד לא פורסמו מיקסים.',
     hostedBy: 'עם {dj}', streamError: 'לא הצלחנו להתחבר לשידור.', reconnecting: 'מתחברים מחדש…', backgroundNote: 'בטלפון, ההשמעה עלולה להיעצר כשהמסך ננעל.',

@@ -51,7 +51,7 @@ export const en = {
     noDate: 'Add your wedding date', yourDj: 'Your DJ', djPending: 'Pending approval', djProposed: 'Awaiting your confirmation',
     progress: 'Planning progress', progressDetail: '{done} of {total} steps complete', nextUp: 'Next up',
     recommended: 'Your DJ recommends', savedRecently: 'Recently saved', ceremony: 'Ceremony collections',
-    featuredMixes: 'From the DJs', radio: 'Club Radio', updates: 'Updates from your DJ', pending: 'Needs your answer',
+    featuredMixes: 'From the DJs', radio: 'ATISUTO RADIO', updates: 'Updates from your DJ', pending: 'Needs your answer',
     emptySaved: 'Tracks you save while exploring appear here.', exploreNow: 'Explore music',
     tasks: { onboarding: 'Welcome & details', dj: 'DJ confirmed', questionnaire: 'Music questionnaire', moments: 'Special-moment songs', restrictions: 'Must / never play', submit: 'Brief sent to DJ' },
     action: {
@@ -148,7 +148,7 @@ export const en = {
     savedEmpty: 'Nothing saved yet.',
   },
   radio: {
-    title: 'Radio', sub: 'Sets, shows and mixes from the club’s DJs.', listen: 'Listen', live: 'LIVE', demo: 'DEMO STREAM', off: 'Off air',
+    title: 'Radio', sub: 'Sets, shows and mixes from the ATISUTO DJs', listen: 'Listen', live: 'LIVE', demo: 'DEMO STREAM', off: 'Off air',
     demoNote: 'Demo mode: an original placeholder loop, not a live broadcast.', offNote: 'The radio is not broadcasting right now.',
     schedule: 'Schedule', noSchedule: 'No shows scheduled.', mixes: 'Mixes & sets', noMixes: 'No mixes published yet.',
     hostedBy: 'with {dj}', streamError: 'The stream couldn’t be reached.', reconnecting: 'Reconnecting…', backgroundNote: 'On phones, playback may stop when the screen locks.',
