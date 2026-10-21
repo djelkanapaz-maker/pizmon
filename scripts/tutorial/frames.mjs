@@ -50,7 +50,7 @@ function stepHtml(step, i, n) {
       <div class="sub">${step.say}</div>
     </body></html>`;
   }
-  const sw = 1240, scale = sw / s.vw, sh = Math.round(s.vh * scale);
+  const sw = 1180, scale = sw / s.vw, sh = Math.round(s.vh * scale);
   const box = s.box && { x: s.box.x * scale - 10, y: s.box.y * scale - 10, w: s.box.w * scale + 20, h: s.box.h * scale + 20 };
   return `<!doctype html><html><head><meta charset="utf-8"><style>${base}
     h1{position:absolute;top:128px;right:72px;font-size:46px}
