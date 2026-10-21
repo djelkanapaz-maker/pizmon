@@ -3,9 +3,9 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/client';
 import { restrictionFor, type Restriction } from '@/core/restrictions';
-import { addToPlaylist, createPlaylist, saveSelection, setTrackPreference } from '@/server/actions/couple';
+import { saveSelection, setTrackPreference, toggleOurPlaylist } from '@/server/actions/couple';
 import { Sheet, useToast } from '@/components/overlay';
-import { Badge, Button, Cover, cx, Input } from '@/components/ui';
+import { Badge, Button, Cover, cx } from '@/components/ui';
 import { PlayToggle } from '@/components/audio/MiniPlayer';
 import { IconBan, IconCheck, IconCompare, IconExternal, IconHeart, IconList, IconPlus, IconStar } from '@/components/icons';
 import { externalOptions, playableSource } from './listening';
@@ -16,6 +16,8 @@ export type TrackContext = {
   rejected: string[];
   restrictions: Pick<Restriction, 'id' | 'kind' | 'strength' | 'target_type' | 'track_id' | 'artist_id' | 'genre_id' | 'text_value'>[];
   playlists: { id: string; title: string }[];
+  /** track ids already in the couple's main playlist */
+  ours?: string[];
   moments: { id: string; name_he: string; name_en: string }[];
   readOnly?: boolean;
 };
@@ -24,6 +26,7 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
   const { m, locale } = useI18n();
   const [saved, setSaved] = useState(() => new Set(ctx.saved));
   const [rejected, setRejected] = useState(() => new Set(ctx.rejected));
+  const [ours, setOurs] = useState(() => new Set(ctx.ours ?? []));
   const [active, setActive] = useState<Track | null>(null);
   const [comparing, setComparing] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
@@ -37,6 +40,14 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
     setSaved((s) => { const n = new Set(s); if (p === 'save') n.add(t.id); else if (p === 'unsave' || p === 'reject') n.delete(t.id); return n; });
     setRejected((s) => { const n = new Set(s); if (p === 'reject') n.add(t.id); else if (p === 'unreject' || p === 'save') n.delete(t.id); return n; });
     toast(p === 'save' ? m.discover.saved : p === 'reject' ? m.discover.rejected : m.common.saved);
+  });
+
+  const toggleOurs = (t: Track) => start(async () => {
+    const add = !ours.has(t.id);
+    const r = await toggleOurPlaylist(t.id, add, m.playlists.ours);
+    if (!r.ok) return toast(errMsg(r.error), 'error');
+    setOurs((s) => { const n = new Set(s); if (add) n.add(t.id); else n.delete(t.id); return n; });
+    toast(add ? m.playlists.addedOurs : m.playlists.removedOurs);
   });
 
   if (!tracks.length) return emptyText ? <p className="gutter text-paper-dim">{emptyText}</p> : null;
@@ -81,6 +92,13 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
                   <IconHeart filled={isSaved} />
                 </button>
               )}
+              {!ctx.readOnly && (
+                <button type="button" disabled={pending} onClick={() => toggleOurs(t)}
+                  aria-pressed={ours.has(t.id)} aria-label={`${ours.has(t.id) ? m.playlists.inOurs : m.playlists.addOurs}: ${t.title}`}
+                  className={cx('size-11 grid place-items-center rounded-full transition-colors', ours.has(t.id) ? 'bg-gold text-ink' : 'text-paper-dim hover:text-paper border border-line')}>
+                  {ours.has(t.id) ? <IconCheck size={18} /> : <IconPlus size={18} />}
+                </button>
+              )}
             </li>
           );
         })}
@@ -119,36 +137,24 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
         </div>
       </Sheet>
 
-      {active && <TrackSheet track={active} ctx={ctx} onClose={() => setActive(null)} isSaved={saved.has(active.id)} isRejected={rejected.has(active.id)} onPref={(p) => pref(active, p)} />}
+      {active && <TrackSheet track={active} ctx={ctx} onClose={() => setActive(null)} isSaved={saved.has(active.id)} isRejected={rejected.has(active.id)} onPref={(p) => pref(active, p)} inOurs={ours.has(active.id)} onOurs={() => toggleOurs(active)} />}
     </>
   );
 }
 
-function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref }: {
+function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref, inOurs, onOurs }: {
   track: Track; ctx: TrackContext; onClose: () => void; isSaved: boolean; isRejected: boolean; onPref: (p: 'save' | 'unsave' | 'reject' | 'unreject') => void;
+  inOurs: boolean; onOurs: () => void;
 }) {
   const { m, locale, fmt } = useI18n();
   const toast = useToast();
   const router = useRouter();
-  const [mode, setMode] = useState<'main' | 'playlist' | 'moment'>('main');
-  const [newName, setNewName] = useState('');
+  const [mode, setMode] = useState<'main' | 'moment'>('main');
   const [busy, start] = useTransition();
   const src = playableSource(t);
   const r = restrictionFor(t, ctx.restrictions as Restriction[]);
   const errMsg = (code: string) => (m.errors as Record<string, string>)[code] ?? m.common.error;
 
-  const add = (playlistId: string, name: string) => start(async () => {
-    const res = await addToPlaylist(playlistId, t.id);
-    if (!res.ok) return toast(errMsg(res.error), 'error');
-    toast(fmt(m.playlists.added, { name })); onClose(); router.refresh();
-  });
-  const createAndAdd = () => start(async () => {
-    const res = await createPlaylist({ title: newName.trim(), purpose: 'other' });
-    if (!res.ok) return toast(errMsg(res.error), 'error');
-    const r2 = await addToPlaylist(res.data.id, t.id);
-    if (!r2.ok) return toast(errMsg(r2.error), 'error');
-    toast(fmt(m.playlists.added, { name: newName.trim() })); onClose(); router.refresh();
-  });
   const moment = (momentId: string, how: 'shortlist' | 'primary' | 'backup') => start(async () => {
     const res = await saveSelection(momentId, how === 'primary' ? { primary_track_id: t.id } : how === 'backup' ? { backup_track_id: t.id } : { addShortlist: t.id });
     if (!res.ok) return toast(errMsg(res.error), 'error');
@@ -156,7 +162,7 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref }: {
   });
 
   return (
-    <Sheet open onClose={onClose} title={mode === 'playlist' ? m.discover.addToPlaylist : mode === 'moment' ? m.discover.addToMoment : t.title}>
+    <Sheet open onClose={onClose} title={mode === 'moment' ? m.discover.addToMoment : t.title}>
       {mode === 'main' && (
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-4">
@@ -170,7 +176,10 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref }: {
             </div>
           </div>
           {r && <Badge tone={r.kind === 'must_play' ? 'gold' : 'danger'}>{r.kind === 'must_play' ? m.discover.mustPlay : r.strength === 'absolute' ? m.discover.neverBlocked : m.discover.neverPref}</Badge>}
-          {src ? (
+          {t.provider === 'spotify' && t.provider_track_id && /^[A-Za-z0-9]{22}$/.test(t.provider_track_id) ? (
+            <iframe title={`Spotify: ${t.title}`} src={`https://open.spotify.com/embed/track/${t.provider_track_id}?theme=0`} width="100%" height="80" loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="rounded-[12px] border-0" />
+          ) : src ? (
             <div className="flex items-center gap-3"><PlayToggle source={src} size="lg" /><span className="font-bold">{src.kind === 'licensed_preview' ? m.discover.preview : m.discover.play}</span></div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -189,24 +198,10 @@ function TrackSheet({ track: t, ctx, onClose, isSaved, isRejected, onPref }: {
             <div className="grid grid-cols-2 gap-2">
               <Button variant={isSaved ? 'gold' : 'primary'} onClick={() => onPref(isSaved ? 'unsave' : 'save')}><IconHeart size={18} filled={isSaved} />{isSaved ? m.discover.saved : m.discover.save}</Button>
               <Button variant="secondary" onClick={() => onPref(isRejected ? 'unreject' : 'reject')}><IconBan size={18} />{isRejected ? m.discover.rejected : m.discover.reject}</Button>
-              <Button variant="ghost" className="border border-line" onClick={() => setMode('playlist')}><IconList size={18} />{m.discover.addToPlaylist}</Button>
+              <Button variant={inOurs ? 'gold' : 'ghost'} className={inOurs ? '' : 'border border-line'} onClick={onOurs}>{inOurs ? <IconCheck size={18} /> : <IconList size={18} />}{inOurs ? m.playlists.inOurs : m.playlists.addOurs}</Button>
               <Button variant="ghost" className="border border-line" onClick={() => setMode('moment')}><IconStar size={18} />{m.discover.addToMoment}</Button>
             </div>
           )}
-        </div>
-      )}
-      {mode === 'playlist' && (
-        <div className="flex flex-col gap-3">
-          {ctx.playlists.map((p) => (
-            <button key={p.id} type="button" disabled={busy} onClick={() => add(p.id, p.title)} className="card h-14 px-4 flex items-center justify-between font-bold hover:border-paper text-start">
-              <span dir="auto">{p.title}</span><IconPlus size={18} />
-            </button>
-          ))}
-          <form onSubmit={(e) => { e.preventDefault(); if (newName.trim()) createAndAdd(); }} className="flex gap-2 mt-2">
-            <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={m.playlists.create} aria-label={m.playlists.name} maxLength={120} />
-            <Button type="submit" disabled={busy || !newName.trim()}>{m.common.create}</Button>
-          </form>
-          <Button variant="ghost" onClick={() => setMode('main')}>{m.common.back}</Button>
         </div>
       )}
       {mode === 'moment' && (

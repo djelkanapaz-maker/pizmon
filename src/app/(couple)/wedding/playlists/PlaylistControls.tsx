@@ -43,7 +43,7 @@ export function NewPlaylistButton() {
 
 type Item = { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track };
 
-export function PlaylistEditor({ playlist, items }: { playlist: { id: string; title: string; purpose: string | null; shared_with_dj: boolean }; items: Item[] }) {
+export function PlaylistEditor({ playlist, items, isMain = false }: { playlist: { id: string; title: string; purpose: string | null; shared_with_dj: boolean }; items: Item[]; isMain?: boolean }) {
   const { m } = useI18n();
   const router = useRouter();
   const toast = useToast();
@@ -69,12 +69,14 @@ export function PlaylistEditor({ playlist, items }: { playlist: { id: string; ti
         <Button size="sm" variant={playlist.shared_with_dj ? 'gold' : 'secondary'} disabled={busy} onClick={() => run(() => updatePlaylist(playlist.id, { shared_with_dj: !playlist.shared_with_dj }))}>
           {playlist.shared_with_dj ? m.playlists.shared : m.playlists.share}
         </Button>
+        {!isMain && (<>
         <Select aria-label={m.playlists.purpose} defaultValue={playlist.purpose ?? 'other'} className="!h-9 !w-auto text-sm" onChange={(e) => run(() => updatePlaylist(playlist.id, { purpose: e.target.value }))}>
           {PURPOSES.map((p) => <option key={p} value={p}>{m.playlists.purposes[p]}</option>)}
         </Select>
         <Button size="sm" variant="danger" className="ms-auto" disabled={busy} onClick={() => { if (confirm(`${m.common.delete}: ${playlist.title}?`)) start(async () => { const r = await deletePlaylist(playlist.id); if (!r.ok) { toast(m.common.error, 'error'); return; } router.push('/wedding/playlists'); }); }}>
           <IconTrash size={16} />{m.common.delete}
         </Button>
+        </>)}
       </div>
       {order.length === 0 ? <p className="gutter text-paper-dim">{m.playlists.emptyTracks}</p> : (
         <ol className="gutter flex flex-col gap-2">

@@ -122,6 +122,42 @@ export async function deletePlaylist(id: string): Promise<ActionResult> {
   return ok(undefined);
 }
 
+/** The couple's single main playlist: found, or created on first use. */
+async function mainPlaylistId(c: NonNullable<Awaited<ReturnType<typeof coupleCtx>>>, title: string) {
+  const { data } = await c.db.from('playlists').select('id').eq('event_id', c.s.eventId).eq('kind', 'couple').eq('is_main', true).maybeSingle();
+  if (data) return data.id as string;
+  const { data: created, error } = await c.db.from('playlists').insert({
+    company_id: c.s.company.id, kind: 'couple', event_id: c.s.eventId, title, purpose: 'other', is_main: true, shared_with_dj: true, created_by: c.s.userId,
+  }).select('id').single();
+  if (error) {
+    // another tab created it first
+    const { data: again } = await c.db.from('playlists').select('id').eq('event_id', c.s.eventId).eq('is_main', true).maybeSingle();
+    if (again) return again.id as string;
+    throw error;
+  }
+  return created.id as string;
+}
+
+/** Add a track to (or remove it from) the couple's main playlist. */
+export async function toggleOurPlaylist(trackId: string, add: boolean, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ playlistId: string }>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  if (!uuid.safeParse(trackId).success) return fail('validation');
+  let playlistId: string;
+  try { playlistId = await mainPlaylistId(c, String(title).trim().slice(0, 120) || 'הפלייליסט שלנו'); } catch (e) { return fail(errorCode(e as { message?: string })); }
+  if (add) {
+    const { data: last } = await c.db.from('playlist_tracks').select('position').eq('playlist_id', playlistId).order('position', { ascending: false }).limit(1).maybeSingle();
+    const { error } = await c.db.from('playlist_tracks').upsert(
+      { playlist_id: playlistId, track_id: trackId, position: (last?.position ?? -1) + 1, added_by: c.s.userId },
+      { onConflict: 'playlist_id,track_id', ignoreDuplicates: true });
+    if (error) return fail(errorCode(error));
+  } else {
+    const { error } = await c.db.from('playlist_tracks').delete().eq('playlist_id', playlistId).eq('track_id', trackId);
+    if (error) return fail(errorCode(error));
+  }
+  revalidatePath('/wedding/playlists'); revalidatePath('/wedding');
+  return ok({ playlistId });
+}
+
 export async function addToPlaylist(playlistId: string, trackId: string): Promise<ActionResult> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   if (!uuid.safeParse(playlistId).success || !uuid.safeParse(trackId).success) return fail('validation');

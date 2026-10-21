@@ -84,9 +84,10 @@ export const en = {
   },
   track: { by: 'by {artist}', genre: 'Genre', energy: 'Energy', language: 'Language', era: 'Era', moments: 'Fits', rights: 'Rights', metadataOnly: 'Metadata only' },
   playlists: {
+    ours: 'Our playlist', addOurs: 'Add to our playlist', inOurs: 'In our playlist', addedOurs: 'Added to our playlist', removedOurs: 'Removed from our playlist', others: 'Other playlists', emptyOurs: 'No songs yet. Open the Music library and tap + next to a song to add it here.', oursSub: 'Every song you picked from every playlist, in one place. Your DJ sees this list.',
     title: 'Playlists', mine: 'Our playlists', create: 'New playlist', name: 'Name', purpose: 'Purpose', notes: 'Notes',
     purposes: { reception: 'Reception', ceremony: 'Ceremony', dancefloor: 'Dancefloor', late_night: 'Late night', family: 'Family', inspiration: 'Inspiration', other: 'Other' },
-    empty: 'No playlists yet. Create one and add tracks from Discover.', emptyTracks: 'This playlist is empty. Add tracks from Discover.',
+    empty: 'No playlists yet. Create one and add tracks from the Music library.', emptyTracks: 'This playlist is empty. Add tracks from the Music library.',
     shared: 'Shared with your DJ', notShared: 'Private', share: 'Share with DJ', unshare: 'Make private',
     tentative: 'Tentative', confirmed: 'Confirmed', backup: 'Backup', moveUp: 'Move up', moveDown: 'Move down',
     note: 'Note for DJ', notFinal: 'A playlist is your wish list — your DJ builds the final setlist from it.',

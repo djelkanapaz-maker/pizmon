@@ -83,7 +83,14 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.goto('/discover?q=September'); await settle(couple);
   await couple.getByRole('button', { name: /שמירה: September/ }).click();
   await expect(couple.getByRole('button', { name: /נשמר: September/ })).toBeVisible();
+  // every pick converges into the couple's one playlist
+  await couple.getByRole('button', { name: /הוספה לפלייליסט שלנו: September/ }).click();
+  await expect(couple.getByRole('button', { name: /בפלייליסט שלנו: September/ })).toBeVisible();
   await shot(couple, '07-discover');
+  await couple.goto('/wedding/playlists'); await settle(couple);
+  await expect(couple.getByRole('heading', { name: 'הפלייליסט שלנו' })).toBeVisible();
+  await expect(couple.getByText('September', { exact: true })).toBeVisible();
+  await shot(couple, '07b-our-playlist');
 
   // ── 5. Questionnaire with autosave ──
   await couple.goto('/wedding/questionnaire/personality'); await settle(couple);

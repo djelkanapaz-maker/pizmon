@@ -8,12 +8,13 @@ import type { SelectionStatus } from '@/core/moments';
 import type { ProgressFacts } from '@/core/progress';
 
 export const TRACK_SELECT =
-  'id, title, artist_id, genre_id, energy, language, decade, artwork_url, preview_url, playback_url, external_url, rights_status, is_demo, artist:artists(name), genre:genres(name_he, name_en)';
+  'id, title, artist_id, genre_id, energy, language, decade, artwork_url, preview_url, playback_url, external_url, rights_status, is_demo, provider, provider_track_id, artist:artists(name), genre:genres(name_he, name_en)';
 
 export type Track = {
   id: string; title: string; artist_id: string; genre_id: string | null; energy: number | null; language: string | null;
   decade: number | null; artwork_url: string | null; preview_url: string | null; playback_url: string | null;
   external_url: string | null; rights_status: 'metadata_only' | 'preview_licensed' | 'full_licensed' | 'company_owned'; is_demo: boolean;
+  provider?: string | null; provider_track_id?: string | null;
   artist: { name: string } | null; genre: { name_he: string; name_en: string } | null;
 };
 

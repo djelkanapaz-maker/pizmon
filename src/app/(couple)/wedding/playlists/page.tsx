@@ -2,38 +2,46 @@ import Link from 'next/link';
 import { requireCouple } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getI18n } from '@/i18n/server';
-import { fmt, relativeTime } from '@/i18n/format';
-import { Badge, Cover, EmptyState, PageHeader } from '@/components/ui';
-import { NewPlaylistButton } from './PlaylistControls';
+import { fmt } from '@/i18n/format';
+import { TRACK_SELECT, type Track } from '@/server/queries';
+import { ButtonLink, Cover, EmptyState, PageHeader } from '@/components/ui';
+import { PlaylistEditor } from './PlaylistControls';
 
+/** The couple's one playlist: every pick from the Music library lands here. */
 export default async function PlaylistsPage() {
   const s = await requireCouple();
-  const { m, locale } = await getI18n();
+  const { m } = await getI18n();
   const db = await supabaseServer();
-  const { data } = await db.from('playlists').select('id, title, purpose, shared_with_dj, updated_at, playlist_tracks(status)').eq('event_id', s.eventId).eq('kind', 'couple').order('created_at');
-  const lists = (data ?? []) as unknown as { id: string; title: string; purpose: string | null; shared_with_dj: boolean; updated_at: string; playlist_tracks: { status: string }[] }[];
+  const { data } = await db.from('playlists')
+    .select(`id, title, purpose, shared_with_dj, is_main, playlist_tracks(id, position, status, note, track:music_tracks(${TRACK_SELECT}))`)
+    .eq('event_id', s.eventId).eq('kind', 'couple').order('created_at');
+  type Row = { id: string; title: string; purpose: string | null; shared_with_dj: boolean; is_main: boolean; playlist_tracks: { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track | null }[] };
+  const lists = (data ?? []) as unknown as Row[];
+  const main = lists.find((p) => p.is_main);
+  const others = lists.filter((p) => !p.is_main);
+  const items = (main?.playlist_tracks ?? []).filter((x) => x.track).sort((a, b) => a.position - b.position) as { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track }[];
   return (
     <div>
-      <PageHeader back={{ href: '/wedding', label: m.wedding.title }} title={m.playlists.title} sub={m.playlists.notFinal} actions={<NewPlaylistButton />} />
-      {lists.length === 0 ? <div className="gutter"><EmptyState title={m.playlists.empty} /></div> : (
-        <ul className="gutter grid sm:grid-cols-2 gap-3">
-          {lists.map((p) => (
-            <li key={p.id}>
-              <Link href={`/wedding/playlists/${p.id}`} className="card p-4 flex items-center gap-4 hover:border-paper-dim">
-                <Cover seed={p.id} label={p.title} size={72} />
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold truncate" dir="auto">{p.title}</p>
-                  <p className="text-sm text-paper-dim">{fmt(m.playlists.tracks, { count: p.playlist_tracks.length })} · {relativeTime(p.updated_at, locale)}</p>
-                  <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                    {p.purpose && <Badge>{(m.playlists.purposes as Record<string, string>)[p.purpose] ?? p.purpose}</Badge>}
-                    <Badge tone={p.shared_with_dj ? 'ok' : 'neutral'}>{p.shared_with_dj ? m.playlists.shared : m.playlists.notShared}</Badge>
-                    {p.playlist_tracks.some((t) => t.status === 'confirmed') && <Badge tone="gold">{p.playlist_tracks.filter((t) => t.status === 'confirmed').length} {m.playlists.confirmed}</Badge>}
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <PageHeader back={{ href: '/wedding', label: m.wedding.title }} title={m.playlists.ours} sub={m.playlists.oursSub}
+        actions={<ButtonLink href="/discover" size="sm" variant="secondary">{m.discover.title}</ButtonLink>} />
+      {main && items.length > 0
+        ? <PlaylistEditor playlist={{ id: main.id, title: main.title, purpose: main.purpose, shared_with_dj: main.shared_with_dj }} items={items} isMain />
+        : <div className="gutter"><EmptyState title={m.playlists.emptyOurs} /></div>}
+      {others.length > 0 && (
+        <section className="gutter mt-10">
+          <p className="label mb-3">{m.playlists.others}</p>
+          <ul className="grid sm:grid-cols-2 gap-3">
+            {others.map((p) => (
+              <li key={p.id}>
+                <Link href={`/wedding/playlists/${p.id}`} className="card p-3 flex items-center gap-3 hover:border-paper-dim">
+                  <Cover seed={p.id} label={p.title} size={48} />
+                  <span className="min-w-0 flex-1"><span className="block font-bold truncate" dir="auto">{p.title}</span>
+                    <span className="block text-sm text-paper-dim">{fmt(m.playlists.tracks, { count: p.playlist_tracks.length })}</span></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

@@ -1,0 +1,65 @@
+import 'server-only';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SpotifyPlaylist } from '@/core/spotify';
+
+const chunk = <T,>(a: T[], n = 100) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
+
+/** Mirrors one Spotify playlist into an editorial playlist + catalog tracks (metadata only). Runs as the admin (RLS). */
+export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string, userId: string, pl: SpotifyPlaylist) {
+  // 1. the editorial playlist (title/purpose/status are left alone once the admin has it)
+  const { data: existing, error: e0 } = await db.from('playlists').select('id').eq('company_id', companyId).eq('spotify_playlist_id', pl.id).maybeSingle();
+  if (e0) throw e0;
+  let playlistId = existing?.id as string | undefined;
+  const syncFields = { artwork_url: pl.artworkUrl, synced_at: new Date().toISOString(), sync_truncated: pl.truncated };
+  if (playlistId) {
+    const { error } = await db.from('playlists').update(syncFields).eq('id', playlistId);
+    if (error) throw error;
+  } else {
+    const purpose = /חופה|hupa|chupp?ah/i.test(pl.name) ? 'ceremony' : null;
+    const { data, error } = await db.from('playlists').insert({
+      ...syncFields, company_id: companyId, kind: 'editorial', title: pl.name, description: pl.description, purpose,
+      status: 'published', spotify_playlist_id: pl.id, created_by: userId,
+    }).select('id').single();
+    if (error) throw error;
+    playlistId = data.id as string;
+  }
+
+  // 2. artists (one row per credited-artists string, as Spotify shows it)
+  const names = [...new Set(pl.tracks.map((t) => t.artists))];
+  const artistId = new Map<string, string>();
+  for (const part of chunk(names)) {
+    const { error } = await db.from('artists').upsert(part.map((name) => ({ company_id: companyId, name })), { onConflict: 'company_id,name', ignoreDuplicates: true });
+    if (error) throw error;
+    const { data, error: e2 } = await db.from('artists').select('id, name').eq('company_id', companyId).in('name', part);
+    if (e2) throw e2;
+    (data ?? []).forEach((a) => artistId.set(a.name as string, a.id as string));
+  }
+
+  // 3. tracks: new ones are added as published metadata; existing ones keep admin edits
+  const ids = [...new Set(pl.tracks.map((t) => t.id))];
+  const trackId = new Map<string, string>();
+  for (const part of chunk(ids)) {
+    const { data, error } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', companyId).eq('provider', 'spotify').in('provider_track_id', part);
+    if (error) throw error;
+    (data ?? []).forEach((t) => trackId.set(t.provider_track_id as string, t.id as string));
+  }
+  const missing = pl.tracks.filter((t, i, a) => !trackId.has(t.id) && a.findIndex((x) => x.id === t.id) === i && artistId.has(t.artists));
+  for (const part of chunk(missing)) {
+    const { data, error } = await db.from('music_tracks').upsert(part.map((t) => ({
+      company_id: companyId, title: t.title, artist_id: artistId.get(t.artists)!, provider: 'spotify', provider_track_id: t.id,
+      external_url: `https://open.spotify.com/track/${t.id}`, artwork_url: t.artworkUrl, rights_status: 'metadata_only', status: 'published',
+    })), { onConflict: 'company_id,provider,provider_track_id' }).select('id, provider_track_id');
+    if (error) throw error;
+    (data ?? []).forEach((t) => trackId.set(t.provider_track_id as string, t.id as string));
+  }
+
+  // 4. playlist order mirrors Spotify
+  const { error: e3 } = await db.from('playlist_tracks').delete().eq('playlist_id', playlistId);
+  if (e3) throw e3;
+  const rows = ids.filter((id) => trackId.has(id)).map((id, position) => ({ playlist_id: playlistId, track_id: trackId.get(id)!, position, added_by: userId }));
+  for (const part of chunk(rows, 200)) {
+    const { error } = await db.from('playlist_tracks').insert(part);
+    if (error) throw error;
+  }
+  return { playlistId: playlistId!, title: pl.name, tracks: rows.length, truncated: pl.truncated };
+}

@@ -14,7 +14,7 @@ export default async function WeddingHub() {
   const db = await supabaseServer();
   const [event, facts, playlists, requests, saved] = await Promise.all([
     getEvent(s.eventId), getProgressFacts(s.eventId, s.company.id),
-    db.from('playlists').select('id', { count: 'exact', head: true }).eq('event_id', s.eventId),
+    db.from('playlists').select('playlist_tracks(count)').eq('event_id', s.eventId).eq('kind', 'couple').eq('is_main', true).maybeSingle(),
     db.from('couple_requests').select('id', { count: 'exact', head: true }).eq('event_id', s.eventId).in('status', ['open', 'in_progress', 'awaiting_couple']),
     db.from('saved_tracks').select('track_id', { count: 'exact', head: true }).eq('event_id', s.eventId),
   ]);
@@ -24,7 +24,7 @@ export default async function WeddingHub() {
     { href: '/wedding/questionnaire', icon: IconNote, label: m.wedding.sections.questionnaire, meta: `${facts.questionnaireSectionsComplete}/${facts.questionnaireSectionsTotal}`, done: facts.questionnaireSectionsTotal > 0 && facts.questionnaireSectionsComplete === facts.questionnaireSectionsTotal },
     { href: '/wedding/moments', icon: IconStar, label: m.wedding.sections.moments, meta: fmt(m.moments.confirmedCount, { done: facts.confirmedRequiredMoments, total: facts.requiredMoments }), done: facts.requiredMoments > 0 && facts.confirmedRequiredMoments === facts.requiredMoments },
     { href: '/wedding/restrictions', icon: IconBan, label: m.wedding.sections.restrictions, meta: String(facts.restrictionsCount), done: facts.restrictionsCount > 0 },
-    { href: '/wedding/playlists', icon: IconList, label: m.wedding.sections.playlists, meta: String(playlists.count ?? 0) },
+    { href: '/wedding/playlists', icon: IconList, label: m.playlists.ours, meta: fmt(m.playlists.tracks, { count: (playlists.data?.playlist_tracks as unknown as { count: number }[] | undefined)?.[0]?.count ?? 0 }) },
     { href: '/wedding/saved', icon: IconHeart, label: m.wedding.sections.saved, meta: String(saved.count ?? 0) },
     { href: '/wedding/recommendations', icon: IconSpark, label: m.wedding.sections.recommendations, meta: facts.pendingRecommendations ? fmt(m.recommendations.status.pending) + ` · ${facts.pendingRecommendations}` : '', highlight: facts.pendingRecommendations > 0 },
     { href: '/wedding/requests', icon: IconMessage, label: m.wedding.sections.requests, meta: String(requests.count ?? 0), highlight: facts.openClarifications > 0 },

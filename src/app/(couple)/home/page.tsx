@@ -29,7 +29,7 @@ export default async function HomePage() {
     db.from('saved_tracks').select('track_id').eq('event_id', s.eventId).order('created_at', { ascending: false }).limit(5),
     db.from('dj_recommendations').select(`id, message, created_at, track:music_tracks(${TRACK_SELECT}), response:recommendation_responses(status)`).eq('event_id', s.eventId).order('created_at', { ascending: false }).limit(6),
     db.from('content_items').select('id, title, kind, media_url, external_url, is_demo, creator:djs(display_name)').eq('company_id', s.company.id).eq('status', 'published').eq('is_featured', true).limit(6),
-    db.from('playlists').select('id, title, description, purpose, is_featured, playlist_tracks(count)').eq('company_id', s.company.id).eq('kind', 'editorial').eq('status', 'published').order('is_featured', { ascending: false }).limit(6),
+    db.from('playlists').select('id, title, description, purpose, is_featured, artwork_url, playlist_tracks(count)').eq('company_id', s.company.id).eq('kind', 'editorial').eq('status', 'published').order('is_featured', { ascending: false }).limit(6),
     db.from('radio_stations').select('id, name, mode, stream_url').eq('company_id', s.company.id).eq('is_primary', true).maybeSingle(),
     db.from('notifications').select('id, title_he, title_en, link, created_at, read_at').eq('user_id', s.userId).order('created_at', { ascending: false }).limit(3),
   ]);
@@ -132,7 +132,7 @@ export default async function HomePage() {
           <div className="scroll-x pb-2">
             {(editorial.data ?? []).map((p) => (
               <Link key={p.id} href={`/discover/collection/${p.id}`} className="w-40 group">
-                <Cover seed={p.id} label={p.title} size={160} className="group-hover:-translate-y-1 transition-transform" />
+                <Cover seed={p.id} label={p.title} src={p.artwork_url} size={160} className="group-hover:-translate-y-1 transition-transform" />
                 <p className="font-bold mt-2 leading-tight" dir="auto">{p.title}</p>
                 <p className="text-xs text-paper-dim">{fmt(m.playlists.tracks, { count: (p.playlist_tracks as unknown as { count: number }[])[0]?.count ?? 0 })}</p>
               </Link>

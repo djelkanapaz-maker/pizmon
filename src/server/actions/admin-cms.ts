@@ -4,6 +4,9 @@ import { z } from 'zod';
 import { adminCtx } from '@/server/admin-ctx';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { definitionV3 as definitionLatest } from '@/core/questionnaire/definition-v3';
+import { parsePlaylistIds } from '@/core/spotify';
+import { fetchSpotifyPlaylist } from '@/server/spotify';
+import { syncSpotifyPlaylist } from '@/server/spotify-sync';
 
 // ─────────────────────────── shared helpers ───────────────────────────
 type Ctx = NonNullable<Awaited<ReturnType<typeof adminCtx>>>;
@@ -265,6 +268,36 @@ export async function adminSavePlaylist(input: unknown): Promise<ActionResult<{ 
   if (!data?.length) return fail('not_found');
   revalidatePath('/admin/playlists'); revalidatePath(`/admin/playlists/${data[0].id}`);
   return ok({ id: data[0].id as string });
+}
+
+export type SpotifyImportResult = { id: string; ok: boolean; title?: string; tracks?: number; truncated?: boolean; error?: string };
+
+/** Import (or re-sync) public Spotify playlists from pasted links. Max 30 per run. */
+export async function adminImportSpotify(text: string): Promise<ActionResult<SpotifyImportResult[]>> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  const ids = parsePlaylistIds(String(text ?? '').slice(0, 20000)).slice(0, 30);
+  if (!ids.length) return fail('validation');
+  const out: SpotifyImportResult[] = [];
+  for (const id of ids) {
+    try {
+      const pl = await fetchSpotifyPlaylist(id);
+      const r = await syncSpotifyPlaylist(c.db, c.s.company.id, c.s.userId, pl);
+      out.push({ id, ok: true, title: r.title, tracks: r.tracks, truncated: r.truncated });
+    } catch (e) {
+      out.push({ id, ok: false, error: e instanceof Error && e.message.startsWith('spotify_') ? e.message : 'spotify_failed' });
+    }
+  }
+  revalidatePath('/admin/playlists'); revalidatePath('/discover'); revalidatePath('/home');
+  return ok(out);
+}
+
+/** Re-sync every Spotify-linked playlist of the company. */
+export async function adminSyncAllSpotify(): Promise<ActionResult<SpotifyImportResult[]>> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  const { data } = await c.db.from('playlists').select('spotify_playlist_id').eq('company_id', c.s.company.id).not('spotify_playlist_id', 'is', null);
+  const ids = (data ?? []).map((r) => r.spotify_playlist_id as string);
+  if (!ids.length) return ok([]);
+  return adminImportSpotify(ids.join(' '));
 }
 
 export async function adminSetPlaylistFlags(playlistId: string, flags: unknown): Promise<ActionResult> {

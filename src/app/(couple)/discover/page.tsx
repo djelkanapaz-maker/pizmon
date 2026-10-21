@@ -22,7 +22,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
     getGenres(s.company.id),
     getMoments(s.company.id),
     db.from('tags').select('id, kind, slug, name_he, name_en').eq('company_id', s.company.id).order('sort_order'),
-    db.from('playlists').select('id, title, description, playlist_tracks(count)').eq('company_id', s.company.id).in('kind', ['editorial', 'dj']).eq('status', 'published').order('is_featured', { ascending: false }),
+    db.from('playlists').select('id, title, description, artwork_url, playlist_tracks(count)').eq('company_id', s.company.id).in('kind', ['editorial', 'dj']).eq('status', 'published').order('is_featured', { ascending: false }),
   ]);
   const categories = (tags ?? []).filter((t) => t.kind === 'category');
   const moods = (tags ?? []).filter((t) => t.kind === 'mood');
@@ -91,7 +91,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
               <div className="scroll-x pb-2">
                 {(collections ?? []).map((p) => (
                   <Link key={p.id} href={`/discover/collection/${p.id}`} className="w-40 group">
-                    <Cover seed={p.id} label={p.title} size={160} className="group-hover:-translate-y-1 transition-transform" />
+                    <Cover seed={p.id} label={p.title} src={p.artwork_url} size={160} className="group-hover:-translate-y-1 transition-transform" />
                     <p className="font-bold mt-2 leading-tight" dir="auto">{p.title}</p>
                     <p className="text-xs text-paper-dim">{fmt(m.playlists.tracks, { count: (p.playlist_tracks as unknown as { count: number }[])[0]?.count ?? 0 })}</p>
                   </Link>
