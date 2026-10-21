@@ -10,6 +10,8 @@ import { ButtonLink, Cover, DemoBadge, Portrait, Progress, SectionHeader, Badge,
 import { TrackList } from '@/components/music/TrackList';
 import { PlayToggle } from '@/components/audio/MiniPlayer';
 import { IconCheck, IconChevron } from '@/components/icons';
+import { MeetingPrompt } from '@/components/meeting/MeetingPrompt';
+import { MEETING_WINDOW_DAYS } from '@/core/meeting';
 
 const ACTION_HREF: Record<NextAction['kind'], string> = {
   answer_clarification: '/wedding/requests', finish_onboarding: '/onboarding', choose_dj: '/onboarding?step=dj', await_dj_approval: '/onboarding?step=dj',
@@ -46,6 +48,12 @@ export default async function HomePage() {
   const recs = ((recRows.data ?? []) as unknown as { id: string; track: Track | null; response: { status: string } | null }[]);
   const pendingRecTracks = recs.filter((r) => !r.response && r.track).map((r) => r.track!) ;
   const dj = facts.djStatusRaw?.dj;
+  const meetingDue = !!dj && facts.djStatus === 'confirmed' && days !== null && days >= 0 && days <= MEETING_WINDOW_DAYS;
+  let showMeetingPrompt = false;
+  if (meetingDue) {
+    const { data: booked } = await db.from('dj_meetings').select('id').eq('event_id', s.eventId).eq('status', 'booked').maybeSingle();
+    if (!booked) { showMeetingPrompt = true; await db.rpc('ensure_my_meeting_reminder', { p_event: s.eventId }); }
+  }
 
   return (
     <div className="pt-6 md:pt-10">
@@ -59,6 +67,8 @@ export default async function HomePage() {
         <h1 className="display-xl poster-shadow break-words" dir="auto">{fmt(m.home.hello, { names })}</h1>
         {event.venue_name && <p className="mt-3 text-paper-dim" dir="auto">{event.venue_name}{event.venue_city ? `, ${event.venue_city}` : ''}</p>}
       </section>
+
+      {showMeetingPrompt && dj && <section className="gutter mt-8"><MeetingPrompt djName={dj.display_name} eventId={s.eventId} /></section>}
 
       {/* next action */}
       <section className="gutter mt-8">

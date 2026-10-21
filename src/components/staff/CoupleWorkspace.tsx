@@ -39,10 +39,11 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
   const momentOpts = moments.map((x) => ({ id: x.id, label: locale === 'he' ? x.name_he : x.name_en }));
   const days = daysUntil(event.wedding_date);
   const tabHref = (t: WorkspaceTab) => `${basePath}?tab=${t}`;
-  const [{ data: openReq }, { data: qStatus }, briefData] = await Promise.all([
+  const [{ data: openReq }, { data: qStatus }, briefData, { data: meeting }] = await Promise.all([
     db.from('couple_requests').select('id').eq('event_id', eventId).in('status', ['open', 'in_progress']),
     db.from('questionnaire_responses').select('status').eq('event_id', eventId).maybeSingle(),
     tab === 'brief' || tab === 'questionnaire' ? loadBrief(eventId, companyId, locale) : Promise.resolve(null),
+    db.from('dj_meetings').select('starts_at, mode').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
   ]);
 
   return (
@@ -61,6 +62,7 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
               {assignment?.dj && <Badge>{m.admin.dj}: {assignment.dj.display_name}</Badge>}
               <Badge tone={qStatus?.status === 'submitted' ? 'gold' : 'neutral'}>{qStatus?.status === 'submitted' ? m.dj.submitted : m.dj.notSubmitted}</Badge>
               <Badge tone={confirmed === requiredMoments.length && requiredMoments.length ? 'gold' : 'neutral'}>{fmt(m.moments.confirmedCount, { done: confirmed, total: requiredMoments.length })}</Badge>
+              {meeting && <Badge tone="gold">{m.meeting.nav}: {formatDateTime(meeting.starts_at as string, locale)} · {meeting.mode === 'office' ? m.meeting.office : m.meeting.zoom}</Badge>}
               {(openReq?.length ?? 0) > 0 && <Badge tone="ember">{fmt(m.dj.openRequests, { count: openReq!.length })}</Badge>}
             </div>
           </div>

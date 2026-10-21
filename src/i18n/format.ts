@@ -21,7 +21,8 @@ export function formatDate(value: string | Date | null | undefined, locale: Loca
 }
 
 export function formatDateTime(value: string | Date | null | undefined, locale: Locale) {
-  return formatDate(value, locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  // times are shown in Israel time on the server and in the browser alike
+  return formatDate(value, locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jerusalem' });
 }
 
 export function relativeTime(value: string | Date, locale: Locale, now = Date.now()) {

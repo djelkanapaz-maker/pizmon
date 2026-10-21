@@ -1,27 +1,13 @@
 import 'server-only';
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
+import { openWith, sealWith } from './seal';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /** Spotify's playlist-items endpoint needs a signed-in user (Feb 2026 rules), so the company connects its own account once. */
 export const SPOTIFY_SCOPES = 'playlist-read-private playlist-read-collaborative';
 export const spotifyConfigured = () => !!(process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET);
 
-const key = () => createHash('sha256').update(`wmc-spotify-v1:${process.env.SPOTIFY_CLIENT_SECRET ?? ''}`).digest();
-
-export function sealToken(plain: string) {
-  const iv = randomBytes(12);
-  const c = createCipheriv('aes-256-gcm', key(), iv);
-  const body = Buffer.concat([c.update(plain, 'utf8'), c.final()]);
-  return `v1.${iv.toString('base64url')}.${c.getAuthTag().toString('base64url')}.${body.toString('base64url')}`;
-}
-
-export function openToken(sealed: string) {
-  const [v, iv, tag, body] = sealed.split('.');
-  if (v !== 'v1' || !iv || !tag || !body) throw new Error('spotify_auth');
-  const d = createDecipheriv('aes-256-gcm', key(), Buffer.from(iv, 'base64url'));
-  d.setAuthTag(Buffer.from(tag, 'base64url'));
-  return Buffer.concat([d.update(Buffer.from(body, 'base64url')), d.final()]).toString('utf8');
-}
+export const sealToken = (plain: string) => sealWith(process.env.SPOTIFY_CLIENT_SECRET, 'wmc-spotify-v1', plain);
+export const openToken = (sealed: string) => openWith(process.env.SPOTIFY_CLIENT_SECRET, 'wmc-spotify-v1', sealed);
 
 const basic = () => `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`;
 

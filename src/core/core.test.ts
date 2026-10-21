@@ -135,3 +135,18 @@ describe('two-song moments (groom + bride)', () => {
     expect(songText({ ...E, custom_song: 'Ours' }, () => null, { first: 'Groom', second: 'Bride' })).toBe('Ours');
   });
 });
+
+describe('meeting slots', () => {
+  it('respects weekly hours, Israel time, busy blocks and the window', async () => {
+    const { computeSlots, zonedToUtc } = await import('./slots');
+    const tz = 'Asia/Jerusalem';
+    // Sunday 2026-11-01, Israel is UTC+2 in November
+    const from = zonedToUtc(2026, 11, 1, 0, 0, tz), to = zonedToUtc(2026, 11, 2, 23, 59, tz);
+    expect(new Date(zonedToUtc(2026, 11, 1, 10, 0, tz)).toISOString()).toBe('2026-11-01T08:00:00.000Z');
+    const busy = [{ start: zonedToUtc(2026, 11, 1, 11, 0, tz), end: zonedToUtc(2026, 11, 1, 12, 0, tz) }];
+    const days = computeSlots({ hours: { days: [0], start: '10:00', end: '13:00' }, busy, from, to, tz, durationMin: 60 });
+    expect(days).toEqual([{ date: '2026-11-01', slots: ['2026-11-01T08:00:00.000Z', '2026-11-01T10:00:00.000Z'] }]);
+    // summer time (UTC+3)
+    expect(new Date(zonedToUtc(2026, 7, 5, 10, 0, tz)).toISOString()).toBe('2026-07-05T07:00:00.000Z');
+  });
+});

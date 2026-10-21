@@ -91,6 +91,9 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await expect(couple.getByRole('heading', { name: 'הפלייליסט שלנו' })).toBeVisible();
   await expect(couple.getByText('September', { exact: true })).toBeVisible();
   await shot(couple, '07b-our-playlist');
+  await couple.goto('/wedding/meeting'); await settle(couple);
+  await expect(couple.getByRole('heading', { name: 'פגישת תיאום מוזיקה' })).toBeVisible();
+  await shot(couple, '07c-meeting');
 
   // ── 5. Questionnaire with autosave ──
   await couple.goto('/wedding/questionnaire/personality'); await settle(couple);
