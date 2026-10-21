@@ -30,7 +30,7 @@ export function parseEmbedHtml(id: string, html: string): SpotifyPlaylist {
   }
   const art = (entity.coverArt?.sources ?? []) as { url?: string }[];
   return {
-    id, name: String(entity.name ?? entity.title ?? 'Spotify playlist').trim().slice(0, 120) || 'Spotify playlist',
+    id, name: String(entity.name ?? entity.title ?? 'Spotify playlist').replace(/\s+/g, ' ').trim().slice(0, 120) || 'Spotify playlist',
     description: null, artworkUrl: art.find((s) => s.url?.startsWith('https://'))?.url ?? null,
     tracks, truncated: entity.trackList.length >= EMBED_LIMIT,
   };

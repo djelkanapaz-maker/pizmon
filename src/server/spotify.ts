@@ -47,7 +47,7 @@ async function viaWebApi(id: string, token: string): Promise<SpotifyPlaylist> {
     }
     next = j.next;
   }
-  return { id, name: pm.name.slice(0, 120), description: pm.description?.replace(/<[^>]+>/g, '').slice(0, 2000) || null, artworkUrl: pm.images?.[0]?.url ?? null, tracks, truncated: false };
+  return { id, name: pm.name.replace(/\s+/g, ' ').trim().slice(0, 120) || 'Spotify playlist', description: pm.description?.replace(/<[^>]+>/g, '').slice(0, 2000) || null, artworkUrl: pm.images?.[0]?.url ?? null, tracks, truncated: false };
 }
 
 /** Public playlists owned by the connected account. */

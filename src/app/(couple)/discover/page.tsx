@@ -22,7 +22,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
     getGenres(s.company.id),
     getMoments(s.company.id),
     db.from('tags').select('id, kind, slug, name_he, name_en').eq('company_id', s.company.id).order('sort_order'),
-    db.from('playlists').select('id, title, description, artwork_url, playlist_tracks(count)').eq('company_id', s.company.id).in('kind', ['editorial', 'dj']).eq('status', 'published').order('is_featured', { ascending: false }),
+    db.from('playlists').select('id, title, description, purpose, artwork_url, playlist_tracks(count)').eq('company_id', s.company.id).in('kind', ['editorial', 'dj']).eq('status', 'published').order('is_featured', { ascending: false }).order('created_at'),
   ]);
   const categories = (tags ?? []).filter((t) => t.kind === 'category');
   const moods = (tags ?? []).filter((t) => t.kind === 'mood');
@@ -85,11 +85,14 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         </section>
       ) : (
         <>
-          {(collections ?? []).length > 0 && (
-            <section className="mt-8">
-              <SectionHeader title={m.discover.collections} />
+          {[
+            { key: 'ceremony', title: m.discover.chuppahIdeas, items: (collections ?? []).filter((p) => p.purpose === 'ceremony') },
+            { key: 'all', title: m.discover.collections, items: (collections ?? []).filter((p) => p.purpose !== 'ceremony') },
+          ].filter((g) => g.items.length > 0).map((g) => (
+            <section key={g.key} className="mt-8">
+              <SectionHeader title={g.title} />
               <div className="scroll-x pb-2">
-                {(collections ?? []).map((p) => (
+                {g.items.map((p) => (
                   <Link key={p.id} href={`/discover/collection/${p.id}`} className="w-40 group">
                     <Cover seed={p.id} label={p.title} src={p.artwork_url} size={160} className="group-hover:-translate-y-1 transition-transform" />
                     <p className="font-bold mt-2 leading-tight" dir="auto">{p.title}</p>
@@ -98,7 +101,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
                 ))}
               </div>
             </section>
-          )}
+          ))}
           {shelves.filter((x) => x.tracks.length).map((sh) => (
             <section key={sh.tag.id} className="mt-10">
               <SectionHeader title={label(sh.tag)} href={`/discover?cat=${sh.tag.id}`} action={m.common.seeAll} />
