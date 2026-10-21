@@ -7,8 +7,9 @@ import { getTrackContext } from '@/server/track-context';
 import { PageHeader } from '@/components/ui';
 import { MomentEditor } from './MomentEditor';
 
-export default async function MomentPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function MomentPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ from?: string }> }) {
   const { slug } = await params;
+  const fromQ = (await searchParams).from === 'questionnaire';
   const s = await requireCouple();
   const { m, locale } = await getI18n();
   const moments = await getMoments(s.company.id);
@@ -26,7 +27,7 @@ export default async function MomentPage({ params }: { params: Promise<{ slug: s
     .filter((x) => x.track).map((x) => ({ collection: x.collection, track: x.track! }));
   return (
     <div>
-      <PageHeader back={{ href: '/wedding/moments', label: m.moments.title }} title={locale === 'he' ? moment.name_he : moment.name_en}
+      <PageHeader back={fromQ ? { href: '/wedding/questionnaire/moments', label: m.questionnaire.title } : { href: '/wedding/moments', label: m.moments.title }} title={locale === 'he' ? moment.name_he : moment.name_en}
         sub={(locale === 'he' ? moment.description_he : moment.description_en) ?? undefined} kicker={moment.is_required ? m.moments.required : m.moments.optional} />
       <MomentEditor moment={moment} selection={sel} suggestions={suggestions} known={extra} ctx={ctx} />
     </div>

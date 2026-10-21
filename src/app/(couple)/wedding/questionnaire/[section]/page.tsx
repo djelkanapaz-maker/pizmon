@@ -5,6 +5,7 @@ import { lt } from '@/core/i18n-text';
 import { getEvent, getGenres, getQuestionnaire } from '@/server/queries';
 import { ButtonLink, PageHeader } from '@/components/ui';
 import { QuestionSection } from './QuestionSection';
+import { MomentsList } from '@/components/MomentsList';
 
 export default async function SectionPage({ params }: { params: Promise<{ section: string }> }) {
   const { section: sid } = await params;
@@ -34,7 +35,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
         <div className="gutter"><ButtonLink href="/wedding/restrictions?from=questionnaire" size="lg">{m.questionnaire.restrictionsCta}</ButtonLink></div>
       )}
       {sec.kind === 'moments' && (
-        <div className="gutter"><ButtonLink href="/wedding/moments" size="lg">{m.questionnaire.momentsCta}</ButtonLink></div>
+        <MomentsList eventId={s.eventId} companyId={s.company.id} from="questionnaire" />
       )}
       <nav className="gutter mt-12 flex items-center justify-between gap-3">
         {prev ? <ButtonLink href={`/wedding/questionnaire/${prev.id}`} variant="ghost">{m.questionnaire.prevSection}</ButtonLink> : <span />}

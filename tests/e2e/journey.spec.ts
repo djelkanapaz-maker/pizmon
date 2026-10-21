@@ -92,10 +92,11 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.locator('fieldset', { hasText: 'מיינסטרים או אלטרנטיבי' }).getByRole('button', { name: '2', exact: true }).click();
   await expect(couple.getByText('נשמר אוטומטית')).toBeVisible();
   await shot(couple, '08-questionnaire');
-  await couple.goto('/wedding/questionnaire/energy'); await settle(couple);
-  await couple.getByRole('radio', { name: 'שיא הערב: שיא' }).click();
-  await couple.getByRole('radio', { name: 'קבלת פנים: קליל' }).click();
-  await expect(couple.getByText('נשמר אוטומטית')).toBeVisible();
+  // personality is followed directly by the special moments, listed inline
+  await couple.getByRole('link', { name: 'לחלק הבא' }).click(); await settle(couple);
+  await expect(couple).toHaveURL(/\/wedding\/questionnaire\/moments$/);
+  await expect(couple.getByRole('link', { name: /שבירת הכוס/ })).toBeVisible();
+  await shot(couple, '08b-questionnaire-moments');
 
   // ── 6. Never play (absolute) ──
   await couple.goto('/wedding/restrictions'); await settle(couple);

@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { adminCtx } from '@/server/admin-ctx';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
-import { definitionLatest } from '@/core/questionnaire/definition-v2';
+import { definitionV3 as definitionLatest } from '@/core/questionnaire/definition-v3';
 
 // ─────────────────────────── shared helpers ───────────────────────────
 type Ctx = NonNullable<Awaited<ReturnType<typeof adminCtx>>>;

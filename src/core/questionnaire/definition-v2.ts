@@ -22,6 +22,3 @@ export const definitionV2: QuestionnaireDefinition = {
     }),
   }),
 };
-
-/** The template new questionnaires are created from. */
-export const definitionLatest = definitionV2;
