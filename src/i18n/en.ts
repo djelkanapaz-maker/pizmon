@@ -10,7 +10,7 @@ export const en = {
     lastUpdated: 'Updated {time}', notSet: 'Not set', unknown: 'Unknown', create: 'Create', publish: 'Publish',
     draft: 'Draft', published: 'Published', archived: 'Archived', actions: 'Actions', details: 'Details',
   },
-  nav: { home: 'Home', discover: 'Discover', wedding: 'My Wedding', radio: 'Radio', profile: 'Profile', notifications: 'Notifications', skip: 'Skip to content' },
+  nav: { home: 'Home', discover: 'Music library', wedding: 'My Wedding', radio: 'Radio', profile: 'Profile', notifications: 'Notifications', skip: 'Skip to content' },
   auth: {
     signInTitle: 'Welcome back', signInSub: 'Sign in to your wedding music workspace.',
     email: 'Email', password: 'Password', signIn: 'Sign in', signingIn: 'Signing in…',
@@ -70,7 +70,7 @@ export const en = {
     },
   },
   discover: {
-    title: 'Discover', sub: 'Find the songs that sound like you.', searchPlaceholder: 'Song or artist',
+    title: 'Music library', sub: 'Find the songs that sound like you.', searchPlaceholder: 'Song or artist',
     genre: 'Genre', mood: 'Mood', language: 'Language', energy: 'Energy', moment: 'Wedding moment', category: 'Category',
     results: '{count} tracks', noResults: 'Nothing matches yet. Try fewer filters or a different spelling.',
     collections: 'Curated collections', shelves: 'Browse', save: 'Save', saved: 'Saved', reject: 'Not for us', rejected: 'Hidden',

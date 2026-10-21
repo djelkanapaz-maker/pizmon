@@ -12,7 +12,7 @@ export const he: Messages = {
     lastUpdated: 'עודכן {time}', notSet: 'לא הוגדר', unknown: 'לא ידוע', create: 'יצירה', publish: 'פרסום',
     draft: 'טיוטה', published: 'פורסם', archived: 'בארכיון', actions: 'פעולות', details: 'פרטים',
   },
-  nav: { home: 'בית', discover: 'גילוי', wedding: 'החתונה שלנו', radio: 'רדיו', profile: 'פרופיל', notifications: 'התראות', skip: 'דילוג לתוכן' },
+  nav: { home: 'בית', discover: 'מאגר המוזיקה', wedding: 'החתונה שלנו', radio: 'רדיו', profile: 'פרופיל', notifications: 'התראות', skip: 'דילוג לתוכן' },
   auth: {
     signInTitle: 'ברוכים השבים', signInSub: 'התחברו לסביבת המוזיקה של החתונה שלכם.',
     email: 'אימייל', password: 'סיסמה', signIn: 'כניסה', signingIn: 'מתחברים…',
@@ -54,7 +54,7 @@ export const he: Messages = {
     progress: 'התקדמות התכנון', progressDetail: '{done} מתוך {total} שלבים הושלמו', nextUp: 'הצעד הבא',
     recommended: 'הדיג׳יי שלכם ממליץ', savedRecently: 'נשמרו לאחרונה', ceremony: 'אוספים לחופה',
     featuredMixes: 'מהדיג׳ייז שלנו', radio: 'הרדיו של המועדון', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
-    emptySaved: 'שירים שתשמרו בזמן הגילוי יופיעו כאן.', exploreNow: 'לגלות מוזיקה',
+    emptySaved: 'שירים שתשמרו ממאגר המוזיקה יופיעו כאן.', exploreNow: 'לגלות מוזיקה',
     tasks: { onboarding: 'היכרות ופרטים', dj: 'דיג׳יי מאושר', questionnaire: 'השאלון המוזיקלי', moments: 'שירים לרגעים המיוחדים', restrictions: 'חובה / לעולם לא', submit: 'התקציר נשלח לדיג׳יי' },
     action: {
       answer_clarification: { title: 'הדיג׳יי שלכם שאל שאלה', cta: 'לתשובה' },
@@ -72,7 +72,7 @@ export const he: Messages = {
     },
   },
   discover: {
-    title: 'גילוי', sub: 'מצאו את השירים שנשמעים כמוכם.', searchPlaceholder: 'שיר או אמן',
+    title: 'מאגר המוזיקה', sub: 'מצאו את השירים שנשמעים כמוכם.', searchPlaceholder: 'שיר או אמן',
     genre: 'ז׳אנר', mood: 'אווירה', language: 'שפה', energy: 'אנרגיה', moment: 'רגע בחתונה', category: 'קטגוריה',
     results: '{count} שירים', noResults: 'אין התאמות עדיין. נסו פחות מסננים או איות אחר.',
     collections: 'אוספים נבחרים', shelves: 'עיון', save: 'שמירה', saved: 'נשמר', reject: 'לא בשבילנו', rejected: 'הוסתר',
@@ -88,7 +88,7 @@ export const he: Messages = {
   playlists: {
     title: 'פלייליסטים', mine: 'הפלייליסטים שלנו', create: 'פלייליסט חדש', name: 'שם', purpose: 'מטרה', notes: 'הערות',
     purposes: { reception: 'קבלת פנים', ceremony: 'חופה', dancefloor: 'רחבה', late_night: 'סוף הלילה', family: 'משפחה', inspiration: 'השראה', other: 'אחר' },
-    empty: 'אין עדיין פלייליסטים. צרו אחד והוסיפו שירים מ״גילוי״.', emptyTracks: 'הפלייליסט ריק. הוסיפו שירים מ״גילוי״.',
+    empty: 'אין עדיין פלייליסטים. צרו אחד והוסיפו שירים מ״מאגר המוזיקה״.', emptyTracks: 'הפלייליסט ריק. הוסיפו שירים מ״מאגר המוזיקה״.',
     shared: 'משותף עם הדיג׳יי', notShared: 'פרטי', share: 'שיתוף עם הדיג׳יי', unshare: 'הפיכה לפרטי',
     tentative: 'אולי', confirmed: 'מאושר', backup: 'גיבוי', moveUp: 'למעלה', moveDown: 'למטה',
     note: 'הערה לדיג׳יי', notFinal: 'פלייליסט הוא רשימת משאלות — הדיג׳יי בונה ממנו את הסט הסופי.',
