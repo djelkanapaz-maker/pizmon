@@ -11,7 +11,9 @@ i=0
 for png in "$frames"/*.png; do
   id=$(basename "$png" .png)
   wav="$voice/$which-$id.aiff"
-  dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$wav")
+  dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$wav" 2>/dev/null || echo 0)
+  # a clip that failed to record: keep the slide up long enough to read the subtitle
+  dur=$(python3 -c "d=float(\"${dur:-0}\" or 0); print(d if d > 1 else 9)")
   case "$id" in 00-*|99-*) lead=0.6; tail=1.6 ;; *) lead=0.4; tail=0.9 ;; esac
   total=$(python3 -c "print(round($dur+$lead+$tail,2))")
   fo=$(python3 -c "print(round($total-0.3,2))")
