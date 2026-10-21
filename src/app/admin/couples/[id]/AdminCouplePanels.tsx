@@ -29,7 +29,7 @@ export function AssignmentPanel({ eventId, active, djs }: { eventId: string; act
       {active ? (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="display text-xl">{active.djName}</span>
-          <Badge tone={active.status === 'confirmed' ? 'gold' : 'ember'}>{active.status === 'confirmed' ? m.moments.status.confirmed : active.status === 'pending_approval' ? m.home.djPending : m.home.djProposed}</Badge>
+          <Badge tone={active.status === 'confirmed' ? 'gold' : 'ember'}>{active.status === 'confirmed' ? m.admin.assignmentConfirmed : active.status === 'pending_approval' ? m.home.djPending : m.home.djProposed}</Badge>
         </div>
       ) : <p className="text-paper-dim">{m.admin.unassigned}</p>}
       {active?.status === 'pending_approval' && (

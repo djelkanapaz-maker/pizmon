@@ -3,22 +3,20 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useI18n } from '@/i18n/client';
-import { canConfirm, type SelectionState } from '@/core/moments';
+import type { SelectionState } from '@/core/moments';
 import { restrictionFor, type Restriction } from '@/core/restrictions';
-import { confirmSelection, saveSelection } from '@/server/actions/couple';
+import { saveSelection } from '@/server/actions/couple';
 import { useToast } from '@/components/overlay';
 import { Badge, Button, Chip, Cover, Field, Textarea, cx } from '@/components/ui';
 import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconCheck, IconDiscover, IconPlus, IconX, IconBan } from '@/components/icons';
-import { STATUS_TONE } from '@/components/music/status';
 import type { TrackContext } from '@/components/music/TrackList';
-import { relativeTime } from '@/i18n/format';
 import type { Moment, Selection, Track } from '@/server/queries';
 
 export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
   moment: Moment; selection: Selection | null; suggestions: { collection: 'he' | 'intl' | null; track: Track }[]; known: Track[]; ctx: TrackContext;
 }) {
-  const { m, locale } = useI18n();
+  const { m } = useI18n();
   const router = useRouter();
   const toast = useToast();
   const [busy, start] = useTransition();
@@ -36,11 +34,6 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
     const r = await saveSelection(moment.id, patch);
     if (!r.ok) return toast(errMsg(r.error), 'error');
     toast(m.common.saved); router.refresh();
-  });
-  const confirm = () => start(async () => {
-    const r = await confirmSelection(moment.id);
-    if (!r.ok) return toast(errMsg(r.error), 'error');
-    toast(m.moments.status.confirmed); router.refresh();
   });
 
   const visible = moment.has_language_collections ? suggestions.filter((s) => s.collection === collection || s.collection === null) : suggestions;
@@ -107,10 +100,6 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
     <div className="flex flex-col gap-8">
       <section className="gutter">
         <div className={cx('card p-4 md:p-5 flex flex-col gap-4', state.status === 'confirmed' && 'border-gold shadow-[var(--shadow-hard-gold)]')}>
-          <div className="flex items-center justify-between gap-3">
-            <Badge tone={STATUS_TONE[state.status]}>{m.moments.status[state.status]}</Badge>
-            {selection?.confirmed_at && state.status === 'confirmed' && <span className="text-xs text-paper-dim">{m.moments.confirmedAt.replace('{time}', relativeTime(selection.confirmed_at, locale))}</span>}
-          </div>
           {moment.allows_split && (
             <div className="flex flex-col gap-2">
               <p className="label">{m.moments.modeLabel}</p>
@@ -124,10 +113,6 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
           <Field label={m.moments.notes} htmlFor="notes">
             <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={() => notes !== (selection?.notes ?? '') && save({ notes })} maxLength={1000} className="min-h-20" />
           </Field>
-          {state.status === 'confirmed' && <p className="text-sm text-gold">{m.moments.changeWarning}</p>}
-          {canConfirm(state) && (
-            <Button size="lg" variant="gold" onClick={confirm} disabled={busy}><IconCheck size={18} />{m.moments.confirm}</Button>
-          )}
         </div>
       </section>
 

@@ -119,12 +119,10 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await expect(couple.getByText('ABBA')).toBeVisible();
   await shot(couple, '09-restrictions');
 
-  // ── 7. Special moment: choose and confirm ──
+  // ── 7. Special moment: picking the song is the choice (no approval step) ──
   await couple.goto('/wedding/moments/first-dance'); await settle(couple);
   await couple.getByRole('button', { name: 'בחירה', exact: true }).first().click();
-  await expect(couple.getByText('ממתין לאישור שלכם').first()).toBeVisible();
-  await couple.getByRole('button', { name: 'אישור הבחירה' }).click();
-  await expect(couple.getByText('מאושר').first()).toBeVisible();
+  await expect(couple.getByRole('button', { name: 'אישור הבחירה' })).toHaveCount(0);
   await shot(couple, '10-moment-confirmed');
 
   // chuppah entrance: two songs, typed freely
@@ -134,7 +132,8 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.getByLabel('שיר לחתן').fill('Perfect - Ed Sheeran');
   await couple.getByLabel('שיר לכלה').fill('ממעמקים - עידן רייכל');
   await couple.getByLabel('שיר לכלה').blur();
-  await expect(couple.getByText('ממתין לאישור שלכם').first()).toBeVisible();
+  await couple.goto('/wedding/moments'); await settle(couple);
+  await expect(couple.getByText(/2 מתוך \d+ נבחרו/)).toBeVisible();
   await shot(couple, '10b-chuppah-two-songs');
 
   // ── 8. Review and send the brief ──

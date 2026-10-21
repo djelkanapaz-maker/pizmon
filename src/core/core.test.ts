@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyRestrictions, isHardBlocked, restrictionFor, type Restriction } from './restrictions';
-import { canConfirm, deriveStatus, EMPTY_SELECTION } from './moments';
+import { deriveStatus, EMPTY_SELECTION } from './moments';
 import { nextAction, planningTasks, progressPercent, daysUntil, type ProgressFacts } from './progress';
 import { isAnswered, sanitizeAnswers, sectionStatus } from './questionnaire/answers';
 import { definitionV1 } from './questionnaire/definition-v1';
@@ -32,17 +32,18 @@ describe('restrictions', () => {
 });
 
 describe('moment selection states', () => {
-  it('liking is not selecting: shortlist ≠ awaiting confirmation', () => {
+  it('liking is not selecting: a shortlist alone is not a choice', () => {
     expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, shortlist: ['x'] })).toBe('shortlisted');
-    expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, primary_track_id: 'x' })).toBe('awaiting_confirmation');
   });
-  it('never becomes confirmed implicitly; changing a confirmed song needs reconfirmation', () => {
-    const confirmed = { ...EMPTY_SELECTION, status: 'confirmed' as const, primary_track_id: 'x' };
-    expect(deriveStatus(confirmed, { ...confirmed, primary_track_id: 'y' })).toBe('change_requested');
-    expect(deriveStatus(confirmed, { ...confirmed, shortlist: ['z'] })).toBe('confirmed');
-    expect(canConfirm(confirmed)).toBe(false);
-    expect(canConfirm({ ...EMPTY_SELECTION, custom_song: 'Our song' })).toBe(true);
-    expect(canConfirm(EMPTY_SELECTION)).toBe(false);
+  it('writing or picking the song is the choice — no separate approval', () => {
+    expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, primary_track_id: 'x' })).toBe('confirmed');
+    expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, custom_song: 'Our song' })).toBe('confirmed');
+    const chosen = { ...EMPTY_SELECTION, status: 'confirmed' as const, primary_track_id: 'x' };
+    expect(deriveStatus(chosen, { ...chosen, primary_track_id: 'y' })).toBe('confirmed');
+    expect(deriveStatus(chosen, { ...chosen, primary_track_id: null })).toBe('browsing');
+    // two songs: both slots needed
+    expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, split: true, custom_song: 'A' })).toBe('shortlisted');
+    expect(deriveStatus(EMPTY_SELECTION, { ...EMPTY_SELECTION, split: true, custom_song: 'A', second_custom_song: 'B' })).toBe('confirmed');
   });
 });
 
@@ -122,15 +123,12 @@ describe('questionnaire', () => {
 });
 
 describe('two-song moments (groom + bride)', () => {
-  it('needs both songs before it can be confirmed', async () => {
-    const { canConfirm, deriveStatus, songText, EMPTY_SELECTION: E } = await import('./moments');
+  it('needs both songs before it counts as chosen', async () => {
+    const { deriveStatus, songText, EMPTY_SELECTION: E } = await import('./moments');
     const one = { ...E, split: true, custom_song: 'Groom song' };
-    expect(canConfirm({ ...one, status: deriveStatus(E, one) })).toBe(false);
     expect(deriveStatus(E, one)).toBe('shortlisted');
     const both = { ...one, second_custom_song: 'Bride song' };
-    expect(deriveStatus(E, both)).toBe('awaiting_confirmation');
-    expect(canConfirm({ ...both, status: 'awaiting_confirmation' })).toBe(true);
-    expect(deriveStatus({ ...both, status: 'confirmed' }, { ...both, split: false })).toBe('change_requested');
+    expect(deriveStatus(E, both)).toBe('confirmed');
     expect(songText({ ...both, status: 'confirmed' }, () => null, { first: 'Groom', second: 'Bride' })).toBe('Groom: Groom song · Bride: Bride song');
     expect(songText({ ...E, custom_song: 'Ours' }, () => null, { first: 'Groom', second: 'Bride' })).toBe('Ours');
   });

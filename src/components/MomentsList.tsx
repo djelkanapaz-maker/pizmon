@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import { getI18n } from '@/i18n/server';
-import { fmt, relativeTime } from '@/i18n/format';
+import { fmt } from '@/i18n/format';
 import { getMoments, getSelections, getTracksByIds, trackLabel } from '@/server/queries';
-import { Badge, Progress, cx } from '@/components/ui';
+import { Progress, cx } from '@/components/ui';
 import { IconCheck, IconChevron } from '@/components/icons';
 import { songText, type SelectionStatus } from '@/core/moments';
-import { STATUS_TONE } from '@/components/music/status';
 
 /** Progress + list of every special moment; used by the moments page and questionnaire section. */
 export async function MomentsList({ eventId, companyId, from }: { eventId: string; companyId: string; from?: 'questionnaire' }) {
@@ -38,10 +37,7 @@ export async function MomentsList({ eventId, companyId, from }: { eventId: strin
                     {!mo.is_required && <span className="text-xs text-paper-dim">{m.moments.optional}</span>}
                   </span>
                   {song ? <span className="block text-sm text-paper-dim truncate" dir="auto">{song}</span> : null}
-                  <span className="flex items-center gap-2 mt-1.5">
-                    <Badge tone={STATUS_TONE[status]}>{m.moments.status[status]}</Badge>
-                    {sel?.updated_at && <span className="text-xs text-paper-dim">{relativeTime(sel.updated_at, locale)}</span>}
-                  </span>
+                  {!song && <span className="block text-sm text-paper-dim mt-0.5">{m.moments.status.not_started}</span>}
                 </span>
                 <IconChevron size={18} className="text-paper-dim shrink-0" />
               </Link>

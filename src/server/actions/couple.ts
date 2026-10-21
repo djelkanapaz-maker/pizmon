@@ -252,23 +252,14 @@ export async function saveSelection(momentId: string, input: unknown): Promise<A
     })(),
   };
   const status = deriveStatus(prev, next);
-  const row = { ...next, status, notes: p.data.notes !== undefined ? (p.data.notes || null) : cur?.notes ?? null, updated_by: c.s.userId };
+  const chosenNow = status === 'confirmed' && prev.status !== 'confirmed';
+  const row = { ...next, status, ...(chosenNow ? { confirmed_at: new Date().toISOString() } : {}), notes: p.data.notes !== undefined ? (p.data.notes || null) : cur?.notes ?? null, updated_by: c.s.userId };
   const { error } = cur
     ? await c.db.from('moment_selections').update(row).eq('id', cur.id)
     : await c.db.from('moment_selections').insert({ ...row, event_id: c.s.eventId, moment_id: momentId });
   if (error) return fail(errorCode(error));
   revalidatePath('/wedding', 'layout'); revalidatePath('/home');
   return ok({ status });
-}
-
-export async function confirmSelection(momentId: string): Promise<ActionResult> {
-  const c = await coupleCtx(); if (!c) return fail('forbidden');
-  const { data: cur } = await c.db.from('moment_selections').select('id, primary_track_id, custom_song, split, second_track_id, second_custom_song').eq('event_id', c.s.eventId).eq('moment_id', momentId).maybeSingle();
-  if (!cur || (!cur.primary_track_id && !cur.custom_song) || (cur.split && !cur.second_track_id && !cur.second_custom_song)) return fail('validation');
-  const { error } = await c.db.from('moment_selections').update({ status: 'confirmed', confirmed_at: new Date().toISOString(), updated_by: c.s.userId }).eq('id', cur.id);
-  if (error) return fail(errorCode(error));
-  revalidatePath('/wedding', 'layout'); revalidatePath('/home');
-  return ok(undefined);
 }
 
 // ───────────── restrictions ─────────────

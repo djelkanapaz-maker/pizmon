@@ -79,7 +79,7 @@ export function renderBriefHtml(d: BriefDoc, a: BriefAssets): string {
 
   const shown = d.playlist.slice(0, PLAYLIST_MAX);
   const playlist = shown.length ? `
-    <ol class="pl">${shown.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi>${p.status === 'confirmed' || p.status === 'approved' ? '<span class="mark">✓</span>' : p.status === 'backup' ? `<span class="mark small">${t.status.backup}</span>` : ''}</li>`).join('')}</ol>
+    <ol class="pl">${shown.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi></li>`).join('')}</ol>
     ${d.playlistTotal > shown.length ? `<p class="muted small">${t.more.replace('{n}', String(d.playlistTotal - shown.length))}</p>` : ''}` : `<p class="muted">${t.empty}</p>`;
 
   const facts = [d.date, d.venue, d.guests ? `${d.guests} ${t.guests}` : '', d.djName ? `${t.dj}: ${d.djName}` : '', d.meeting ? `${t.meeting}: ${d.meeting}` : ''].filter(Boolean);
@@ -124,10 +124,9 @@ ul.plain li::before { content: '–'; position: absolute; ${start}: 0; color: #5
 p.text { white-space: pre-wrap; }
 .meter { display: flex; align-items: center; gap: 2.5mm } .meter .bar { flex: 1; height: 1.6mm; border: .2mm solid #111 } .meter .bar i { display: block; height: 100%; background: #111 }
 ol.pl { list-style: none; columns: 2; column-gap: 5mm; counter-reset: s }
-ol.pl li { break-inside: avoid; padding: .55mm 0; padding-${start}: 5mm; position: relative; counter-increment: s; border-bottom: .15mm solid #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-${end}: 4mm }
+ol.pl li { break-inside: avoid; padding: .55mm 0; padding-${start}: 5mm; position: relative; counter-increment: s; border-bottom: .15mm solid #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 ol.pl li::before { content: counter(s); position: absolute; ${start}: 0; font-size: 6.6pt; color: #888; top: .9mm }
 ol.pl .pt { font-weight: 700; font-size: 7.8pt } ol.pl .pa { font-size: 7.2pt; color: #555 }
-ol.pl .mark { position: absolute; ${end}: 0; top: .55mm; font-size: 7.6pt } ol.pl .mark.small { font-size: 6pt; color: #777; top: 1mm }
 footer { border-top: .25mm solid #111; padding-top: 2.6mm; display: flex; justify-content: space-between; align-items: center; color: #666; font-size: 7pt }
 footer .brand { display: flex; align-items: center; gap: 1.8mm } footer svg { width: 3.6mm; height: 3.6mm }
 </style></head><body><div id="page">

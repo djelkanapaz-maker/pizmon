@@ -27,25 +27,12 @@ const secondSong = (s: SelectionState) => !!s.second_track_id || !!s.second_cust
 const hasSong = (s: SelectionState) => firstSong(s) && (!s.split || secondSong(s));
 const anySong = (s: SelectionState) => firstSong(s) || (!!s.split && secondSong(s));
 
-/** Derive the status a selection should have after an edit (never silently "confirmed"). */
-export function deriveStatus(prev: SelectionState, next: Omit<SelectionState, 'status'>): SelectionStatus {
-  const songChanged =
-    prev.primary_track_id !== next.primary_track_id ||
-    (prev.custom_song ?? '') !== (next.custom_song ?? '') ||
-    prev.backup_track_id !== next.backup_track_id ||
-    !!prev.split !== !!next.split ||
-    (prev.second_track_id ?? null) !== (next.second_track_id ?? null) ||
-    (prev.second_custom_song ?? '') !== (next.second_custom_song ?? '');
+/** Derive the status after an edit: writing the song(s) is the choice — no separate approval step. */
+export function deriveStatus(_prev: SelectionState, next: Omit<SelectionState, 'status'>): SelectionStatus {
   const n = { ...next, status: 'browsing' as SelectionStatus };
-  if (prev.status === 'confirmed' && songChanged) return hasSong(n) ? 'change_requested' : 'browsing';
-  if (prev.status === 'confirmed') return 'confirmed';
-  if (hasSong(n)) return 'awaiting_confirmation';
+  if (hasSong(n)) return 'confirmed';
   if (anySong(n) || next.shortlist.length > 0) return 'shortlisted';
   return 'browsing';
-}
-
-export function canConfirm(s: SelectionState) {
-  return hasSong(s) && s.status !== 'confirmed';
 }
 
 /** Statuses the DJ treats as "still open". */
