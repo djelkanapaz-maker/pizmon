@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "820812751738",
+    "project_id": "atisuto-28244",
+    "storage_bucket": "atisuto-28244.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820812751738:android:2ac4aa0937166d15f12cc3",
+        "android_client_info": {
+          "package_name": "com.atisuto.weddingmusic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4FG29n7RBzspoYP0aHm0FhpEFHST5qIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
