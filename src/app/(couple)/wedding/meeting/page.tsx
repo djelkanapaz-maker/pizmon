@@ -10,7 +10,7 @@ export default async function MeetingPage() {
   const { m } = await getI18n();
   const db = await supabaseServer();
   const [{ data: meeting }, assignment] = await Promise.all([
-    db.from('dj_meetings').select('id, starts_at, mode').eq('event_id', s.eventId).eq('status', 'booked').maybeSingle(),
+    db.from('dj_meetings').select('id, starts_at, mode, location').eq('event_id', s.eventId).eq('status', 'booked').maybeSingle(),
     getActiveAssignment(s.eventId),
   ]);
   const djName = assignment?.status === 'confirmed' ? assignment.dj?.display_name ?? '' : '';

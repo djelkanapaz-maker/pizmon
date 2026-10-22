@@ -183,7 +183,7 @@ export const he: Messages = {
   dj: {
     title: 'עמדת הדיג׳יי', couples: 'הזוגות שלך', upcoming: 'בקרוב', filters: { all: 'הכל', upcoming: 'בקרוב', needs: 'דורש תשומת לב', submitted: 'תקציר נשלח' },
     sort: 'מיון', noCouples: 'עוד לא שובצו לך זוגות.', changes: '{count} שינויים מאז הבדיקה שלך', noChanges: 'מעודכן',
-    markReviewed: 'סימון כנבדק', reviewed: 'נבדק {time}', openRequests: '{count} בקשות פתוחות', restrictionsCount: '{count} איסורים מוחלטים',
+    markReviewed: 'סימון כנבדק', weddingDayTitle: 'היום החתונה: בדיקת הפלייליסט', reviewTitle: 'שינויים במוזיקה מאז הבדיקה שלך', reviewCount: 'שינויים מאז הבדיקה האחרונה: {count}', reviewNone: 'אין שינויים מאז הבדיקה האחרונה', confirmChanges: 'אישרתי את השינויים', addedTo: 'נוסף ל:', removedFrom: 'הוסר מ:', reviewed: 'נבדק {time}', openRequests: '{count} בקשות פתוחות', restrictionsCount: '{count} איסורים מוחלטים',
     unresolved: '{count} פתוחים', submitted: 'התקציר נשלח', notSubmitted: 'התקציר לא נשלח', recentActivity: 'פעילות אחרונה',
     tabs: { brief: 'תקציר', moments: 'רגעים', restrictions: 'הגבלות', playlists: 'פלייליסטים', questionnaire: 'תשובות', recommendations: 'המלצה', requests: 'בקשות', notes: 'הערות פנימיות', activity: 'פעילות' },
     recommend: 'המלצה על שיר', recommendMessage: 'הודעה (לא חובה)', recommendForMoment: 'לרגע מסוים (לא חובה)', recommendSent: 'ההמלצה נשלחה',
@@ -224,7 +224,7 @@ export const he: Messages = {
     jsonInvalid: 'JSON לא תקין — תקנו לפני שמירה.', created: 'נוצר',
   },
   activity: {
-    couple_created: 'נוצר חשבון לזוג', dj_selected: 'הזוג בחר דיג׳יי', dj_confirmed_by_couple: 'הזוג אישר את הדיג׳יי',
+    playlist_track_added: 'הוסיפו שיר לפלייליסט', playlist_track_removed: 'הסירו שיר מהפלייליסט', dj_confirmed_changes: 'ה-DJ אישר את השינויים ביום החתונה', couple_created: 'נוצר חשבון לזוג', dj_selected: 'הזוג בחר דיג׳יי', dj_confirmed_by_couple: 'הזוג אישר את הדיג׳יי',
     dj_assigned_by_company: 'החברה שיבצה דיג׳יי', dj_selection_approved: 'בחירת הדיג׳יי אושרה', dj_selection_declined: 'בחירת הדיג׳יי נדחתה',
     questionnaire_started: 'התחילו את השאלון', questionnaire_submitted: 'שלחו את התקציר המוזיקלי', questionnaire_resubmitted: 'שלחו תקציר מעודכן',
     questionnaire_edited: 'ערכו תשובות אחרי השליחה', moment_confirmed: 'בחרו שיר לרגע מיוחד', confirmed_moment_changed: 'שינו שיר לרגע מיוחד',
@@ -246,7 +246,7 @@ export const he: Messages = {
     loading: 'בודקים את היומן של {name}…', noDj: 'אפשר לקבוע פגישה אחרי שה-DJ שלכם מאושר.',
     notConnected: 'היומן של {name} עוד לא מחובר. החברה תעדכן אתכם, או צרו קשר כדי לתאם.', error: 'לא הצלחנו לקרוא את היומן כרגע. נסו שוב בעוד רגע.',
     noSlots: 'אין זמינות בחודש הזה.', prev: 'החודש הקודם', next: 'החודש הבא', pickTime: 'בחרו שעה', where: 'איפה תרצו להיפגש?',
-    office: 'במשרד', zoom: 'בזום', officeAddress: 'שטיבל 8, תל אביב, קומה 1', zoomNote: 'ה-DJ ישלח לכם קישור לזום.',
+    office: 'במשרד', zoom: 'בזום', officeAddress: 'שטיבל 8, תל אביב, קומה 1', zoomNote: 'ה-DJ ישלח לכם קישור לזום.', other: 'אחר', otherNote: 'כתבו איפה תרצו להיפגש', otherLabel: 'איפה?', otherPlaceholder: 'כתובת או שם המקום',
     confirm: 'קביעת הפגישה', booked: 'הפגישה נקבעה', bookedWith: 'עם {name}', change: 'שינוי מועד', cancel: 'ביטול הפגישה',
     cancelConfirm: 'לבטל את הפגישה?', cancelled: 'הפגישה בוטלה', djNotified: 'ה-DJ קיבל מייל עם הפרטים.', addedToCalendar: 'הפגישה נוספה ליומן של ה-DJ ונשלחה אליכם הזמנה.',
     notBooked: 'לא נקבעה', days: ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'],

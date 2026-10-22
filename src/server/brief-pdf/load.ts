@@ -14,7 +14,7 @@ export async function loadBriefDoc(eventId: string, companyId: string, locale: '
     loadBrief(eventId, companyId, locale),
     getEvent(eventId),
     getActiveAssignment(eventId),
-    db.from('dj_meetings').select('starts_at, mode').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
+    db.from('dj_meetings').select('starts_at, mode, location').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
     db.from('playlists').select(`playlist_tracks(position, status, note, track:music_tracks(${TRACK_SELECT}))`)
       .eq('event_id', eventId).eq('kind', 'couple').eq('is_main', true).maybeSingle(),
   ]);
@@ -24,7 +24,7 @@ export async function loadBriefDoc(eventId: string, companyId: string, locale: '
   const items = ((main?.playlist_tracks ?? []) as unknown as Item[]).filter((x) => x.track).sort((x, y) => x.position - y.position);
   const he = locale === 'he';
   const where = [event.venue_name, event.venue_city].filter(Boolean).join(he ? ', ' : ', ');
-  const mode = meeting?.mode === 'zoom' ? (he ? 'בזום' : 'Zoom') : (he ? 'במשרד' : 'at the office');
+  const mode = meeting?.mode === 'zoom' ? (he ? 'בזום' : 'Zoom') : meeting?.mode === 'other' ? String(meeting.location ?? '') : (he ? 'במשרד' : 'at the office');
   return {
     locale,
     couple: [event.partner_one_name, event.partner_two_name].filter(Boolean).join(' & '),

@@ -39,12 +39,26 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
   const momentOpts = moments.map((x) => ({ id: x.id, label: locale === 'he' ? x.name_he : x.name_en }));
   const days = daysUntil(event.wedding_date);
   const tabHref = (t: WorkspaceTab) => `${basePath}?tab=${t}`;
-  const [{ data: openReq }, { data: qStatus }, briefData, { data: meeting }] = await Promise.all([
+  const MUSIC_CHANGES = ['playlist_track_added', 'playlist_track_removed', 'moment_confirmed', 'confirmed_moment_changed'];
+  const [{ data: openReq }, { data: qStatus }, briefData, { data: meeting }, { data: musicRows }] = await Promise.all([
     db.from('couple_requests').select('id').eq('event_id', eventId).in('status', ['open', 'in_progress']),
     db.from('questionnaire_responses').select('status').eq('event_id', eventId).maybeSingle(),
     tab === 'brief' || tab === 'questionnaire' ? loadBrief(eventId, companyId, locale) : Promise.resolve(null),
-    db.from('dj_meetings').select('starts_at, mode').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
+    db.from('dj_meetings').select('starts_at, mode, location').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
+    viewer.djId
+      ? db.from('activity_events').select('id, type, created_at, actor_id, is_important, payload').eq('event_id', eventId).in('type', MUSIC_CHANGES)
+          .gt('created_at', lastReviewed ?? '1970-01-01T00:00:00Z').order('created_at', { ascending: false }).limit(150)
+      : Promise.resolve({ data: [] }),
   ]);
+  // wedding-day check: what changed in the couple's music since this DJ last confirmed
+  const musicChanges = ((musicRows ?? []) as Activity[]).filter((a) => a.actor_id !== viewer.userId);
+  const weddingDay = days === 0;
+  const showReview = !!viewer.djId && (weddingDay || musicChanges.length > 0);
+  const changeLine = (a: Activity) => {
+    const p = a.payload as { title?: string; artist?: string; playlist?: string; after?: { moment_id?: string } };
+    if (a.type === 'playlist_track_added' || a.type === 'playlist_track_removed') return { sign: a.type === 'playlist_track_added' ? '+' : '−', text: [p.title, p.artist].filter(Boolean).join(' — '), where: p.playlist ?? '' };
+    return { sign: '♪', text: `${(m.activity as Record<string, string>)[a.type]}: ${momentName(p.after?.moment_id)}`, where: '' };
+  };
 
   return (
     <div>
@@ -62,7 +76,7 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
               {assignment?.dj && <Badge>{m.admin.dj}: {assignment.dj.display_name}</Badge>}
               <Badge tone={qStatus?.status === 'submitted' ? 'gold' : 'neutral'}>{qStatus?.status === 'submitted' ? m.dj.submitted : m.dj.notSubmitted}</Badge>
               <Badge tone={confirmed === requiredMoments.length && requiredMoments.length ? 'gold' : 'neutral'}>{fmt(m.moments.confirmedCount, { done: confirmed, total: requiredMoments.length })}</Badge>
-              {meeting && <Badge tone="gold">{m.meeting.nav}: {formatDateTime(meeting.starts_at as string, locale)} · {meeting.mode === 'office' ? m.meeting.office : m.meeting.zoom}</Badge>}
+              {meeting && <Badge tone="gold">{m.meeting.nav}: {formatDateTime(meeting.starts_at as string, locale)} · {meeting.mode === 'office' ? m.meeting.office : meeting.mode === 'zoom' ? m.meeting.zoom : <bdi>{meeting.location as string}</bdi>}</Badge>}
               {(openReq?.length ?? 0) > 0 && <Badge tone="ember">{fmt(m.dj.openRequests, { count: openReq!.length })}</Badge>}
             </div>
           </div>
@@ -75,6 +89,29 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
           )}
         </div>
 
+        {showReview && (
+          <div id="review" className={cx('mt-5 card p-4 md:p-5 flex flex-col gap-3 scroll-mt-24', weddingDay ? 'border-2 border-ember' : 'border-ember/60')}>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <p className="display text-lg">{weddingDay ? m.dj.weddingDayTitle : m.dj.reviewTitle}</p>
+                <p className="text-sm text-paper-dim mt-1">{musicChanges.length ? fmt(m.dj.reviewCount, { count: musicChanges.length }) : m.dj.reviewNone}{lastReviewed ? ` · ${fmt(m.dj.reviewed, { time: relativeTime(lastReviewed, locale) })}` : ''}</p>
+              </div>
+              <MarkReviewedButton eventId={eventId} label={m.dj.confirmChanges} />
+            </div>
+            {musicChanges.length > 0 && (
+              <ul className="flex flex-col divide-y divide-line/50 text-sm">
+                {musicChanges.map((a) => { const c = changeLine(a); return (
+                  <li key={a.id} className="flex items-center gap-3 py-2">
+                    <span className={cx('w-5 text-center font-bold shrink-0', c.sign === '+' ? 'text-ok' : c.sign === '−' ? 'text-danger' : 'text-gold')} aria-hidden>{c.sign}</span>
+                    <span className="flex-1 min-w-0"><span className="block truncate font-bold" dir="auto">{c.text}</span>{c.where && <span className="block truncate text-xs text-paper-dim" dir="auto">{c.sign === '+' ? m.dj.addedTo : m.dj.removedFrom} {c.where}</span>}</span>
+                    <span className="text-paper-dim text-xs shrink-0">{relativeTime(a.created_at, locale)}</span>
+                  </li>
+                ); })}
+              </ul>
+            )}
+          </div>
+        )}
+
         {neverAbs.length > 0 && (
           <div className="mt-5 rounded-[14px] border-2 border-danger bg-danger/10 p-4" role="note">
             <p className="display text-base text-danger flex items-center gap-2"><IconBan size={18} />{m.brief.neverPlay}</p>
@@ -82,7 +119,7 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
           </div>
         )}
 
-        {newSince.filter((a) => a.is_important).length > 0 && (
+        {!showReview && newSince.filter((a) => a.is_important).length > 0 && (
           <div className="mt-4 card p-4 border-ember/60">
             <p className="label mb-2">{m.dj.changedSince}</p>
             <ul className="flex flex-col gap-1 text-sm">

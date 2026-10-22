@@ -181,7 +181,7 @@ export const en = {
   dj: {
     title: 'DJ desk', couples: 'Your couples', upcoming: 'Upcoming', filters: { all: 'All', upcoming: 'Upcoming', needs: 'Needs attention', submitted: 'Brief submitted' },
     sort: 'Sort', noCouples: 'No couples assigned to you yet.', changes: '{count} changes since your review', noChanges: 'Up to date',
-    markReviewed: 'Mark as reviewed', reviewed: 'Reviewed {time}', openRequests: '{count} open requests', restrictionsCount: '{count} hard bans',
+    markReviewed: 'Mark as reviewed', weddingDayTitle: 'Wedding day: playlist check', reviewTitle: 'Music changes since your review', reviewCount: 'Changes since your last review: {count}', reviewNone: 'No changes since your last review', confirmChanges: 'I’ve reviewed the changes', addedTo: 'Added to:', removedFrom: 'Removed from:', reviewed: 'Reviewed {time}', openRequests: '{count} open requests', restrictionsCount: '{count} hard bans',
     unresolved: '{count} unresolved', submitted: 'Brief submitted', notSubmitted: 'Brief not submitted', recentActivity: 'Recent activity',
     tabs: { brief: 'Brief', moments: 'Moments', restrictions: 'Restrictions', playlists: 'Playlists', questionnaire: 'Answers', recommendations: 'Recommend', requests: 'Requests', notes: 'Internal notes', activity: 'Activity' },
     recommend: 'Recommend a track', recommendMessage: 'Message (optional)', recommendForMoment: 'For a moment (optional)', recommendSent: 'Recommendation sent',
@@ -222,7 +222,7 @@ export const en = {
     jsonInvalid: 'Invalid JSON — fix it before saving.', created: 'Created',
   },
   activity: {
-    couple_created: 'Couple account created', dj_selected: 'Couple selected a DJ', dj_confirmed_by_couple: 'Couple confirmed the DJ',
+    playlist_track_added: 'Added a song to a playlist', playlist_track_removed: 'Removed a song from a playlist', dj_confirmed_changes: 'The DJ confirmed the changes on the wedding day', couple_created: 'Couple account created', dj_selected: 'Couple selected a DJ', dj_confirmed_by_couple: 'Couple confirmed the DJ',
     dj_assigned_by_company: 'Company assigned a DJ', dj_selection_approved: 'DJ selection approved', dj_selection_declined: 'DJ selection declined',
     questionnaire_started: 'Started the questionnaire', questionnaire_submitted: 'Submitted the musical brief', questionnaire_resubmitted: 'Re-sent the musical brief',
     questionnaire_edited: 'Edited answers after submitting', moment_confirmed: 'Confirmed a moment song', confirmed_moment_changed: 'Changed a confirmed moment song',
@@ -244,7 +244,7 @@ export const en = {
     loading: 'Checking {name}’s calendar…', noDj: 'You can book a meeting once your DJ is confirmed.',
     notConnected: '{name}’s calendar isn’t connected yet. The company will be in touch, or contact us to arrange it.', error: 'We couldn’t read the calendar right now. Try again in a moment.',
     noSlots: 'No availability this month.', prev: 'Previous month', next: 'Next month', pickTime: 'Pick a time', where: 'Where would you like to meet?',
-    office: 'At the office', zoom: 'On Zoom', officeAddress: 'Shtibel 8, Tel Aviv, 1st floor', zoomNote: 'Your DJ will send you a Zoom link.',
+    office: 'At the office', zoom: 'On Zoom', officeAddress: 'Shtibel 8, Tel Aviv, 1st floor', zoomNote: 'Your DJ will send you a Zoom link.', other: 'Somewhere else', otherNote: 'Tell us where you’d like to meet', otherLabel: 'Where?', otherPlaceholder: 'Address or place name',
     confirm: 'Book the meeting', booked: 'Your meeting is booked', bookedWith: 'with {name}', change: 'Change time', cancel: 'Cancel meeting',
     cancelConfirm: 'Cancel the meeting?', cancelled: 'Meeting cancelled', djNotified: 'Your DJ got an email with the details.', addedToCalendar: 'It’s in your DJ’s calendar and an invitation was sent to you.',
     notBooked: 'Not booked', days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

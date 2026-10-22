@@ -16,7 +16,10 @@ export default async function DjOverview({ searchParams }: { searchParams: Promi
   const sort = sp.sort === 'updated' ? 'updated' : 'date';
   const { m, locale } = await getI18n();
   const db = await supabaseServer();
-  const { data: assigns } = await db.from('dj_assignments').select('event_id, status').eq('dj_id', s.djId).in('status', ['proposed', 'confirmed']);
+  const [{ data: assigns }] = await Promise.all([
+    db.from('dj_assignments').select('event_id, status').eq('dj_id', s.djId).in('status', ['proposed', 'confirmed']),
+    db.rpc('ensure_my_wedding_day_reviews'), // wedding-day playlist check, without waiting for the morning job
+  ]);
   const ids = (assigns ?? []).map((a) => a.event_id as string);
   if (!ids.length) return (<div><PageHeader title={m.dj.couples} /><div className="gutter"><EmptyState title={m.dj.noCouples} /></div></div>);
 

@@ -67,7 +67,7 @@ const fmtWhen = (iso: string, locale: 'he' | 'en') => new Intl.DateTimeFormat(lo
 
 export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: string; djNotified: boolean; calendar: boolean }>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
-  const p = z.object({ start: z.iso.datetime(), mode: z.enum(['office', 'zoom']) }).safeParse(input);
+  const p = z.object({ start: z.iso.datetime(), mode: z.enum(['office', 'zoom', 'other']), location: z.string().trim().min(2).max(200).optional() }).refine((v) => v.mode !== 'other' || !!v.location).safeParse(input);
   if (!p.success) return fail('validation');
   const ctx = await meetingContext(c.db, c.s.eventId);
   if (!ctx) return fail('validation');
@@ -83,14 +83,14 @@ export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: st
   } catch { return fail('network'); }
 
   const { data: previous } = await c.db.from('dj_meetings').select('google_event_id').eq('event_id', c.s.eventId).eq('status', 'booked').maybeSingle();
-  const { data: id, error } = await c.db.rpc('book_dj_meeting', { p_event: c.s.eventId, p_start: new Date(start).toISOString(), p_mode: p.data.mode });
+  const { data: id, error } = await c.db.rpc('book_dj_meeting', { p_event: c.s.eventId, p_start: new Date(start).toISOString(), p_mode: p.data.mode, p_location: p.data.mode === 'other' ? p.data.location : null });
   if (error || !id) return fail(error?.code === '23P01' || error?.message?.includes('slot_taken') ? ('slot_taken' as never) : errorCode(error));
 
   if (previous?.google_event_id) await deleteCalendarEvent(token, previous.google_event_id as string);
   const { data: ev } = await c.db.from('wedding_events').select('partner_one_name, partner_two_name, wedding_date, venue_name').eq('id', c.s.eventId).single();
   const couple = [ev?.partner_one_name, ev?.partner_two_name].filter(Boolean).join(' & ');
   const when = fmtWhen(new Date(start).toISOString(), 'he');
-  const place = p.data.mode === 'office' ? `במשרד: ${OFFICE_ADDRESS.he}` : 'בזום. נא לשלוח לזוג קישור לפגישה.';
+  const place = p.data.mode === 'office' ? `במשרד: ${OFFICE_ADDRESS.he}` : p.data.mode === 'zoom' ? 'בזום. נא לשלוח לזוג קישור לפגישה.' : `מקום אחר: ${p.data.location}`;
   const contact = c.s.email ?? '';
 
   let googleId: string | null = null;
@@ -98,7 +98,7 @@ export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: st
     googleId = await createCalendarEvent(token, {
       summary: `פגישת תיאום מוזיקה · ${couple}`,
       description: `${place}\nהזוג: ${couple}${contact ? ` (${contact})` : ''}\nתאריך החתונה: ${ev?.wedding_date ?? '—'}${ev?.venue_name ? ` · ${ev.venue_name}` : ''}`,
-      location: p.data.mode === 'office' ? OFFICE_ADDRESS.he : 'Zoom',
+      location: p.data.mode === 'office' ? OFFICE_ADDRESS.he : p.data.mode === 'zoom' ? 'Zoom' : p.data.location,
       start: new Date(start).toISOString(), end: new Date(end).toISOString(), attendees: contact ? [contact] : [],
     });
   } catch { googleId = null; }

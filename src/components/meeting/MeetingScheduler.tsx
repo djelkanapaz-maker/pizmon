@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/client';
 import { useToast } from '@/components/overlay';
-import { Button, Chip, cx } from '@/components/ui';
+import { Button, Chip, Input, cx } from '@/components/ui';
 import { IconCheck, IconChevron } from '@/components/icons';
 import { bookMeeting, getMeetingAvailability, type Availability } from '@/server/actions/meeting';
 
@@ -29,7 +29,8 @@ export function MeetingScheduler({ djName, onBooked }: { djName: string; onBooke
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
-  const [mode, setMode] = useState<'office' | 'zoom' | null>(null);
+  const [mode, setMode] = useState<'office' | 'zoom' | 'other' | null>(null);
+  const [place, setPlace] = useState('');
   const [busy, start] = useTransition();
 
   const apply = useCallback((r: Awaited<ReturnType<typeof getMeetingAvailability>>) => {
@@ -61,8 +62,9 @@ export function MeetingScheduler({ djName, onBooked }: { djName: string; onBooke
   const dateKey = (d: number) => `${key}-${String(d).padStart(2, '0')}`;
   const slots = day ? byDate.get(day) ?? [] : [];
 
-  const book = () => slot && mode && start(async () => {
-    const r = await bookMeeting({ start: slot, mode });
+  const placeOk = mode !== 'other' || place.trim().length >= 2;
+  const book = () => slot && mode && placeOk && start(async () => {
+    const r = await bookMeeting({ start: slot, mode, location: mode === 'other' ? place.trim() : undefined });
     if (!r.ok) {
       toast((m.errors as Record<string, string>)[r.error] ?? m.common.error, 'error');
       if (r.error === 'slot_taken') void load(key);
@@ -111,16 +113,22 @@ export function MeetingScheduler({ djName, onBooked }: { djName: string; onBooke
       {slot && (
         <div className="flex flex-col gap-2">
           <p className="label">{m.meeting.where}</p>
-          <div className="grid sm:grid-cols-2 gap-2" role="radiogroup" aria-label={m.meeting.where}>
-            {(['office', 'zoom'] as const).map((x) => (
+          <div className="grid sm:grid-cols-3 gap-2" role="radiogroup" aria-label={m.meeting.where}>
+            {(['office', 'zoom', 'other'] as const).map((x) => (
               <button key={x} type="button" role="radio" aria-checked={mode === x} onClick={() => setMode(x)}
                 className={cx('card p-4 text-start flex flex-col gap-1 transition-colors', mode === x ? 'border-ember' : 'hover:border-paper-dim')}>
                 <span className="font-bold flex items-center gap-2">{mode === x && <IconCheck size={16} className="text-ember" />}{m.meeting[x]}</span>
-                <span className="text-sm text-paper-dim">{x === 'office' ? m.meeting.officeAddress : m.meeting.zoomNote}</span>
+                <span className="text-sm text-paper-dim">{x === 'office' ? m.meeting.officeAddress : x === 'zoom' ? m.meeting.zoomNote : m.meeting.otherNote}</span>
               </button>
             ))}
           </div>
-          <Button size="lg" className="mt-2" disabled={!mode || busy} onClick={book}>{busy ? m.common.saving : m.meeting.confirm}</Button>
+          {mode === 'other' && (
+            <label className="flex flex-col gap-1.5">
+              <span className="label">{m.meeting.otherLabel}</span>
+              <Input id="meeting-place" value={place} onChange={(e) => setPlace(e.target.value)} maxLength={200} placeholder={m.meeting.otherPlaceholder} dir="auto" autoFocus />
+            </label>
+          )}
+          <Button size="lg" className="mt-2" disabled={!mode || !placeOk || busy} onClick={book}>{busy ? m.common.saving : m.meeting.confirm}</Button>
         </div>
       )}
     </div>

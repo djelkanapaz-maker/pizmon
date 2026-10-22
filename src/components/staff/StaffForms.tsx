@@ -23,9 +23,9 @@ const useAct = () => {
   return { busy, run, m };
 };
 
-export function MarkReviewedButton({ eventId }: { eventId: string }) {
+export function MarkReviewedButton({ eventId, label }: { eventId: string; label?: string }) {
   const { busy, run, m } = useAct();
-  return <Button size="sm" variant="secondary" disabled={busy} onClick={() => run(() => markReviewed(eventId), m.common.saved)}><IconCheck size={16} />{m.dj.markReviewed}</Button>;
+  return <Button size="sm" variant={label ? 'primary' : 'secondary'} disabled={busy} onClick={() => run(() => markReviewed(eventId), m.common.saved)}><IconCheck size={16} />{label ?? m.dj.markReviewed}</Button>;
 }
 
 export function RecommendForm({ eventId, moments, blockedTrackIds }: { eventId: string; moments: { id: string; label: string }[]; blockedTrackIds: string[] }) {
