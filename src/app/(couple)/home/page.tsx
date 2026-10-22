@@ -55,7 +55,7 @@ export default async function HomePage() {
         <p className="label mb-3">
           {days === null ? <Link href="/wedding" className="underline underline-offset-4">{m.home.noDate}</Link>
             : days > 0 ? fmt(m.home.countdown, { days }) : days === 0 ? m.home.countdownToday : fmt(m.home.countdownPast, { days: -days })}
-          {event.wedding_date && <span className="text-paper-dim/70"> · {formatDate(event.wedding_date, locale)}</span>}
+          {event.wedding_date && <span className="text-paper-dim/70"> · {formatDate(event.wedding_date, locale)}{event.start_time ? ` · ${event.start_time.slice(0, 5)}` : ''}</span>}
         </p>
         <h1 className="display-xl poster-shadow break-words" dir="auto">{fmt(m.home.hello, { names })}</h1>
         {event.venue_name && <p className="mt-3 text-paper-dim" dir="auto">{event.venue_name}{event.venue_city ? `, ${event.venue_city}` : ''}</p>}

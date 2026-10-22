@@ -52,7 +52,7 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
       <section className="gutter pt-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="label">{event.wedding_date ? `${formatDate(event.wedding_date, locale)}${days !== null && days >= 0 ? ` · ${fmt(m.home.countdown, { days })}` : ''}` : m.common.notSet}</p>
+            <p className="label">{event.wedding_date ? `${formatDate(event.wedding_date, locale)}${event.start_time ? ` · ${event.start_time.slice(0, 5)}` : ''}${days !== null && days >= 0 ? ` · ${fmt(m.home.countdown, { days })}` : ''}` : m.common.notSet}</p>
             <h1 className="display-l mt-2" dir="auto">{[event.partner_one_name, event.partner_two_name].filter(Boolean).join(' & ')}</h1>
             <p className="text-paper-dim mt-2 text-sm" dir="auto">
               {[event.venue_name, event.venue_city, event.guest_count && `${event.guest_count} ${locale === 'he' ? 'אורחים' : 'guests'}`].filter(Boolean).join(' · ')}

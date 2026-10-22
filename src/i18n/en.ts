@@ -29,6 +29,7 @@ export const en = {
     steps: 'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy. See README → Setup.',
   },
   onboarding: {
+    startTime: 'Event start time', 
     step: 'Step {n} of {total}',
     welcomeKicker: 'Your wedding, scored', welcomeTitle: 'Let’s find the sound of your wedding',
     welcomeBody: 'Discover music, choose songs for your big moments and tell your DJ exactly what you love — and what you never want to hear. Everything is saved as you go.',
@@ -154,6 +155,19 @@ export const en = {
     schedule: 'Schedule', noSchedule: 'No shows scheduled.', mixes: 'Mixes & sets', noMixes: 'No mixes published yet.',
     hostedBy: 'with {dj}', streamError: 'The stream couldn’t be reached.', reconnecting: 'Reconnecting…', backgroundNote: 'On phones, playback may stop when the screen locks.',
     kinds: { mix: 'Mix', training_set: 'Training set', genre_set: 'Genre set', editorial: 'Editorial', new_music: 'New music', behind_the_scenes: 'Behind the scenes', release: 'Release', seasonal: 'Seasonal', wedding_collection: 'Wedding collection', video: 'Video' },
+  },
+  friends: {
+    title: 'Friends help pick', sub: 'Share a link with friends and family. They can see your playlist and suggest songs — you decide what goes in.',
+    create: 'Create a share link', copy: 'Copy link', copied: 'Link copied', whatsapp: 'Send on WhatsApp', rotate: 'New link', revoke: 'Turn off link',
+    revokeConfirm: 'Turn off the link? Friends with the old link won’t be able to open it.', off: 'Sharing is off.',
+    waText: 'Help us pick songs for our wedding! 🎶 Suggest songs here:', suggestions: 'Suggestions from friends', noSuggestions: 'No suggestions yet. Send the link and they’ll show up here.',
+    add: 'Add to our playlist', dismiss: 'Dismiss', added: 'Added to our playlist', from: 'from {name}', handled: 'Handled',
+    // public page
+    pageTitle: 'Help {names} pick songs for their wedding', pageSub: 'Search any song and suggest it. The couple decides what goes into the playlist.',
+    theirPlaylist: 'Their playlist so far', emptyPlaylist: 'No songs yet — be the first to suggest one!', searchPlaceholder: 'Search a song or artist',
+    suggest: 'Suggest', suggested: 'Suggested', yourName: 'Your name', message: 'A note for the couple (optional)', send: 'Send suggestion',
+    thanks: 'Thanks! {names} will see your suggestion.', invalid: 'This link is no longer active. Ask the couple for a new one.', limit: 'Too many suggestions right now. Try again later.',
+    poweredBy: 'Wedding music planning by {brand}',
   },
   player: {
     tapSpotify: 'On iPhone: tap ▶ in the player to start', nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },

@@ -23,6 +23,7 @@ const details = z.object({
   partner_one_name: z.string().trim().min(1).max(80),
   partner_two_name: z.string().trim().max(80).optional().transform((v) => v || null),
   wedding_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')).transform((v) => v || null),
+  start_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/).optional().or(z.literal('')).transform((v) => v || null),
   venue_name: z.string().trim().max(120).optional().transform((v) => v || null),
   venue_city: z.string().trim().max(80).optional().transform((v) => v || null),
   guest_count: z.union([z.literal(''), z.coerce.number().int().min(1).max(5000)]).optional().transform((v) => (v === '' || v === undefined ? null : v)),

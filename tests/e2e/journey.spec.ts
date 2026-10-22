@@ -3,7 +3,7 @@
 // admin approves → DJ sees the profile and recommends → couple responds. Both languages.
 import { test, expect, type Page, type Browser } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { adminClient, createDj, TEST_PASSWORD, uniq } from '../helpers/stack';
+import { adminClient, anonClient, createDj, TEST_PASSWORD, uniq } from '../helpers/stack';
 
 const SHOTS = 'test-results/screens';
 mkdirSync(SHOTS, { recursive: true });
@@ -68,6 +68,7 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.getByRole('button', { name: 'המשך' }).click();
   await expect(couple.locator('#venue')).toHaveValue('גן אירועים לדוגמה');   // prepopulated
   await couple.locator('#guests').fill('280');
+  await couple.locator('#start').fill('19:30');
   await couple.locator('#city').fill('תל אביב');
   await shot(couple, '05-onboarding-details');
   await couple.getByRole('button', { name: 'כניסה לסביבה שלנו' }).click();
@@ -90,6 +91,27 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await expect(couple.getByRole('heading', { name: 'הפלייליסט שלנו' })).toBeVisible();
   await expect(couple.getByText('September', { exact: true })).toBeVisible();
   await shot(couple, '07b-our-playlist');
+
+  // friends help pick: share link → public page → a friend's suggestion reaches the couple
+  await couple.getByRole('button', { name: 'יצירת קישור שיתוף' }).click();
+  const shareUrl = (await couple.locator('#friends p[dir=ltr]').innerText()).trim();
+  expect(shareUrl).toMatch(/\/s\/[A-Za-z0-9_-]{20,}$/);
+  const friendCtx = await browser.newContext({ ...test.info().project.use, locale: 'he-IL' });
+  const friend = await friendCtx.newPage();
+  await friend.goto(shareUrl); await settle(friend);
+  await expect(friend.getByRole('heading', { level: 1 })).toContainText('נועה');
+  await expect(friend.getByText('September', { exact: true })).toBeVisible();
+  await shot(friend, '07d-share-page');
+  const token = shareUrl.split('/s/')[1];
+  const { error: sugErr } = await anonClient().rpc('share_suggest', { p_token: token, p_name: 'דנה', p_message: 'חובה!', p_spotify: '2grjqo0Frpf2okIBiifQKs', p_title: 'September', p_artists: 'Earth, Wind & Fire', p_artwork: null });
+  expect(sugErr).toBeNull();
+  await couple.reload(); await settle(couple);
+  await expect(couple.locator('#friends').getByText('מדנה')).toBeVisible();
+  await couple.locator('#friends').getByRole('button', { name: /הסרה: September/ }).click(); await settle(couple);
+  await expect(couple.locator('#friends').getByText('מדנה')).toHaveCount(0);
+  await friend.goto('/s/not-a-real-token-123456789'); await settle(friend);
+  await expect(friend.getByText('הקישור הזה כבר לא פעיל')).toBeVisible();
+  await friendCtx.close();
   await couple.goto('/wedding/meeting'); await settle(couple);
   await expect(couple.getByRole('heading', { name: 'פגישת תיאום מוזיקה' })).toBeVisible();
   await shot(couple, '07c-meeting');

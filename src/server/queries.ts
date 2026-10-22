@@ -19,7 +19,7 @@ export type Track = {
 };
 
 export type WeddingEvent = {
-  id: string; company_id: string; partner_one_name: string; partner_two_name: string | null; wedding_date: string | null;
+  id: string; company_id: string; partner_one_name: string; partner_two_name: string | null; wedding_date: string | null; start_time: string | null;
   venue_name: string | null; venue_city: string | null; guest_count: number | null; languages: string[]; cultural_notes: string | null;
   onboarding_step: 'welcome' | 'dj' | 'details' | 'done'; onboarding_completed_at: string | null; is_demo: boolean; created_at: string; updated_at: string;
 };

@@ -211,6 +211,7 @@ function DetailsStep({ event, onDone, onBack }: { event: WeddingEvent; onDone: (
           <Field label={m.onboarding.partnerOne} htmlFor="p1"><Input id="p1" name="partner_one_name" defaultValue={event.partner_one_name} required maxLength={80} aria-invalid={inv('partner_one_name')} /></Field>
           <Field label={m.onboarding.partnerTwo} htmlFor="p2"><Input id="p2" name="partner_two_name" defaultValue={event.partner_two_name ?? ''} maxLength={80} /></Field>
           <Field label={m.onboarding.date} htmlFor="date"><Input id="date" name="wedding_date" type="date" defaultValue={event.wedding_date ?? ''} aria-invalid={inv('wedding_date')} /></Field>
+          <Field label={m.onboarding.startTime} htmlFor="start"><Input id="start" name="start_time" type="time" defaultValue={event.start_time?.slice(0, 5) ?? ''} aria-invalid={inv('start_time')} /></Field>
           <Field label={m.onboarding.guests} htmlFor="guests"><Input id="guests" name="guest_count" type="number" inputMode="numeric" min={1} max={5000} defaultValue={event.guest_count ?? ''} aria-invalid={inv('guest_count')} /></Field>
           <Field label={m.onboarding.venue} htmlFor="venue"><Input id="venue" name="venue_name" defaultValue={event.venue_name ?? ''} maxLength={120} /></Field>
           <Field label={m.onboarding.city} htmlFor="city"><Input id="city" name="venue_city" defaultValue={event.venue_city ?? ''} maxLength={80} /></Field>

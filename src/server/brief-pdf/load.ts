@@ -28,7 +28,7 @@ export async function loadBriefDoc(eventId: string, companyId: string, locale: '
   return {
     locale,
     couple: [event.partner_one_name, event.partner_two_name].filter(Boolean).join(' & '),
-    date: event.wedding_date ? formatDate(event.wedding_date, locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '',
+    date: event.wedding_date ? formatDate(event.wedding_date, locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (event.start_time ? ` · ${event.start_time.slice(0, 5)}` : '') : '',
     venue: where,
     guests: event.guest_count,
     djName: assignment?.dj?.display_name ?? null,

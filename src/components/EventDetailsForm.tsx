@@ -42,6 +42,7 @@ export function EventDetailsForm({ event, onSaved }: { event: WeddingEvent; onSa
         <Field label={m.onboarding.partnerOne} htmlFor="e-p1"><Input id="e-p1" name="partner_one_name" defaultValue={event.partner_one_name} required maxLength={80} /></Field>
         <Field label={m.onboarding.partnerTwo} htmlFor="e-p2"><Input id="e-p2" name="partner_two_name" defaultValue={event.partner_two_name ?? ''} maxLength={80} /></Field>
         <Field label={m.onboarding.date} htmlFor="e-date"><Input id="e-date" name="wedding_date" type="date" defaultValue={event.wedding_date ?? ''} /></Field>
+        <Field label={m.onboarding.startTime} htmlFor="e-start"><Input id="e-start" name="start_time" type="time" defaultValue={event.start_time?.slice(0, 5) ?? ''} /></Field>
         <Field label={m.onboarding.guests} htmlFor="e-guests"><Input id="e-guests" name="guest_count" type="number" min={1} max={5000} inputMode="numeric" defaultValue={event.guest_count ?? ''} /></Field>
         <Field label={m.onboarding.venue} htmlFor="e-venue"><Input id="e-venue" name="venue_name" defaultValue={event.venue_name ?? ''} maxLength={120} /></Field>
         <Field label={m.onboarding.city} htmlFor="e-city"><Input id="e-city" name="venue_city" defaultValue={event.venue_city ?? ''} maxLength={80} /></Field>

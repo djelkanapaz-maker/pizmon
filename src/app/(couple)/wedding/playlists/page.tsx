@@ -6,15 +6,21 @@ import { fmt } from '@/i18n/format';
 import { TRACK_SELECT, type Track } from '@/server/queries';
 import { ButtonLink, Cover, EmptyState, PageHeader } from '@/components/ui';
 import { PlaylistEditor } from './PlaylistControls';
+import { FriendsPanel, type FriendSuggestion } from './FriendsPanel';
 
 /** The couple's one playlist: every pick from the Music library lands here. */
 export default async function PlaylistsPage() {
   const s = await requireCouple();
   const { m } = await getI18n();
   const db = await supabaseServer();
-  const { data } = await db.from('playlists')
-    .select(`id, title, purpose, shared_with_dj, is_main, playlist_tracks(id, position, status, note, track:music_tracks(${TRACK_SELECT}))`)
-    .eq('event_id', s.eventId).eq('kind', 'couple').order('created_at');
+  const [{ data }, { data: link }, { data: sugs }] = await Promise.all([
+    db.from('playlists')
+      .select(`id, title, purpose, shared_with_dj, is_main, playlist_tracks(id, position, status, note, track:music_tracks(${TRACK_SELECT}))`)
+      .eq('event_id', s.eventId).eq('kind', 'couple').order('created_at'),
+    db.from('share_links').select('token').eq('event_id', s.eventId).is('revoked_at', null).maybeSingle(),
+    db.from('friend_suggestions').select('id, friend_name, message, spotify_track_id, title, artists, artwork_url, created_at')
+      .eq('event_id', s.eventId).eq('status', 'new').order('created_at', { ascending: false }).limit(100),
+  ]);
   type Row = { id: string; title: string; purpose: string | null; shared_with_dj: boolean; is_main: boolean; playlist_tracks: { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track | null }[] };
   const lists = (data ?? []) as unknown as Row[];
   const main = lists.find((p) => p.is_main);
@@ -27,6 +33,7 @@ export default async function PlaylistsPage() {
       {main && items.length > 0
         ? <PlaylistEditor playlist={{ id: main.id, title: main.title, purpose: main.purpose, shared_with_dj: main.shared_with_dj }} items={items} isMain />
         : <div className="gutter"><EmptyState title={m.playlists.emptyOurs} /></div>}
+      <FriendsPanel token={(link?.token as string | undefined) ?? null} suggestions={(sugs ?? []) as FriendSuggestion[]} />
       {others.length > 0 && (
         <section className="gutter mt-10">
           <p className="label mb-3">{m.playlists.others}</p>

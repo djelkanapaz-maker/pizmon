@@ -31,6 +31,7 @@ export const he: Messages = {
     steps: 'הגדירו NEXT_PUBLIC_SUPABASE_URL ו־NEXT_PUBLIC_SUPABASE_ANON_KEY ופרסו מחדש. פרטים ב־README.',
   },
   onboarding: {
+    startTime: 'שעת התחלת האירוע', 
     step: 'שלב {n} מתוך {total}',
     welcomeKicker: 'הפסקול של היום שלכם', welcomeTitle: 'בואו נמצא את הסאונד של החתונה שלכם',
     welcomeBody: 'גלו מוזיקה, בחרו שירים לרגעים הגדולים וספרו לדיג׳יי בדיוק מה אתם אוהבים — ומה לא תרצו לשמוע לעולם. הכל נשמר תוך כדי.',
@@ -156,6 +157,19 @@ export const he: Messages = {
     schedule: 'לוח שידורים', noSchedule: 'אין תוכניות מתוכננות.', mixes: 'מיקסים וסטים', noMixes: 'עוד לא פורסמו מיקסים.',
     hostedBy: 'עם {dj}', streamError: 'לא הצלחנו להתחבר לשידור.', reconnecting: 'מתחברים מחדש…', backgroundNote: 'בטלפון, ההשמעה עלולה להיעצר כשהמסך ננעל.',
     kinds: { mix: 'מיקס', training_set: 'סט אימון', genre_set: 'סט ז׳אנר', editorial: 'מערכת', new_music: 'מוזיקה חדשה', behind_the_scenes: 'מאחורי הקלעים', release: 'הוצאה', seasonal: 'עונתי', wedding_collection: 'אוסף לחתונה', video: 'וידאו' },
+  },
+  friends: {
+    title: 'החברים עוזרים לבחור', sub: 'שתפו קישור עם חברים ומשפחה. הם יראו את הפלייליסט שלכם ויוכלו להציע שירים, ואתם מחליטים מה נכנס.',
+    create: 'יצירת קישור שיתוף', copy: 'העתקת הקישור', copied: 'הקישור הועתק', whatsapp: 'שליחה בוואטסאפ', rotate: 'קישור חדש', revoke: 'כיבוי הקישור',
+    revokeConfirm: 'לכבות את הקישור? מי שיש לו את הקישור הישן לא יוכל לפתוח אותו.', off: 'השיתוף כבוי.',
+    waText: 'עזרו לנו לבחור שירים לחתונה! 🎶 הציעו שירים כאן:', suggestions: 'הצעות מחברים', noSuggestions: 'עוד אין הצעות. שלחו את הקישור, וההצעות יופיעו כאן.',
+    add: 'הוספה לפלייליסט שלנו', dismiss: 'הסרה', added: 'נוסף לפלייליסט שלנו', from: 'מ{name}', handled: 'טופל',
+    // public page
+    pageTitle: 'עזרו ל{names} לבחור שירים לחתונה', pageSub: 'חפשו כל שיר והציעו אותו. הזוג מחליט מה נכנס לפלייליסט.',
+    theirPlaylist: 'הפלייליסט שלהם עד עכשיו', emptyPlaylist: 'עוד אין שירים, היו הראשונים להציע!', searchPlaceholder: 'חיפוש שיר או אמן',
+    suggest: 'הצעה', suggested: 'הוצע', yourName: 'השם שלך', message: 'מילה לזוג (לא חובה)', send: 'שליחת ההצעה',
+    thanks: 'תודה! {names} יראו את ההצעה שלך.', invalid: 'הקישור הזה כבר לא פעיל. בקשו מהזוג קישור חדש.', limit: 'יותר מדי הצעות כרגע. נסו שוב מאוחר יותר.',
+    poweredBy: 'תכנון המוזיקה לחתונה של {brand}',
   },
   player: {
     tapSpotify: 'באייפון: לחצו ▶ בנגן כדי להתחיל', nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
