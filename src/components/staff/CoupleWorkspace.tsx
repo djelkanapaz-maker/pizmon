@@ -202,7 +202,6 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
                 <li key={pt.id} className="py-2 flex items-center gap-3">
                   <Cover seed={pt.track.id} label={pt.track.title} src={pt.track.artwork_url} size={36} />
                   <span className="flex-1 min-w-0"><span className="block font-bold text-sm truncate" dir="auto">{pt.track.title}</span><span className="block text-xs text-paper-dim truncate" dir="auto">{pt.track.artist?.name}{pt.note ? ` — ${pt.note}` : ''}</span></span>
-                  <Badge tone={pt.status === 'confirmed' ? 'gold' : 'neutral'}>{(m.playlists as unknown as Record<string, string>)[pt.status]}</Badge>
                 </li>
               ))}
             </ol>

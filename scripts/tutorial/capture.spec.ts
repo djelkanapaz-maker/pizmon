@@ -137,8 +137,7 @@ test('tutorial capture', async ({ browser }) => {
   await snap(c, 'c24-glass', 'mobile', c.getByRole('button', { name: 'עברי / ישראלי' }));
 
   await c.goto('/wedding/playlists'); await settle(c);
-  await snap(c, 'c25-our-playlist', 'mobile', c.getByRole('button', { name: 'מאושר' }).first());
-  await c.getByRole('button', { name: 'מאושר' }).first().click(); await settle(c);
+  await snap(c, 'c25-our-playlist', 'mobile', c.getByPlaceholder('הערה לדיג׳יי').first());
 
   await c.goto('/wedding/restrictions'); await settle(c);
   await c.locator('#col-never_play').locator('..').locator('..').getByRole('button', { name: 'הוספה' }).click();

@@ -132,6 +132,7 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await couple.getByLabel('שיר לחתן').fill('Perfect - Ed Sheeran');
   await couple.getByLabel('שיר לכלה').fill('ממעמקים - עידן רייכל');
   await couple.getByLabel('שיר לכלה').blur();
+  await settle(couple); await couple.waitForTimeout(800);   // let the autosave land
   await couple.goto('/wedding/moments'); await settle(couple);
   await expect(couple.getByText(/2 מתוך \d+ נבחרו/)).toBeVisible();
   await shot(couple, '10b-chuppah-two-songs');
