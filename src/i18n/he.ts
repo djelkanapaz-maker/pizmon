@@ -183,7 +183,7 @@ export const he: Messages = {
     moments: 'רגעי החתונה', playlists: 'פלייליסטים נבחרים', content: 'מיקסים ותוכן', radio: 'רדיו', questionnaire: 'שאלון', settings: 'הגדרות',
     metrics: {
       events: 'זוגות', onboarded: 'השלימו היכרות', qStarted: 'שאלונים שהתחילו', qSubmitted: 'תקצירים שנשלחו', momentsConfirmed: 'שירי רגעים שאושרו',
-      pendingAssignments: 'אישורי דיג׳יי ממתינים', openRequests: 'בקשות פתוחות', recApproval: 'אחוז אישור המלצות', medianDays: 'חציון ימים עד שליחה', workload: 'עומס דיג׳ייז',
+      pendingAssignments: 'אישורי דיג׳יי ממתינים', openRequests: 'בקשות פתוחות', recApproval: 'אחוז אישור המלצות', medianDays: 'חציון ימים עד שליחה', workload: 'דיג׳ייז',
       demoWarning: 'כולל נתוני הדגמה — לא ביצועים אמיתיים של החברה.', none: 'אין נתונים עדיין',
     },
     newCouple: 'הוספת זוג', coupleEmail: 'אימייל להתחברות', assignDj: 'שיבוץ דיג׳יי', assignNow: 'שיבוץ', confirmDirectly: 'אישור מיידי (בלי אישור הזוג)',

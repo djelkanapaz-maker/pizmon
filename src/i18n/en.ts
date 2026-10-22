@@ -181,7 +181,7 @@ export const en = {
     moments: 'Wedding moments', playlists: 'Editorial playlists', content: 'Mixes & content', radio: 'Radio', questionnaire: 'Questionnaire', settings: 'Settings',
     metrics: {
       events: 'Couples', onboarded: 'Onboarded', qStarted: 'Questionnaires started', qSubmitted: 'Briefs submitted', momentsConfirmed: 'Moment songs confirmed',
-      pendingAssignments: 'Pending DJ approvals', openRequests: 'Open requests', recApproval: 'Recommendation approval', medianDays: 'Median days to submit', workload: 'DJ workload',
+      pendingAssignments: 'Pending DJ approvals', openRequests: 'Open requests', recApproval: 'Recommendation approval', medianDays: 'Median days to submit', workload: 'DJs',
       demoWarning: 'Includes demo data — not real company performance.', none: 'No data yet',
     },
     newCouple: 'Add couple', coupleEmail: 'Login email', assignDj: 'Assign DJ', assignNow: 'Assign', confirmDirectly: 'Confirm immediately (skip couple confirmation)',
