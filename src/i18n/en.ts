@@ -180,7 +180,7 @@ export const en = {
     title: 'Company admin', overview: 'Overview', couples: 'Couples', djs: 'DJs', catalog: 'Catalog', taxonomy: 'Genres & categories',
     moments: 'Wedding moments', playlists: 'Editorial playlists', content: 'Mixes & content', radio: 'Radio', questionnaire: 'Questionnaire', settings: 'Settings',
     metrics: {
-      events: 'Couples', onboarded: 'Onboarded', qStarted: 'Questionnaires started', qSubmitted: 'Briefs submitted', momentsConfirmed: 'Moment songs confirmed',
+      events: 'Couples', onboarded: 'Onboarded', qStarted: 'Questionnaires started', qSubmitted: 'Briefs submitted', momentsConfirmed: 'Moment songs chosen',
       pendingAssignments: 'Pending DJ approvals', openRequests: 'Open requests', recApproval: 'Recommendation approval', medianDays: 'Median days to submit', workload: 'DJs',
       demoWarning: 'Includes demo data — not real company performance.', none: 'No data yet',
     },

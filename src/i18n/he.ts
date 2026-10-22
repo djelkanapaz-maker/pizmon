@@ -182,7 +182,7 @@ export const he: Messages = {
     title: 'ניהול החברה', overview: 'סקירה', couples: 'זוגות', djs: 'דיג׳ייז', catalog: 'קטלוג', taxonomy: 'ז׳אנרים וקטגוריות',
     moments: 'רגעי החתונה', playlists: 'פלייליסטים נבחרים', content: 'מיקסים ותוכן', radio: 'רדיו', questionnaire: 'שאלון', settings: 'הגדרות',
     metrics: {
-      events: 'זוגות', onboarded: 'השלימו היכרות', qStarted: 'שאלונים שהתחילו', qSubmitted: 'תקצירים שנשלחו', momentsConfirmed: 'שירי רגעים שאושרו',
+      events: 'זוגות', onboarded: 'השלימו היכרות', qStarted: 'שאלונים שהתחילו', qSubmitted: 'תקצירים שנשלחו', momentsConfirmed: 'שירי רגעים שנבחרו',
       pendingAssignments: 'אישורי דיג׳יי ממתינים', openRequests: 'בקשות פתוחות', recApproval: 'אחוז אישור המלצות', medianDays: 'חציון ימים עד שליחה', workload: 'דיג׳ייז',
       demoWarning: 'כולל נתוני הדגמה — לא ביצועים אמיתיים של החברה.', none: 'אין נתונים עדיין',
     },
