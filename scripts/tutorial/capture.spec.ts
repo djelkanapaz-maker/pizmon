@@ -127,13 +127,12 @@ test('tutorial capture', async ({ browser }) => {
   await c.getByLabel('שיר לחתן').fill('Perfect - Ed Sheeran');
   await c.getByLabel('שיר לכלה').fill('ממעמקים - עידן רייכל');
   await c.getByLabel('שיר לכלה').blur();
-  await expect(c.getByText('ממתין לאישור שלכם').first()).toBeVisible();
+  await settle(c); await c.waitForTimeout(800);
   await snap(c, 'c22-chuppah', 'mobile', c.getByLabel('שיר לכלה'));
-  await c.getByRole('button', { name: 'אישור הבחירה' }).click(); await settle(c);
-  await snap(c, 'c23-chuppah-confirmed', 'mobile', c.getByText('מאושר').first());
   await c.goto('/wedding/moments/first-dance'); await settle(c);
   await c.getByRole('button', { name: 'בחירה', exact: true }).first().click(); await settle(c);
-  await c.getByRole('button', { name: 'אישור הבחירה' }).click(); await settle(c);
+  await c.goto('/wedding/moments'); await settle(c);
+  await snap(c, 'c23-chuppah-confirmed', 'mobile', c.getByText(/מתוך \d+ נבחרו/).first());
   await c.goto('/wedding/moments/breaking-the-glass'); await settle(c);
   await snap(c, 'c24-glass', 'mobile', c.getByRole('button', { name: 'עברי / ישראלי' }));
 
