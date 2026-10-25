@@ -14,12 +14,12 @@ export const metadata: Metadata = {
   title: { default: BRAND, template: `%s · ${BRAND}` },
   description: 'The digital home of your wedding’s music.',
   applicationName: BRAND,
-  appleWebApp: { capable: true, title: BRAND, statusBarStyle: 'black-translucent' },
+  appleWebApp: { capable: true, title: BRAND, statusBarStyle: 'default' },
   formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#07070a',
+  themeColor: '#f8f4ed',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

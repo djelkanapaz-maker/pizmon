@@ -1,3 +1,4 @@
+import { SoundWave } from '@/components/brand';
 import Link from 'next/link';
 import { requireCouple } from '@/server/session';
 import { supabaseServer } from '@/lib/supabase/server';
@@ -51,7 +52,8 @@ export default async function HomePage() {
   return (
     <div className="pt-6 md:pt-10">
       {/* hero */}
-      <section className="gutter animate-rise">
+      <section className="relative gutter animate-rise">
+        <SoundWave height={30} className="absolute end-5 top-0 text-taupe opacity-80" />
         <p className="label mb-3">
           {days === null ? <Link href="/wedding" className="underline underline-offset-4">{m.home.noDate}</Link>
             : days > 0 ? fmt(m.home.countdown, { days }) : days === 0 ? m.home.countdownToday : fmt(m.home.countdownPast, { days: -days })}

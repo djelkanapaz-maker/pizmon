@@ -1,22 +1,24 @@
-// The Pizmon mark: a round badge holding a five-bar sound wave. Shared by the header,
-// splash, app icons and the PDF brief so the logo lives in one place.
-export const MARK_VIEWBOX = '0 0 64 64';
-export const BRAND_COLORS = { violet: '#8b7bff', violetStrong: '#6f5cff', electric: '#3fa9ff', magenta: '#e04cc4', ink: '#07070a' };
-// [x, height] of each bar, centred on y = 32
-export const MARK_BARS: [number, number][] = [[14, 14], [23, 28], [32, 40], [41, 24], [50, 12]];
-export const BAR_W = 5.4;
+// פזמון brand marks (from the brand board). One place for the icon "פ", the sound-wave and
+// the flow lines, shared by the header, splash, app icons and the PDF brief.
+export const BRAND_COLORS = { ivory: '#f8f4ed', champagne: '#d7c3a6', taupe: '#a89886', charcoal: '#1f1f1f', white: '#ffffff' };
+export const WORDMARK = 'פזמון';
+export const TAGLINE_HE = 'הרגעים שלכם. המוזיקה שלנו.';
+export const TAGLINE_EN = 'Your moments. Our music.';
 
-/** Bars as SVG path data (rounded caps), centred in the 64×64 box. */
-export const barsPath = () =>
-  MARK_BARS.map(([x, h]) => {
-    const r = BAR_W / 2, top = 32 - h / 2, bottom = 32 + h / 2, l = x - r, rr = x + r;
-    return `M${l},${top + r}A${r},${r},0,0,1,${rr},${top + r}V${bottom - r}A${r},${r},0,0,1,${l},${bottom - r}Z`;
-  }).join('');
+/** The icon mark: a thin, rounded "פ" drawn as strokes in a 64×64 box (stroke it, don't fill it). */
+export const PE_PATH = 'M17 19H41Q49 19 49 27V37Q49 45 41 45H13M17 19V26Q17 30 21 30H28';
+export const PE_STROKE = 3.4;
 
-/** A standalone SVG string (for the PDF brief and icons). */
-export function markSvg(opts: { size?: number; mono?: string } = {}) {
-  const { size = 64, mono } = opts;
-  const fill = mono ? mono : 'url(#pzg)';
-  const bars = mono ? '#fff' : BRAND_COLORS.ink;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${MARK_VIEWBOX}">${mono ? '' : `<defs><linearGradient id="pzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${BRAND_COLORS.violetStrong}"/><stop offset=".55" stop-color="${BRAND_COLORS.electric}"/><stop offset="1" stop-color="${BRAND_COLORS.magenta}"/></linearGradient></defs>`}<circle cx="32" cy="32" r="32" fill="${fill}"/><path d="${barsPath()}" fill="${bars}"/></svg>`;
+/** Sound-wave bar heights (brand element "SOUNDWAVE"): symmetric, tallest in the middle. */
+export const WAVE = [10, 18, 28, 42, 56, 42, 30, 20, 34, 48, 34, 22, 14];
+
+/** Flow lines (brand element "FLOW LINES"), drawn in a 1200×400 box. */
+export const FLOW_LINES = Array.from({ length: 7 }, (_, i) => {
+  const o = i * 11; // lines run side by side and fan out gently, like the board's flow lines
+  return `M-40 ${236 + o}C 200 ${150 + o * 1.5}, 430 ${330 + o * 0.7}, 650 ${236 + o}S 1010 ${110 + o * 1.7}, 1240 ${196 + o * 0.6}`;
+});
+
+/** Stand-alone SVG of the icon mark (for the PDF brief and icons). */
+export function peSvg({ size = 64, color = BRAND_COLORS.charcoal } = {}) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64"><path d="${PE_PATH}" fill="none" stroke="${color}" stroke-width="${PE_STROKE}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }

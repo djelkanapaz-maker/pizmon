@@ -7,7 +7,7 @@ import { confirmAssignedDj, saveEventDetails, selectDj, setOnboardingStep } from
 import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, cx, DemoBadge, ErrorNote, Field, Input, Portrait, Textarea } from '@/components/ui';
 import { PlayToggle } from '@/components/audio/MiniPlayer';
-import { BrandMark } from '@/components/brand';
+import { BrandMark, FlowLines } from '@/components/brand';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { IconCheck, IconLock } from '@/components/icons';
 import type { Assignment, Dj, WeddingEvent } from '@/server/queries';
@@ -49,7 +49,8 @@ export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, pol
 
       <div className="flex-1 mx-auto w-full max-w-3xl pb-16">
         {step === 'welcome' && (
-          <section className="gutter pt-10 animate-rise">
+          <section className="relative gutter pt-10 animate-rise">
+            <FlowLines className="pointer-events-none absolute -z-10 inset-x-0 top-40 h-56 w-full opacity-80" />
             <p className="label mb-4 text-ember">{m.onboarding.welcomeKicker}</p>
             <h1 className="display-xl poster-shadow mb-6">{m.onboarding.welcomeTitle}</h1>
             <p className="text-lg text-paper-dim max-w-prose mb-10">{m.onboarding.welcomeBody}</p>

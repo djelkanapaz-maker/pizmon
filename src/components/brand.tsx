@@ -1,26 +1,42 @@
 import Link from 'next/link';
-import { BRAND_COLORS, MARK_VIEWBOX, barsPath } from './pizmon-mark';
+import { FLOW_LINES, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE, WORDMARK } from './pizmon-mark';
 
 export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
 
-/** Pizmon wordmark: the round sound-wave mark + the name. */
-export function BrandMark({ name = BRAND, href = '/' }: { name?: string; href?: string }) {
+/** The פזמון wordmark (thin Hebrew letters, as on the brand board). `tagline` adds "הרגעים שלכם. המוזיקה שלנו." */
+export function BrandMark({ name = BRAND, href = '/', tagline = false, size = 26 }: { name?: string; href?: string; tagline?: boolean; size?: number }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2" aria-label={name} dir="ltr">
-      <PizmonMark size={28} />
-      <span className="font-[family-name:var(--font-display)] font-bold text-[19px] tracking-[-0.02em] text-paper">{name}</span>
+    <Link href={href} className="inline-flex flex-col items-start leading-none text-paper" aria-label={name} dir="rtl">
+      <span className="font-[family-name:var(--font-display)] font-extralight tracking-[0.02em]" style={{ fontSize: size }}>{WORDMARK}</span>
+      {tagline && <span className="mt-1.5 text-[10.5px] tracking-[0.22em] text-paper-dim">{TAGLINE_HE}</span>}
     </Link>
   );
 }
 
-/** The round mark. The gradient is CSS so no SVG <defs> ids are shared between copies. `mono` uses currentColor. */
-export function PizmonMark({ size = 32, className, mono }: { size?: number; className?: string; mono?: boolean }) {
+/** The icon mark "פ" in currentColor. */
+export function PizmonMark({ size = 32, className, strokeWidth = PE_STROKE }: { size?: number; className?: string; strokeWidth?: number }) {
   return (
-    <span aria-hidden className={className} style={{
-      display: 'inline-grid', placeItems: 'center', width: size, height: size, borderRadius: '50%', flex: 'none',
-      background: mono ? 'currentColor' : `linear-gradient(135deg, ${BRAND_COLORS.violetStrong}, ${BRAND_COLORS.electric} 55%, ${BRAND_COLORS.magenta})`,
-    }}>
-      <svg width={size} height={size} viewBox={MARK_VIEWBOX}><path d={barsPath()} fill={mono ? 'var(--color-ink)' : BRAND_COLORS.ink} /></svg>
-    </span>
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className={className}>
+      <path d={PE_PATH} fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Thin sound-wave ornament (brand element), in currentColor. */
+export function SoundWave({ height = 40, className }: { height?: number; className?: string }) {
+  const step = 7, w = WAVE.length * step;
+  return (
+    <svg width={(w * height) / 60} height={height} viewBox={`0 0 ${w} 60`} aria-hidden className={className}>
+      {WAVE.map((h, i) => <line key={i} x1={i * step + 3.5} x2={i * step + 3.5} y1={30 - h / 2} y2={30 + h / 2} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />)}
+    </svg>
+  );
+}
+
+/** Thin flowing lines (brand element "FLOW LINES"), decorative, in champagne/taupe. */
+export function FlowLines({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden className={className}>
+      {FLOW_LINES.map((d, i) => <path key={i} d={d} fill="none" stroke={i % 3 === 2 ? '#1f1f1f' : i % 2 ? '#a89886' : '#b89f7c'} strokeOpacity={i % 3 === 2 ? 0.25 : 0.6} strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
+    </svg>
   );
 }

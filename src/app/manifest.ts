@@ -5,12 +5,12 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name,
     short_name: name.split(' ').slice(0, 2).join(' '),
-    description: 'The digital home of your wedding’s music.',
+    description: 'הרגעים שלכם. המוזיקה שלנו.',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#07070a',
-    theme_color: '#07070a',
+    background_color: '#f8f4ed',
+    theme_color: '#f8f4ed',
     lang: 'he',
     dir: 'rtl',
     icons: [
