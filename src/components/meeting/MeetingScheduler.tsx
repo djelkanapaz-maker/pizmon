@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n/client';
 import { useToast } from '@/components/overlay';
 import { Button, Chip, Input, cx } from '@/components/ui';
 import { IconCheck, IconChevron } from '@/components/icons';
+import { MEETING_MODES, OFFICE_ADDRESS } from '@/core/meeting';
 import { bookMeeting, getMeetingAvailability, type Availability } from '@/server/actions/meeting';
 
 const TZ = 'Asia/Jerusalem';
@@ -113,12 +114,12 @@ export function MeetingScheduler({ djName, onBooked }: { djName: string; onBooke
       {slot && (
         <div className="flex flex-col gap-2">
           <p className="label">{m.meeting.where}</p>
-          <div className="grid sm:grid-cols-3 gap-2" role="radiogroup" aria-label={m.meeting.where}>
-            {(['office', 'zoom', 'other'] as const).map((x) => (
+          <div className={cx('grid gap-2', MEETING_MODES.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2')} role="radiogroup" aria-label={m.meeting.where}>
+            {MEETING_MODES.map((x) => (
               <button key={x} type="button" role="radio" aria-checked={mode === x} onClick={() => setMode(x)}
                 className={cx('card p-4 text-start flex flex-col gap-1 transition-colors', mode === x ? 'border-ember' : 'hover:border-paper-dim')}>
                 <span className="font-bold flex items-center gap-2">{mode === x && <IconCheck size={16} className="text-ember" />}{m.meeting[x]}</span>
-                <span className="text-sm text-paper-dim">{x === 'office' ? m.meeting.officeAddress : x === 'zoom' ? m.meeting.zoomNote : m.meeting.otherNote}</span>
+                <span className="text-sm text-paper-dim">{x === 'office' ? OFFICE_ADDRESS[locale] : x === 'zoom' ? m.meeting.zoomNote : m.meeting.otherNote}</span>
               </button>
             ))}
           </div>

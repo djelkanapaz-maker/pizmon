@@ -9,7 +9,7 @@ import { shareSearch, shareSuggest } from '@/server/actions/share';
 import type { SpotifySearchHit } from '@/server/spotify';
 
 export type ShareTrack = { title: string; artist: string | null; artwork: string | null; spotify: string | null };
-const NAME_KEY = 'atisuto-friend-name';
+const NAME_KEY = 'pizmon-friend-name';
 
 export function ShareClient({ token, names, tracks }: { token: string; names: string; tracks: ShareTrack[] }) {
   const { m, fmt } = useI18n();

@@ -8,7 +8,7 @@ import { SpotifyPlayerProvider } from '@/components/audio/SpotifyPlayer';
 import { ToastProvider } from '@/components/overlay';
 import { Splash, SPLASH_SCRIPT } from '@/components/Splash';
 
-const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO';
+const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
 
 export const metadata: Metadata = {
   title: { default: BRAND, template: `%s · ${BRAND}` },
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#c01f22',
+  themeColor: '#07070a',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

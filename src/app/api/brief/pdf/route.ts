@@ -20,11 +20,11 @@ export async function GET(req: NextRequest) {
   const doc = await loadBriefDoc(eventId, s.company.id, locale);
   if (!doc) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   const pdf = await renderBriefPdf(doc);
-  const name = `ATISUTO brief - ${doc.couple}.pdf`;
+  const name = `Pizmon brief - ${doc.couple}.pdf`;
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       'content-type': 'application/pdf',
-      'content-disposition': `attachment; filename="atisuto-brief.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
+      'content-disposition': `attachment; filename="pizmon-brief.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
       'cache-control': 'private, no-store',
     },
   });

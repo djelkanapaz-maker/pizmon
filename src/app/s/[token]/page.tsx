@@ -18,13 +18,13 @@ export default async function SharePage({ params }: { params: Promise<{ token: s
   const view = data as View;
   return (
     <main id="main" className="min-h-dvh pb-24">
-      <header className="brand-frame gutter h-14 flex items-center"><BrandMark name={view?.brand ?? 'ATISUTO'} href="#" /></header>
+      <header className="brand-frame gutter h-14 flex items-center"><BrandMark name={view?.brand ?? 'Pizmon'} href="#" /></header>
       {!view ? (
         <p className="gutter max-w-2xl mx-auto py-16 text-center text-paper-dim">{m.friends.invalid}</p>
       ) : (
         <ShareClient token={token} names={view.names.filter(Boolean).join(' & ')} tracks={view.tracks} />
       )}
-      <p className="gutter text-center text-xs text-paper-dim mt-12">{fmt(m.friends.poweredBy, { brand: view?.brand ?? 'ATISUTO' })}</p>
+      <p className="gutter text-center text-xs text-paper-dim mt-12">{fmt(m.friends.poweredBy, { brand: view?.brand ?? 'Pizmon' })}</p>
     </main>
   );
 }

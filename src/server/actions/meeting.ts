@@ -68,7 +68,7 @@ const fmtWhen = (iso: string, locale: 'he' | 'en') => new Intl.DateTimeFormat(lo
 export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: string; djNotified: boolean; calendar: boolean }>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   const p = z.object({ start: z.iso.datetime(), mode: z.enum(['office', 'zoom', 'other']), location: z.string().trim().min(2).max(200).optional() }).refine((v) => v.mode !== 'other' || !!v.location).safeParse(input);
-  if (!p.success) return fail('validation');
+  if (!p.success || (p.data.mode === 'office' && !OFFICE_ADDRESS.he)) return fail('validation');
   const ctx = await meetingContext(c.db, c.s.eventId);
   if (!ctx) return fail('validation');
   const token = await accessFromCipher(ctx.token_cipher);

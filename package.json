@@ -17,6 +17,7 @@
   "dependencies": {
     "@fontsource/heebo": "^5.3.0",
     "@fontsource/rubik": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "@sparticuz/chromium": "^153.0.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",

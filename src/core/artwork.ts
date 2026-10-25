@@ -1,7 +1,7 @@
 /** Deterministic generated cover for items without authorized artwork. */
 const PALETTES: [string, string][] = [
-  ['#C01F22', '#FBD100'], ['#FBD100', '#0B0909'], ['#FFFFFF', '#C01F22'], ['#0B0909', '#FBD100'],
-  ['#9A171A', '#FFFFFF'], ['#241C1C', '#FBD100'], ['#C01F22', '#FFFFFF'], ['#FBD100', '#C01F22'],
+  ['#6F5CFF', '#FFFFFF'], ['#8B7BFF', '#07070A'], ['#20202B', '#8B7BFF'], ['#3FA9FF', '#07070A'],
+  ['#E04CC4', '#FFFFFF'], ['#111118', '#3FA9FF'], ['#2C2C3A', '#E04CC4'], ['#FFFFFF', '#6F5CFF'],
 ];
 
 function hash(s: string) {

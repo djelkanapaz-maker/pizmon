@@ -22,8 +22,8 @@ export const he: Messages = {
     activateTitle: 'הפעלת החשבון', activateSub: 'בחרו סיסמה. איתה ועם האימייל תתחברו בפעם הבאה.',
     newPassword: 'סיסמה חדשה', confirmPassword: 'אימות סיסמה', setPassword: 'שמירת סיסמה והמשך',
     passwordRule: 'לפחות 8 תווים. אפשר גם רק ספרות, למשל תאריך החתונה: 16112026.', passwordMismatch: 'הסיסמאות לא תואמות.', passwordWeak: 'הסיסמה צריכה להיות לפחות 8 תווים.',
-    linkInvalid: 'הקישור לא תקין או שפג תוקפו. בקשו קישור חדש מהחברה.',
-    noAccess: 'החשבון שלכם עדיין לא מחובר לחתונה או לחברה. צרו קשר עם החברה.',
+    linkInvalid: 'הקישור לא תקין או שפג תוקפו. בקשו קישור חדש מה-DJ שלכם.',
+    noAccess: 'החשבון שלכם עדיין לא מחובר לחתונה. צרו קשר עם ה-DJ שלכם.',
     rateLimited: 'יותר מדי ניסיונות. המתינו דקה ונסו שוב.',
   },
   setup: {
@@ -54,7 +54,7 @@ export const he: Messages = {
     noDate: 'הוסיפו את תאריך החתונה', yourDj: 'הדיג׳יי שלכם', djPending: 'ממתין לאישור', djProposed: 'ממתין לאישור שלכם',
     progress: 'התקדמות התכנון', progressDetail: '{done} מתוך {total} שלבים הושלמו', nextUp: 'הצעד הבא',
     recommended: 'הדיג׳יי שלכם ממליץ', savedRecently: 'נשמרו לאחרונה', ceremony: 'אוספים לחופה',
-    featuredMixes: 'מהדיג׳ייז שלנו', radio: 'ATISUTO RADIO', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
+    featuredMixes: 'מיקסים של אלקנה', radio: 'Pizmon Radio', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
     emptySaved: 'שירים שתשמרו ממאגר המוזיקה יופיעו כאן.', exploreNow: 'לגלות מוזיקה',
     tasks: { onboarding: 'היכרות ופרטים', dj: 'דיג׳יי מאושר', questionnaire: 'השאלון המוזיקלי', moments: 'שירים לרגעים המיוחדים', restrictions: 'חובה / לעולם לא', submit: 'התקציר נשלח לדיג׳יי' },
     action: {
@@ -113,7 +113,7 @@ export const he: Messages = {
     submitted: 'נשלח {time}. אפשר להמשיך לערוך — הדיג׳יי יראה את השינויים.', submit: 'שליחת התקציר לדיג׳יי', resubmit: 'שליחת תקציר מעודכן',
     submitHint: 'אפשר להמשיך לערוך גם אחרי השליחה.', unresolved: 'עוד פתוח', noUnresolved: 'לא נשאר שום דבר פתוח. מושלם.',
     pickUpTo: 'עד {max} בחירות', a: 'א', b: 'ב', percentLabel: '{value}% ישראלי', addTag: 'הוספה',
-    noQuestionnaire: 'השאלון עדיין לא פורסם. החברה תגדיר אותו בקרוב.',
+    noQuestionnaire: 'השאלון עדיין לא פורסם. ה-DJ יגדיר אותו בקרוב.',
     restrictionsCta: 'לחובה / לעולם לא', momentsCta: 'לתכנון הרגעים', briefCta: 'לתקציר',
   },
   restrictions: {
@@ -152,7 +152,7 @@ export const he: Messages = {
     savedEmpty: 'עוד לא נשמר כלום.',
   },
   radio: {
-    title: 'רדיו', sub: 'סטים, תוכניות ומיקסים מהדיג׳ייז של אטיסוטו', listen: 'האזנה', live: 'שידור חי', demo: 'שידור הדגמה', off: 'לא משדר',
+    title: 'רדיו', sub: 'סטים, תוכניות ומיקסים של אלקנה פז', listen: 'האזנה', live: 'שידור חי', demo: 'שידור הדגמה', off: 'לא משדר',
     demoNote: 'מצב הדגמה: לופ מקורי לדוגמה, לא שידור חי.', offNote: 'הרדיו לא משדר כרגע.',
     schedule: 'לוח שידורים', noSchedule: 'אין תוכניות מתוכננות.', mixes: 'מיקסים וסטים', noMixes: 'עוד לא פורסמו מיקסים.',
     hostedBy: 'עם {dj}', streamError: 'לא הצלחנו להתחבר לשידור.', reconnecting: 'מתחברים מחדש…', backgroundNote: 'בטלפון, ההשמעה עלולה להיעצר כשהמסך ננעל.',
@@ -174,7 +174,7 @@ export const he: Messages = {
   player: {
     tapSpotify: 'באייפון: לחצו ▶ בנגן כדי להתחיל', nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
   profile: {
-    deleteTitle: 'מחיקת החשבון', deleteHint: 'אפשר לבקש למחוק את החשבון ואת המידע שלכם. החברה תטפל בבקשה ותעדכן אתכם במייל.', deleteCta: 'בקשה למחיקת החשבון', deleteConfirm: 'לשלוח בקשה למחיקת החשבון?', deleteRequested: 'הבקשה נשלחה. החברה תטפל בה ותעדכן אתכם במייל.', privacy: 'מדיניות פרטיות',
+    deleteTitle: 'מחיקת החשבון', deleteHint: 'אפשר לבקש למחוק את החשבון ואת המידע שלכם. ה-DJ יטפל בבקשה ויעדכן אתכם במייל.', deleteCta: 'בקשה למחיקת החשבון', deleteConfirm: 'לשלוח בקשה למחיקת החשבון?', deleteRequested: 'הבקשה נשלחה. ה-DJ יטפל בה ויעדכן אתכם במייל.', privacy: 'מדיניות פרטיות',
     title: 'פרופיל', account: 'חשבון', name: 'השם שלכם', languageHint: 'עברית מימין לשמאל; English משמאל לימין.',
     signedInAs: 'מחוברים כ־{email}', role: 'תפקיד', roles: { admin: 'מנהל/ת חברה', dj: 'דיג׳יי', couple: 'זוג' }, install: 'הוספה למסך הבית',
     installHint: 'בתפריט הדפדפן או בכפתור השיתוף בחרו ״הוספה למסך הבית״ כדי לפתוח כמו אפליקציה.',
@@ -244,9 +244,9 @@ export const he: Messages = {
     title: 'פגישת תיאום מוזיקה', sub: 'בחרו יום ושעה שבהם ה-DJ שלכם פנוי. הפגישה נמשכת שעה.', nav: 'פגישת תיאום עם ה-DJ',
     reminder: 'זה הזמן לקבוע פגישת תיאום מוזיקה עם ה-DJ שלכם', cta: 'לקביעת פגישה', later: 'אחר כך',
     loading: 'בודקים את היומן של {name}…', noDj: 'אפשר לקבוע פגישה אחרי שה-DJ שלכם מאושר.',
-    notConnected: 'היומן של {name} עוד לא מחובר. החברה תעדכן אתכם, או צרו קשר כדי לתאם.', error: 'לא הצלחנו לקרוא את היומן כרגע. נסו שוב בעוד רגע.',
+    notConnected: 'היומן של {name} עוד לא מחובר. צרו קשר כדי לתאם פגישה.', error: 'לא הצלחנו לקרוא את היומן כרגע. נסו שוב בעוד רגע.',
     noSlots: 'אין זמינות בחודש הזה.', prev: 'החודש הקודם', next: 'החודש הבא', pickTime: 'בחרו שעה', where: 'איפה תרצו להיפגש?',
-    office: 'במשרד', zoom: 'בזום', officeAddress: 'שטיבל 8, תל אביב, קומה 1', zoomNote: 'ה-DJ ישלח לכם קישור לזום.', other: 'אחר', otherNote: 'כתבו איפה תרצו להיפגש', otherLabel: 'איפה?', otherPlaceholder: 'כתובת או שם המקום',
+    office: 'במשרד', zoom: 'בזום', zoomNote: 'ה-DJ ישלח לכם קישור לזום.', other: 'אחר', otherNote: 'כתבו איפה תרצו להיפגש', otherLabel: 'איפה?', otherPlaceholder: 'כתובת או שם המקום',
     confirm: 'קביעת הפגישה', booked: 'הפגישה נקבעה', bookedWith: 'עם {name}', change: 'שינוי מועד', cancel: 'ביטול הפגישה',
     cancelConfirm: 'לבטל את הפגישה?', cancelled: 'הפגישה בוטלה', djNotified: 'ה-DJ קיבל מייל עם הפרטים.', addedToCalendar: 'הפגישה נוספה ליומן של ה-DJ ונשלחה אליכם הזמנה.',
     notBooked: 'לא נקבעה', days: ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'],

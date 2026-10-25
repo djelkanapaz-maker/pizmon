@@ -180,7 +180,7 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   await shot(admin, '12-admin-approved');
 
   // ── 9b. Couple books the planning meeting somewhere other than the office/Zoom ──
-  await dj.client.rpc('save_google_connection', { p_dj: dj.djId, p_cipher: 'fake', p_email: 'dj@atisuto.test' });
+  await dj.client.rpc('save_google_connection', { p_dj: dj.djId, p_cipher: 'fake', p_email: 'dj@pizmon.test' });
   await couple.goto('/wedding/meeting'); await settle(couple);
   await couple.locator('[role=grid] button:not([disabled])').first().click();
   await couple.getByRole('button', { name: /^\d{2}:\d{2}$/ }).first().click();

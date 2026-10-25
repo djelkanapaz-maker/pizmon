@@ -1,8 +1,8 @@
 @import 'tailwindcss';
-@import '@fontsource/rubik/hebrew-800.css';
-@import '@fontsource/rubik/latin-800.css';
-@import '@fontsource/rubik/hebrew-900.css';
-@import '@fontsource/rubik/latin-900.css';
+@import '@fontsource/space-grotesk/latin-500.css';
+@import '@fontsource/space-grotesk/latin-700.css';
+@import '@fontsource/heebo/hebrew-800.css';
+@import '@fontsource/heebo/latin-800.css';
 @import '@fontsource/heebo/hebrew-400.css';
 @import '@fontsource/heebo/latin-400.css';
 @import '@fontsource/heebo/hebrew-500.css';
@@ -10,32 +10,33 @@
 @import '@fontsource/heebo/hebrew-700.css';
 @import '@fontsource/heebo/latin-700.css';
 
-/* ── Atisuto design tokens (see docs/DESIGN.md) ──
-   ember  = Atisuto signal yellow (primary action / focus)
-   crimson = Atisuto crimson (brand frame, headers, poster shadows)
-   gold   = "confirmed / must play" (fresh green so it never reads as a primary button) */
+/* ── Pizmon design tokens (match elkanapaz.com) ──
+   ember   = brand violet (primary action / focus)
+   crimson = brand magenta (accents, poster shadows); the header frame uses the brand gradient
+   gold    = "confirmed / must play" (fresh green so it never reads as a primary button) */
 @theme {
-  --color-ink: #0b0909;
-  --color-ink-2: #171212;
-  --color-ink-3: #241c1c;
-  --color-line: #3b2f2f;
+  --color-ink: #07070a;
+  --color-ink-2: #111118;
+  --color-ink-3: #20202b;
+  --color-line: #2c2c3a;
   --color-paper: #ffffff;
-  --color-paper-dim: #c9bdbd;
-  --color-ember: #fbd100;
-  --color-ember-deep: #e3bc00;
-  --color-crimson: #c01f22;
-  --color-crimson-deep: #9a171a;
-  --color-gold: #4ade80;
-  --color-danger: #ff5a5f;
-  --color-ok: #4ade80;
+  --color-paper-dim: #a9a9b8;
+  --color-ember: #8b7bff;
+  --color-ember-deep: #6f5cff;
+  --color-electric: #3fa9ff;
+  --color-crimson: #e04cc4;
+  --color-crimson-deep: #b83aa0;
+  --color-gold: #3ccf91;
+  --color-danger: #ff5d73;
+  --color-ok: #3ccf91;
 
-  --font-display: 'Rubik', 'Heebo', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Heebo', system-ui, sans-serif;
   --font-sans: 'Heebo', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --radius-box: 16px;
-  --shadow-hard: 3px 3px 0 0 var(--color-ember);
-  --shadow-hard-paper: 3px 3px 0 0 var(--color-crimson);
-  --shadow-hard-gold: 3px 3px 0 0 var(--color-gold);
+  --shadow-hard: 0 8px 28px -8px rgb(139 123 255 / .6);
+  --shadow-hard-paper: 0 8px 28px -10px rgb(111 92 255 / .65);
+  --shadow-hard-gold: 0 8px 24px -10px rgb(60 207 145 / .5);
 
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -61,21 +62,20 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Hard offset shadows flip with reading direction */
-[dir='rtl'] { --shadow-hard: -3px 3px 0 0 var(--color-ember); --shadow-hard-paper: -3px 3px 0 0 var(--color-crimson); --shadow-hard-gold: -3px 3px 0 0 var(--color-gold); }
 
 ::selection { background: var(--color-ember); color: var(--color-ink); }
 
-/* the crimson poster frame Atisuto is known for */
-@utility brand-frame { background: var(--color-crimson); }
+/* the brand gradient (violet → electric blue → magenta), as on elkanapaz.com */
+@utility brand-frame { background: linear-gradient(120deg, #6f5cff, #3fa9ff 55%, #e04cc4); }
 
 :focus-visible { outline: 2px solid var(--color-ember); outline-offset: 3px; border-radius: 6px; }
 
-@utility display { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.95; }
+@utility display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1; &:where([dir='rtl'], [dir='rtl'] *) { font-weight: 800; letter-spacing: 0; } }
 @utility display-xl { @apply display text-[44px] md:text-[72px]; }
 @utility display-l { @apply display text-[32px] md:text-[48px]; }
 @utility display-m { @apply display text-[24px] md:text-[30px]; }
-@utility poster-shadow { text-shadow: 4px 4px 0 var(--color-crimson); &:where([dir='rtl'], [dir='rtl'] *) { text-shadow: -4px 4px 0 var(--color-crimson); } }
+/* headline treatment: white fading into the brand violet (replaces the old poster shadow) */
+@utility poster-shadow { background: linear-gradient(120deg, #ffffff 35%, #b9afff 75%, #7fc6ff); -webkit-background-clip: text; background-clip: text; color: transparent; padding-block: .06em; }
 @utility label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-paper-dim); &:where([dir='rtl'], [dir='rtl'] *) { letter-spacing: 0.02em; } }
 @utility card { background: var(--color-ink-2); border: 1px solid var(--color-line); border-radius: var(--radius-box); }
 @utility card-hard { @apply card; box-shadow: var(--shadow-hard-paper); }
@@ -97,23 +97,24 @@ body {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* ── Opening splash (components/Splash.tsx): star flies in, spins, bursts open ── */
+/* ── Opening splash (components/Splash.tsx): the mark flies in, spins, bursts into notes ── */
 .splash {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; cursor: pointer;
-  background: radial-gradient(circle at 50% 50%, #3a0d0e 0%, #140909 45%, #0b0909 75%);
+  background: radial-gradient(circle at 50% 50%, #1d1640 0%, #0c0c11 45%, #07070a 75%);
   animation: splash-out 400ms ease-in 2600ms forwards;
 }
 html[data-splash='done'] .splash { display: none; }
 .splash > * { grid-area: 1 / 1; }
 .splash-glow {
   width: 70vmin; height: 70vmin; border-radius: 50%;
-  background: radial-gradient(circle, rgba(192, 31, 34, .55) 0%, rgba(192, 31, 34, 0) 65%);
+  background: radial-gradient(circle, rgba(111, 92, 255, .55) 0%, rgba(63, 169, 255, .18) 40%, rgba(63, 169, 255, 0) 65%);
   animation: splash-glow 2600ms ease-in-out forwards;
 }
 .splash-badge { width: min(34vmin, 180px); aspect-ratio: 1; animation: splash-badge 2600ms cubic-bezier(.2, .7, .2, 1) forwards; will-change: transform, opacity, filter; }
-.splash-badge svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 28px rgba(251, 209, 0, .35)); }
+.splash-badge > span { width: 100% !important; height: 100% !important; box-shadow: 0 0 48px rgba(139, 123, 255, .6); }
+.splash-badge svg { width: 100%; height: 100%; display: block; }
 .splash-ring {
-  width: min(34vmin, 180px); aspect-ratio: 1; border-radius: 50%; border: 6px solid #fbd100; opacity: 0;
+  width: min(34vmin, 180px); aspect-ratio: 1; border-radius: 50%; border: 6px solid #3fa9ff; opacity: 0;
   animation: splash-ring 800ms ease-out 2050ms forwards;
 }
 .splash-pieces { width: 0; height: 0; position: relative; }

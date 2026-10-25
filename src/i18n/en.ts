@@ -20,8 +20,8 @@ export const en = {
     activateTitle: 'Activate your account', activateSub: 'Choose a password. You’ll use it with your email to sign in.',
     newPassword: 'New password', confirmPassword: 'Confirm password', setPassword: 'Set password & continue',
     passwordRule: 'At least 8 characters. Digits only is fine, e.g. your wedding date: 16112026.', passwordMismatch: 'Passwords don’t match.', passwordWeak: 'Use at least 8 characters.',
-    linkInvalid: 'This link is invalid or has expired. Ask the company for a new one.',
-    noAccess: 'Your account isn’t connected to a wedding or a company yet. Please contact the company.',
+    linkInvalid: 'This link is invalid or has expired. Ask your DJ for a new one.',
+    noAccess: 'Your account isn’t connected to a wedding yet. Please contact your DJ.',
     rateLimited: 'Too many attempts. Wait a minute and try again.',
   },
   setup: {
@@ -52,7 +52,7 @@ export const en = {
     noDate: 'Add your wedding date', yourDj: 'Your DJ', djPending: 'Pending approval', djProposed: 'Awaiting your confirmation',
     progress: 'Planning progress', progressDetail: '{done} of {total} steps complete', nextUp: 'Next up',
     recommended: 'Your DJ recommends', savedRecently: 'Recently saved', ceremony: 'Ceremony collections',
-    featuredMixes: 'From the DJs', radio: 'ATISUTO RADIO', updates: 'Updates from your DJ', pending: 'Needs your answer',
+    featuredMixes: 'Mixes by Elkana', radio: 'Pizmon Radio', updates: 'Updates from your DJ', pending: 'Needs your answer',
     emptySaved: 'Tracks you save while exploring appear here.', exploreNow: 'Explore music',
     tasks: { onboarding: 'Welcome & details', dj: 'DJ confirmed', questionnaire: 'Music questionnaire', moments: 'Special-moment songs', restrictions: 'Must / never play', submit: 'Brief sent to DJ' },
     action: {
@@ -111,7 +111,7 @@ export const en = {
     submitted: 'Submitted {time}. You can still edit — your DJ will see the changes.', submit: 'Send brief to my DJ', resubmit: 'Send updated brief',
     submitHint: 'You can keep editing after sending.', unresolved: 'Still open', noUnresolved: 'Nothing left open. Beautiful.',
     pickUpTo: 'Pick up to {max}', a: 'A', b: 'B', percentLabel: '{value}% Israeli', addTag: 'Add',
-    noQuestionnaire: 'The questionnaire hasn’t been published yet. Your company will set it up soon.',
+    noQuestionnaire: 'The questionnaire hasn’t been published yet. Your DJ will set it up soon.',
     restrictionsCta: 'Open must / never play', momentsCta: 'Open the moments planner', briefCta: 'Review the brief',
   },
   restrictions: {
@@ -150,7 +150,7 @@ export const en = {
     savedEmpty: 'Nothing saved yet.',
   },
   radio: {
-    title: 'Radio', sub: 'Sets, shows and mixes from the ATISUTO DJs', listen: 'Listen', live: 'LIVE', demo: 'DEMO STREAM', off: 'Off air',
+    title: 'Radio', sub: 'Sets, shows and mixes by Elkana Paz', listen: 'Listen', live: 'LIVE', demo: 'DEMO STREAM', off: 'Off air',
     demoNote: 'Demo mode: an original placeholder loop, not a live broadcast.', offNote: 'The radio is not broadcasting right now.',
     schedule: 'Schedule', noSchedule: 'No shows scheduled.', mixes: 'Mixes & sets', noMixes: 'No mixes published yet.',
     hostedBy: 'with {dj}', streamError: 'The stream couldn’t be reached.', reconnecting: 'Reconnecting…', backgroundNote: 'On phones, playback may stop when the screen locks.',
@@ -172,7 +172,7 @@ export const en = {
   player: {
     tapSpotify: 'On iPhone: tap ▶ in the player to start', nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },
   profile: {
-    deleteTitle: 'Delete account', deleteHint: 'You can ask us to delete your account and your data. The company will handle it and confirm by email.', deleteCta: 'Request account deletion', deleteConfirm: 'Send an account deletion request?', deleteRequested: 'Request sent. The company will handle it and confirm by email.', privacy: 'Privacy policy',
+    deleteTitle: 'Delete account', deleteHint: 'You can ask us to delete your account and your data. Your DJ will handle it and confirm by email.', deleteCta: 'Request account deletion', deleteConfirm: 'Send an account deletion request?', deleteRequested: 'Request sent. Your DJ will handle it and confirm by email.', privacy: 'Privacy policy',
     title: 'Profile', account: 'Account', name: 'Your name', languageHint: 'Hebrew is right-to-left; English left-to-right.',
     signedInAs: 'Signed in as {email}', role: 'Role', roles: { admin: 'Company admin', dj: 'DJ', couple: 'Couple' }, install: 'Add to home screen',
     installHint: 'Use your browser’s share or menu → “Add to Home Screen” to open this like an app.',
@@ -242,9 +242,9 @@ export const en = {
     title: 'Music-planning meeting', sub: 'Pick a day and time your DJ is free. The meeting takes an hour.', nav: 'Meeting with your DJ',
     reminder: 'It’s time to book your music-planning meeting with your DJ', cta: 'Book a meeting', later: 'Later',
     loading: 'Checking {name}’s calendar…', noDj: 'You can book a meeting once your DJ is confirmed.',
-    notConnected: '{name}’s calendar isn’t connected yet. The company will be in touch, or contact us to arrange it.', error: 'We couldn’t read the calendar right now. Try again in a moment.',
+    notConnected: '{name}’s calendar isn’t connected yet. Get in touch to arrange a meeting.', error: 'We couldn’t read the calendar right now. Try again in a moment.',
     noSlots: 'No availability this month.', prev: 'Previous month', next: 'Next month', pickTime: 'Pick a time', where: 'Where would you like to meet?',
-    office: 'At the office', zoom: 'On Zoom', officeAddress: 'Shtibel 8, Tel Aviv, 1st floor', zoomNote: 'Your DJ will send you a Zoom link.', other: 'Somewhere else', otherNote: 'Tell us where you’d like to meet', otherLabel: 'Where?', otherPlaceholder: 'Address or place name',
+    office: 'At the office', zoom: 'On Zoom', zoomNote: 'Your DJ will send you a Zoom link.', other: 'Somewhere else', otherNote: 'Tell us where you’d like to meet', otherLabel: 'Where?', otherPlaceholder: 'Address or place name',
     confirm: 'Book the meeting', booked: 'Your meeting is booked', bookedWith: 'with {name}', change: 'Change time', cancel: 'Cancel meeting',
     cancelConfirm: 'Cancel the meeting?', cancelled: 'Meeting cancelled', djNotified: 'Your DJ got an email with the details.', addedToCalendar: 'It’s in your DJ’s calendar and an invitation was sent to you.',
     notBooked: 'Not booked', days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

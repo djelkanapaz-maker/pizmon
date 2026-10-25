@@ -1,4 +1,5 @@
 import 'server-only';
+import { barsPath } from '@/components/pizmon-mark';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { supabaseServer } from '@/lib/supabase/server';
@@ -64,9 +65,11 @@ export function briefAssets(): BriefAssets {
   assets = {
     fonts: [
       ...[400, 500, 700].flatMap((w) => [font('Heebo', `heebo-hebrew-${w}.woff2`, w), font('Heebo', `heebo-latin-${w}.woff2`, w)]),
-      ...[800].flatMap((w) => [font('Rubik', `rubik-hebrew-${w}.woff2`, w), font('Rubik', `rubik-latin-${w}.woff2`, w)]),
+      font('Heebo', 'heebo-hebrew-800.woff2', 800), font('Heebo', 'heebo-latin-800.woff2', 800),
+      font('Space Grotesk', 'space-grotesk-latin-700.woff2', 700),
     ],
-    logoSvg: readFileSync(join(process.cwd(), 'public/brand/atisuto-slick.svg'), 'utf8').replace(/<\?xml[^>]*\?>/, ''),
+    // black & white wordmark: the round mark + "Pizmon" in the display face
+    logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 64"><circle cx="32" cy="32" r="32" fill="#111"/><path d="${barsPath()}" fill="#fff"/><text x="78" y="47" font-family="Space Grotesk" font-weight="700" font-size="46" letter-spacing="-1" fill="#111">Pizmon</text></svg>`,
   };
   return assets;
 }

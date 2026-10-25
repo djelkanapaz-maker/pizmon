@@ -71,10 +71,10 @@ describe('spotify connection storage', () => {
     const sealed = sealToken('refresh-token-value');
     expect(sealed).not.toContain('refresh-token-value');
     expect(openToken(sealed)).toBe('refresh-token-value');
-    const { error } = await admin.rpc('admin_save_spotify_connection', { p_company: COMPANY_ID, p_cipher: sealed, p_user: 'atisuto', p_name: 'ATISUTO' });
+    const { error } = await admin.rpc('admin_save_spotify_connection', { p_company: COMPANY_ID, p_cipher: sealed, p_user: 'pizmon', p_name: 'Pizmon' });
     expect(error).toBeNull();
     const { data } = await admin.rpc('admin_spotify_connection', { p_company: COMPANY_ID });
-    expect((data as { spotify_user_id: string }[])[0].spotify_user_id).toBe('atisuto');
+    expect((data as { spotify_user_id: string }[])[0].spotify_user_id).toBe('pizmon');
     const couple = await createCouple('NoSpotify');
     const r = await couple.client.rpc('admin_spotify_connection', { p_company: COMPANY_ID });
     expect(r.error?.code).toBe('42501');

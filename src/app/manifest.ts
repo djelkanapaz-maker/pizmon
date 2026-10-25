@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
-  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO';
+  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
   return {
     name,
     short_name: name.split(' ').slice(0, 2).join(' '),
@@ -9,8 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#c01f22',
-    theme_color: '#c01f22',
+    background_color: '#07070a',
+    theme_color: '#07070a',
     lang: 'he',
     dir: 'rtl',
     icons: [

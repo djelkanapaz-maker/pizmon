@@ -8,7 +8,7 @@ export async function sendMail(msg: { to: string; subject: string; text: string;
   if (!mailConfigured()) return false;
   try {
     const t = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD } });
-    await t.sendMail({ from: `"${process.env.MAIL_FROM_NAME ?? 'ATISUTO'}" <${process.env.GMAIL_USER}>`, ...msg });
+    await t.sendMail({ from: `"${process.env.MAIL_FROM_NAME ?? 'Pizmon'}" <${process.env.GMAIL_USER}>`, ...msg });
     return true;
   } catch { return false; }
 }

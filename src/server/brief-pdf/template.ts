@@ -1,5 +1,5 @@
 /**
- * One-page, Atisuto-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
+ * One-page, Pizmon-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
  * inlined), printed to PDF by headless Chromium. Pure function: no server or DB access here.
  */
 
@@ -40,7 +40,7 @@ const T = {
     less: 'פחות מתאים לנו', lessSpecific: 'אמנים / שירים שפחות נרצה', artists: 'אמנים אהובים', vibe: 'אווירה', eras: 'תקופות',
     languages: 'שפות', traditions: 'מסורות', israeli: 'מוזיקה ישראלית', must: 'חובה לנגן', never: 'לעולם לא', neverPref: 'עדיף שלא',
     playlist: 'הפלייליסט שלנו', more: 'ועוד {n} שירים באפליקציה', notes: 'הערות ל-DJ', family: 'על המשפחה והקהל',
-    guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'הופק באפליקציית המוזיקה של ATISUTO',
+    guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'הופק ב-Pizmon · אלקנה פז',
     draft: 'טיוטה — עוד לא נשלח ל-DJ', sent: 'נשלח ל-DJ',
     status: { confirmed: 'מאושר', awaiting_confirmation: 'ממתין לאישור', browsing: 'בבחירה', shortlisted: 'ברשימה קצרה', change_requested: 'בקשת שינוי', not_started: 'טרם נבחר', approved: 'מאושר', maybe: 'אולי', backup: 'גיבוי' } as Record<string, string>,
   },
@@ -49,7 +49,7 @@ const T = {
     less: 'Not for us', lessSpecific: 'Artists / songs we’d rather skip', artists: 'Favorite artists', vibe: 'Vibe', eras: 'Eras',
     languages: 'Languages', traditions: 'Traditions', israeli: 'Israeli music', must: 'Must play', never: 'Never play', neverPref: 'Rather not',
     playlist: 'Our playlist', more: '+{n} more songs in the app', notes: 'Notes for the DJ', family: 'About our family & crowd',
-    guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Made with the ATISUTO music app',
+    guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Made with Pizmon · Elkana Paz',
     draft: 'Draft — not yet sent to the DJ', sent: 'Sent to the DJ',
     status: { confirmed: 'Confirmed', awaiting_confirmation: 'Awaiting OK', browsing: 'Choosing', shortlisted: 'Shortlisted', change_requested: 'Change requested', not_started: 'Not chosen', approved: 'Approved', maybe: 'Maybe', backup: 'Backup' } as Record<string, string>,
   },
@@ -69,7 +69,7 @@ export function renderBriefHtml(d: BriefDoc, a: BriefAssets): string {
   const inline = (xs: string[]) => xs.length ? `<p class="inline">${xs.map((x) => `<bdi>${esc(x)}</bdi>`).join('<span class="sep">·</span>')}</p>` : `<p class="muted">${t.empty}</p>`;
   const section = (title: string, body: string, cls = '') => `<section class="sec ${cls}"><h3><span>${title}</span></h3>${body}</section>`;
   const list = (xs: string[]) => `<ul class="plain">${xs.map((x) => `<li><bdi>${esc(x)}</bdi></li>`).join('')}</ul>`;
-  const logo = a.logoSvg.replace(/fill="#[0-9a-fA-F]{3,6}"/g, 'fill="#111"');
+  const logo = a.logoSvg;
 
   const moments = d.moments.map((m) => `
     <tr>
@@ -94,15 +94,15 @@ body { font-family: Heebo, Arial, sans-serif; color: #111; font-size: 8.7pt; lin
 #page { width: 210mm; height: 296mm; padding: 13mm 14mm 9mm; display: flex; flex-direction: column }
 header { padding-bottom: 5mm; border-bottom: .6mm solid #111 }
 header .top { display: flex; justify-content: space-between; align-items: center }
-header .logo svg { height: 6mm; width: auto; display: block }
+header .logo svg { height: 7mm; width: auto; display: block }
 header .kicker { font-size: 9pt; font-weight: 500; color: #555; ${rtl ? '' : 'letter-spacing: .14em; text-transform: uppercase;'} }
-header h1 { font-family: Rubik, Heebo, sans-serif; font-weight: 800; font-size: 25pt; line-height: 1.1; margin-top: 6mm; letter-spacing: -.01em }
+header h1 { font-family: 'Space Grotesk', Heebo, sans-serif; font-weight: ${rtl ? 800 : 700}; font-size: 25pt; line-height: 1.1; margin-top: 6mm; letter-spacing: -.01em }
 header .facts { margin-top: 2mm; font-size: 9pt; color: #333 }
 header .facts span + span::before { content: '|'; color: #aaa; margin: 0 2.5mm }
 header .state { margin-top: 2mm; font-size: 7.6pt; color: #666 }
 main { flex: 1; display: grid; grid-template-columns: 1.12fr 1fr; gap: 9mm; padding-top: 6mm; min-height: 0 }
 .col { display: flex; flex-direction: column; gap: 5.5mm; min-width: 0 }
-.sec h3 { font-family: Rubik, Heebo, sans-serif; font-weight: 800; font-size: 10pt; margin-bottom: 2.2mm; display: flex; align-items: center; gap: 2.5mm }
+.sec h3 { font-family: 'Space Grotesk', Heebo, sans-serif; font-weight: ${rtl ? 800 : 700}; font-size: 10pt; margin-bottom: 2.2mm; display: flex; align-items: center; gap: 2.5mm }
 .sec h3::after { content: ''; flex: 1; border-top: .25mm solid #111 }
 h4 { font-size: 7.4pt; font-weight: 700; color: #555; margin: 2.4mm 0 .6mm }
 h4:first-of-type { margin-top: 0 }

@@ -164,9 +164,15 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
       if (cmErr) throw new HttpError(500, 'membership_failed', cmErr.message);
 
       let assignment = null;
-      const djId = uuid(b.dj_id, 'dj_id', false);
+      let djId = uuid(b.dj_id, 'dj_id', false);
+      let confirm = false;
+      if (!djId) {
+        // a one-DJ business: every couple is that DJ's couple, confirmed from the start
+        const { data: solo } = await admin.from('djs').select('id').eq('company_id', companyId).eq('is_active', true).eq('kind', 'dj').limit(2);
+        if (solo?.length === 1) { djId = solo[0].id as string; confirm = true; }
+      }
       if (djId) {
-        const { data, error: aErr } = await asCaller.rpc('admin_assign_dj', { p_event: ev.id, p_dj: djId, p_confirm: false });
+        const { data, error: aErr } = await asCaller.rpc('admin_assign_dj', { p_event: ev.id, p_dj: djId, p_confirm: confirm });
         if (aErr) throw new HttpError(400, 'assign_failed', aErr.message);
         assignment = data;
       }

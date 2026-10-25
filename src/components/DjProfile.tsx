@@ -1,7 +1,7 @@
 import type { Dj } from '@/server/queries';
 import { IconExternal } from './icons';
 
-/** Bio in the UI language, falling back to whichever language exists (Atisuto bios are English). */
+/** Bio in the UI language, falling back to whichever language exists . */
 export function djBio(dj: Pick<Dj, 'bio_he' | 'bio_en'>, locale: 'he' | 'en') {
   const text = (locale === 'he' ? dj.bio_he || dj.bio_en : dj.bio_en || dj.bio_he) ?? '';
   const lang = locale === 'he' && dj.bio_he ? 'he' : dj.bio_en ? 'en' : 'he';
@@ -18,7 +18,7 @@ export function DjBio({ dj, locale, clamp }: { dj: Pick<Dj, 'bio_he' | 'bio_en'>
   );
 }
 
-const LINK_LABELS: Record<string, string> = { instagram: 'Instagram', soundcloud: 'SoundCloud', spotify: 'Spotify', youtube: 'YouTube', facebook: 'Facebook', beatport: 'Beatport' };
+const LINK_LABELS: Record<string, string> = { instagram: 'Instagram', soundcloud: 'SoundCloud', spotify: 'Spotify', youtube: 'YouTube', facebook: 'Facebook', tiktok: 'TikTok', beatport: 'Beatport', website: 'elkanapaz.com' };
 
 export function DjLinks({ links }: { links: Record<string, string> | null | undefined }) {
   const entries = Object.entries(links ?? {}).filter(([, url]) => /^https:\/\//.test(url));

@@ -1,30 +1,26 @@
 import Link from 'next/link';
+import { BRAND_COLORS, MARK_VIEWBOX, barsPath } from './pizmon-mark';
 
-const LOGO = process.env.NEXT_PUBLIC_BRAND_LOGO ?? '/brand/atisuto-slick.svg';
+export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
 
-/** Company wordmark (Atisuto logo by default). Set NEXT_PUBLIC_BRAND_LOGO="" to fall back to a text mark. */
-export function BrandMark({ name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'ATISUTO', href = '/' }: { name?: string; href?: string }) {
-  if (LOGO) {
-    return (
-      <Link href={href} className="inline-flex items-center" aria-label={name}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO} alt={name} width={126} height={24} className="h-6 w-auto" />
-      </Link>
-    );
-  }
+/** Pizmon wordmark: the round sound-wave mark + the name. */
+export function BrandMark({ name = BRAND, href = '/' }: { name?: string; href?: string }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2.5" aria-label={name}>
-      <span aria-hidden className="size-8 rounded-full bg-ember" />
-      <span className="display text-[15px]" dir="ltr">{name}</span>
+    <Link href={href} className="inline-flex items-center gap-2" aria-label={name} dir="ltr">
+      <PizmonMark size={28} />
+      <span className="font-[family-name:var(--font-display)] font-bold text-[19px] tracking-[-0.02em] text-paper">{name}</span>
     </Link>
   );
 }
 
-/** The Atisuto star mark, inline so it can take any colour. */
-export function StarMark({ size = 32, className }: { size?: number; className?: string }) {
+/** The round mark. The gradient is CSS so no SVG <defs> ids are shared between copies. `mono` uses currentColor. */
+export function PizmonMark({ size = 32, className, mono }: { size?: number; className?: string; mono?: boolean }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 60.2 60.2" aria-hidden className={className}>
-      <path fill="currentColor" d="M30.1,0A30.1,30.1,0,1,0,60.2,30.1,30.13,30.13,0,0,0,30.1,0ZM43.9,49.8,30.1,39.7,16.2,49.8l5.3-16.3L7.7,23.4H24.8L30.1,7.1l5.3,16.3H52.5L38.7,33.5Z" />
-    </svg>
+    <span aria-hidden className={className} style={{
+      display: 'inline-grid', placeItems: 'center', width: size, height: size, borderRadius: '50%', flex: 'none',
+      background: mono ? 'currentColor' : `linear-gradient(135deg, ${BRAND_COLORS.violetStrong}, ${BRAND_COLORS.electric} 55%, ${BRAND_COLORS.magenta})`,
+    }}>
+      <svg width={size} height={size} viewBox={MARK_VIEWBOX}><path d={barsPath()} fill={mono ? 'var(--color-ink)' : BRAND_COLORS.ink} /></svg>
+    </span>
   );
 }
