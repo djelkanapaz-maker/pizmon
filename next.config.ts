@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   // the brief PDF is printed by headless Chromium in a serverless function
   serverExternalPackages: ['@sparticuz/chromium', 'puppeteer-core'],
   outputFileTracingIncludes: {
-    '/api/setup-sql': ['./supabase/migrations/**', './supabase/seed.sql'],
     '/api/brief/pdf': ['./src/server/brief-pdf/fonts/**', './node_modules/@sparticuz/chromium/bin/**'],
   },
   turbopack: {
