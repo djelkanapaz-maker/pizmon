@@ -17,6 +17,7 @@ export const en = {
     invalid: 'Email or password is incorrect.', forgot: 'Forgot your password?',
     forgotTitle: 'Reset password', forgotSub: 'We’ll email you a link to set a new password.',
     sendLink: 'Send reset link', linkSent: 'If that email has an account, a link is on its way.',
+    activateStartSub: 'Tap the button to continue and choose a password for your account.', activateStartCta: 'Continue to set a password',
     activateTitle: 'Activate your account', activateSub: 'Choose a password. You’ll use it with your email to sign in.',
     newPassword: 'New password', confirmPassword: 'Confirm password', setPassword: 'Set password & continue',
     passwordRule: 'At least 8 characters. Digits only is fine, e.g. your wedding date: 16112026.', passwordMismatch: 'Passwords don’t match.', passwordWeak: 'Use at least 8 characters.',

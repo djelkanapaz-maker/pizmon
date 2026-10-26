@@ -50,6 +50,9 @@ test('admin → couple → DJ end-to-end journey', async ({ browser }) => {
   const coupleCtx = await browser.newContext({ ...test.info().project.use, locale: 'he-IL' });
   const couple = await coupleCtx.newPage();
   await couple.goto(activation); await settle(couple);
+  // the link lands on a confirm page first (so link previews can't burn the one-time token)
+  await couple.waitForURL('**/activate/start?**');
+  await couple.getByRole('button', { name: 'המשך לבחירת סיסמה' }).click();
   await couple.waitForURL('**/activate'); await settle(couple);
   await shot(couple, '02-activate');
   await couple.locator('#password').fill(TEST_PASSWORD);

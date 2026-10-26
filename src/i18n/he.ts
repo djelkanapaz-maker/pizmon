@@ -19,6 +19,7 @@ export const he: Messages = {
     invalid: 'האימייל או הסיסמה שגויים.', forgot: 'שכחתם סיסמה?',
     forgotTitle: 'איפוס סיסמה', forgotSub: 'נשלח אליכם קישור לבחירת סיסמה חדשה.',
     sendLink: 'שליחת קישור', linkSent: 'אם קיים חשבון עם האימייל הזה, הקישור כבר בדרך.',
+    activateStartSub: 'לחצו על הכפתור כדי להמשיך ולבחור סיסמה לחשבון שלכם.', activateStartCta: 'המשך לבחירת סיסמה',
     activateTitle: 'הפעלת החשבון', activateSub: 'בחרו סיסמה. איתה ועם האימייל תתחברו בפעם הבאה.',
     newPassword: 'סיסמה חדשה', confirmPassword: 'אימות סיסמה', setPassword: 'שמירת סיסמה והמשך',
     passwordRule: 'לפחות 8 תווים. אפשר גם רק ספרות, למשל תאריך החתונה: 16112026.', passwordMismatch: 'הסיסמאות לא תואמות.', passwordWeak: 'הסיסמה צריכה להיות לפחות 8 תווים.',
