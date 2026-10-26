@@ -1,0 +1,22 @@
+{
+  "introKicker": "מדריך לזוגות",
+  "outroKicker": "אלקנה פז · DJ",
+  "noHighlight": ["p01-login", "p15-home", "p14-notifications", "p06-shelves", "p13-brief"],
+  "parts": [
+    { "title": "ברוכים הבאים", "tip": "הבית הדיגיטלי של המוזיקה בחתונה שלכם", "shots": ["p01-login", "p15-home"] },
+    { "title": "הפעלת החשבון", "tip": "לוחצים על הקישור, ואז על ״המשך לבחירת סיסמה״", "shots": ["p02-start", "p02-password"] },
+    { "title": "הוספה למסך הבית", "tip": "ככה פזמון נפתחת כמו כל אפליקציה בטלפון", "shots": ["p03-install"] },
+    { "title": "היכרות ופרטי החתונה", "tip": "שמות, תאריך, מקום, ומה חשוב שאדע עליכם", "shots": ["p04-welcome", "p04-dj", "p04-details"] },
+    { "title": "מסך הבית", "tip": "״הצעד הבא״ תמיד אומר לכם מה עכשיו", "shots": ["p15-home", "p15-home-scroll"] },
+    { "title": "מאגר המוזיקה", "tip": "חיפוש לפי ז׳אנר, אווירה, שפה ורגע בחתונה", "shots": ["p06-library", "p06-shelves", "p06-search", "p06-track"] },
+    { "title": "הפלייליסט שלנו", "tip": "לוחצים + ליד שיר, והוא נכנס לפלייליסט", "shots": ["p07-collection", "p07-added", "p07-ours"] },
+    { "title": "הרגעים המיוחדים", "tip": "שיר ראשי וגיבוי לכל רגע גדול", "shots": ["p08-moments", "p08-chuppah", "p08-glass"] },
+    { "title": "השאלון המוזיקלי", "tip": "חמש דקות, ונשמר אוטומטית", "shots": ["p09-questionnaire", "p09-genres", "p09-energy"] },
+    { "title": "חובה / לעולם לא", "tip": "מה חייב להתנגן, ומה אסור בשום מצב", "shots": ["p10-never", "p10-list"] },
+    { "title": "המלצות מה-DJ", "tip": "אהבנו, לא בשבילנו, או שאלה ישירה", "shots": ["p11-recs"] },
+    { "title": "פגישת תיאום", "tip": "בוחרים יום ושעה, הפגישה נמשכת שעה", "shots": ["p05-progress", "p12-calendar", "p12-details", "p12-booked"] },
+    { "title": "התקציר המוזיקלי", "tip": "הכל בעמוד אחד, נשלח אליי בלחיצה", "shots": ["p13-brief", "p13-send"] },
+    { "title": "התראות ורדיו", "tip": "עדכונים ממני, ומיקסים להשראה", "shots": ["p14-notifications", "p14-radio"] },
+    { "title": "נתראה על הרחבה", "tip": "הרגעים שלכם. המוזיקה שלנו.", "shots": ["p15-home"] }
+  ]
+}
