@@ -61,6 +61,24 @@ export async function adminAddPartner(eventId: string, email: string): Promise<A
   return ok({ link: r.data.activation_link });
 }
 
+export async function adminDeleteCouple(eventId: string): Promise<ActionResult> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  if (!uuid.safeParse(eventId).success) return fail('validation');
+  const r = await callAdminFn('delete_couple', { event_id: eventId });
+  if (!r.ok) return fail(r.error);
+  revalidatePath('/admin', 'layout');
+  return ok(undefined);
+}
+
+export async function adminRemoveCoupleLogin(eventId: string, userId: string): Promise<ActionResult> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  if (!uuid.safeParse(eventId).success || !uuid.safeParse(userId).success) return fail('validation');
+  const r = await callAdminFn('remove_couple_login', { event_id: eventId, user_id: userId });
+  if (!r.ok) return fail(r.error);
+  revalidatePath(`/admin/couples/${eventId}`);
+  return ok(undefined);
+}
+
 export async function adminAssignDj(eventId: string, djId: string, confirm: boolean): Promise<ActionResult> {
   const c = await adminCtx(); if (!c) return fail('admin_only');
   if (!uuid.safeParse(eventId).success || !uuid.safeParse(djId).success) return fail('validation');

@@ -109,6 +109,25 @@ async function ensureMembership(db: SupabaseClient, companyId: string, userId: s
   }
 }
 
+/**
+ * After a user left a couple: delete the auth user if they were only a couple login here
+ * (not in any other wedding, not staff anywhere). Otherwise just drop their couple membership.
+ * Returns true when the login was deleted.
+ */
+async function removeCoupleLogin(companyId: string, userId: string) {
+  const { count: otherEvents } = await admin.from('couple_members').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+  const { data: roles } = await admin.from('company_members').select('company_id, role').eq('user_id', userId);
+  const staff = (roles ?? []).some((r) => r.role !== 'couple');
+  if ((otherEvents ?? 0) > 0) return false;
+  if (staff) {
+    await admin.from('company_members').delete().eq('company_id', companyId).eq('user_id', userId).eq('role', 'couple');
+    return false;
+  }
+  const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) throw new HttpError(500, 'delete_user_failed', error.message);
+  return true;
+}
+
 const inviteHtml = (name: string, link: string) =>
   `<p>Hi ${name.replace(/[<>&]/g, '')},</p><p>Your wedding music workspace is ready. Activate your account:</p><p><a href="${link}">${link}</a></p>`;
 
@@ -199,6 +218,35 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
     if (other) throw new HttpError(409, 'already_in_other_event');
     await admin.from('couple_members').upsert({ event_id: eventId, user_id: userId }, { onConflict: 'event_id,user_id' });
     return { user_id: userId, activation_link: link };
+  },
+
+  /** Deletes a wedding (everything attached to it cascades) and the couple's logins. */
+  async delete_couple(req, b) {
+    const eventId = uuid(b.event_id, 'event_id')!;
+    const { data: ev } = await admin.from('wedding_events').select('id, company_id').eq('id', eventId).maybeSingle();
+    if (!ev) throw new HttpError(404, 'event_not_found');
+    await requireAdmin(req, ev.company_id);
+    const { data: members } = await admin.from('couple_members').select('user_id').eq('event_id', eventId);
+    const { error } = await admin.from('wedding_events').delete().eq('id', eventId);
+    if (error) throw new HttpError(400, 'delete_failed', error.message);
+    const removed: string[] = [];
+    for (const mbr of members ?? []) if (await removeCoupleLogin(ev.company_id, mbr.user_id as string)) removed.push(mbr.user_id as string);
+    return { deleted: eventId, removed_users: removed.length };
+  },
+
+  /** Removes one login from a couple (e.g. a wrong email). The wedding itself stays. */
+  async remove_couple_login(req, b) {
+    const eventId = uuid(b.event_id, 'event_id')!;
+    const userId = uuid(b.user_id, 'user_id')!;
+    const { data: ev } = await admin.from('wedding_events').select('id, company_id').eq('id', eventId).maybeSingle();
+    if (!ev) throw new HttpError(404, 'event_not_found');
+    await requireAdmin(req, ev.company_id);
+    const { data: cm } = await admin.from('couple_members').select('user_id').eq('event_id', eventId).eq('user_id', userId).maybeSingle();
+    if (!cm) throw new HttpError(404, 'not_a_member');
+    const { error } = await admin.from('couple_members').delete().eq('event_id', eventId).eq('user_id', userId);
+    if (error) throw new HttpError(400, 'delete_failed', error.message);
+    await removeCoupleLogin(ev.company_id, userId);
+    return { removed: userId };
   },
 
   async activation_link(req, b) {

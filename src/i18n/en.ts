@@ -201,6 +201,7 @@ export const en = {
     },
     newCouple: 'Add couple', coupleEmail: 'Login email', assignDj: 'Assign DJ', assignNow: 'Assign', confirmDirectly: 'Confirm immediately (skip couple confirmation)',
     activationLink: 'Activation link', activationHint: 'Share this one-time link with the couple (e.g. WhatsApp). It lets them set a password.',
+    removeLogin: 'Remove', removeLoginConfirm: 'Remove this login?', deleteCouple: 'Delete couple', deleteCoupleHint: 'Permanently deletes {names}: the wedding details, choices, playlists, messages and the couple’s logins. This cannot be undone.', deleteCoupleType: 'To confirm, type: {word}', deleteCoupleWord: 'delete', deleteForever: 'Delete permanently', coupleDeleted: 'Couple deleted',
     newLink: 'New activation link', sendEmail: 'Also send by email (if email is configured)', addPartner: 'Add partner login',
     approve: 'Approve', decline: 'Decline', pendingApproval: 'Couple selected {dj} — approval needed', assignmentConfirmed: 'Confirmed', assignment: 'DJ assignment', history: 'History',
     displayName: 'Display name', newDj: 'Add DJ', djEmail: 'Login email (optional)', bio: 'Bio', specialties: 'Specialties (comma separated)', active: 'Active', acceptsNew: 'Accepts new couples',

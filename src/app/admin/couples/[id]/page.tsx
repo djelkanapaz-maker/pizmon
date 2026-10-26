@@ -8,7 +8,7 @@ import { getEvent } from '@/server/queries';
 import { Badge } from '@/components/ui';
 import { IconChevron } from '@/components/icons';
 import { CoupleWorkspace, WORKSPACE_TABS, type WorkspaceTab } from '@/components/staff/CoupleWorkspace';
-import { AssignmentPanel, LoginPanel } from './AdminCouplePanels';
+import { AssignmentPanel, DeleteCouplePanel, LoginPanel } from './AdminCouplePanels';
 
 export default async function AdminCouple({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
@@ -34,7 +34,7 @@ export default async function AdminCouple({ params, searchParams }: { params: Pr
       <div className="gutter pt-4"><Link href="/admin/couples" className="inline-flex items-center gap-1 text-sm font-bold text-paper-dim hover:text-paper"><IconChevron size={16} className="rotate-180" />{m.admin.couples}</Link></div>
       <section className="gutter pt-4 grid lg:grid-cols-2 gap-4">
         <AssignmentPanel eventId={id} active={active ? { id: active.id, status: active.status, djName: active.dj?.display_name ?? '', djId: active.dj?.id ?? '' } : null} djs={(djs ?? []) as { id: string; display_name: string }[]} />
-        <LoginPanel eventId={id} logins={(profiles ?? []).map((p) => ({ email: p.email as string, name: p.full_name as string | null }))} />
+        <LoginPanel eventId={id} logins={(profiles ?? []).map((p) => ({ userId: p.id as string, email: p.email as string, name: p.full_name as string | null }))} />
       </section>
       {rows.length > 0 && (
         <details className="gutter mt-4">
@@ -45,6 +45,9 @@ export default async function AdminCouple({ params, searchParams }: { params: Pr
         </details>
       )}
       <CoupleWorkspace eventId={id} companyId={s.company.id} tab={tab} basePath={`/admin/couples/${id}`} viewer={{ userId: s.userId, djId: null, isAdmin: true }} />
+      <section className="gutter py-8">
+        <DeleteCouplePanel eventId={id} names={[event.partner_one_name, event.partner_two_name].filter(Boolean).join(' & ')} />
+      </section>
     </div>
   );
 }

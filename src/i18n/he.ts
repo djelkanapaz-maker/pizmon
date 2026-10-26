@@ -203,6 +203,7 @@ export const he: Messages = {
     },
     newCouple: 'הוספת זוג', coupleEmail: 'אימייל להתחברות', assignDj: 'שיבוץ דיג׳יי', assignNow: 'שיבוץ', confirmDirectly: 'אישור מיידי (בלי אישור הזוג)',
     activationLink: 'קישור הפעלה', activationHint: 'שלחו את הקישור החד־פעמי לזוג (למשל בוואטסאפ). הוא מאפשר להם לבחור סיסמה.',
+    removeLogin: 'הסרה', removeLoginConfirm: 'להסיר את ההתחברות הזאת?', deleteCouple: 'מחיקת הזוג', deleteCoupleHint: 'מוחק לצמיתות את {names}: פרטי החתונה, הבחירות, הפלייליסטים, ההודעות וההתחברויות של הזוג. אי אפשר לשחזר.', deleteCoupleType: 'כדי לאשר, הקלידו: {word}', deleteCoupleWord: 'מחיקה', deleteForever: 'מחיקה לצמיתות', coupleDeleted: 'הזוג נמחק',
     newLink: 'קישור הפעלה חדש', sendEmail: 'שליחה גם באימייל (אם מוגדר)', addPartner: 'הוספת התחברות לבן/בת הזוג',
     approve: 'אישור', decline: 'דחייה', pendingApproval: 'הזוג בחר ב{dj} — נדרש אישור', assignmentConfirmed: 'מאושר', assignment: 'שיבוץ דיג׳יי', history: 'היסטוריה',
     displayName: 'שם תצוגה', newDj: 'הוספת דיג׳יי', djEmail: 'אימייל להתחברות (לא חובה)', bio: 'ביוגרפיה', specialties: 'התמחויות (מופרדות בפסיק)', active: 'פעיל', acceptsNew: 'מקבל זוגות חדשים',
