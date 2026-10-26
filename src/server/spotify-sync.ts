@@ -49,7 +49,29 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
     const { error } = await db.from('music_tracks').update({ added_by_event: null }).in('id', part).not('added_by_event', 'is', null);
     if (error) throw error;
   }
-  const missing = pl.tracks.filter((t, i, a) => !trackId.has(t.id) && a.findIndex((x) => x.id === t.id) === i && artistId.has(t.artists));
+  // the same song from another release (new Spotify id, same title + artist) is the same catalog song
+  const songKey = (title: string, artist: string) => `${artist}\u0000${title.trim().toLowerCase()}`;
+  const unmatched = pl.tracks.filter((t) => !trackId.has(t.id) && artistId.has(t.artists));
+  const byArtist = [...new Set(unmatched.map((t) => artistId.get(t.artists)!))];
+  const known = new Map<string, string>();
+  for (const part of chunk(byArtist)) {
+    const { data, error } = await db.from('music_tracks').select('id, title, artist_id, added_by_event, created_at').eq('company_id', companyId).in('artist_id', part)
+      .order('added_by_event', { ascending: true, nullsFirst: true }).order('created_at');
+    if (error) throw error;
+    for (const r of data ?? []) { const k = songKey(r.title as string, r.artist_id as string); if (!known.has(k)) known.set(k, r.id as string); }
+  }
+  for (const t of unmatched) {
+    const hit = known.get(songKey(t.title, artistId.get(t.artists)!));
+    if (hit) trackId.set(t.id, hit);
+  }
+  // …and two releases of one song inside this playlist become one new row
+  const seen = new Set<string>();
+  const missing = pl.tracks.filter((t) => {
+    if (trackId.has(t.id) || !artistId.has(t.artists)) return false;
+    const k = songKey(t.title, artistId.get(t.artists)!);
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
   for (const part of chunk(missing)) {
     const { data, error } = await db.from('music_tracks').upsert(part.map((t) => ({
       company_id: companyId, title: t.title, artist_id: artistId.get(t.artists)!, provider: 'spotify', provider_track_id: t.id,
@@ -58,11 +80,22 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
     if (error) throw error;
     (data ?? []).forEach((t) => trackId.set(t.provider_track_id as string, t.id as string));
   }
+  // the other releases of a song added just now point at that one row
+  const added = new Map(missing.filter((t) => trackId.has(t.id)).map((t) => [songKey(t.title, artistId.get(t.artists)!), trackId.get(t.id)!]));
+  for (const t of pl.tracks) {
+    if (!trackId.has(t.id) && artistId.has(t.artists)) { const hit = added.get(songKey(t.title, artistId.get(t.artists)!)); if (hit) trackId.set(t.id, hit); }
+  }
+  // songs matched by title + artist that a couple had added become company songs too
+  for (const part of chunk([...new Set(trackId.values())])) {
+    const { error } = await db.from('music_tracks').update({ added_by_event: null }).in('id', part).not('added_by_event', 'is', null);
+    if (error) throw error;
+  }
 
-  // 4. playlist order mirrors Spotify
+  // 4. playlist order mirrors Spotify (one row per song)
   const { error: e3 } = await db.from('playlist_tracks').delete().eq('playlist_id', playlistId);
   if (e3) throw e3;
-  const rows = ids.filter((id) => trackId.has(id)).map((id, position) => ({ playlist_id: playlistId, track_id: trackId.get(id)!, position, added_by: userId }));
+  const songs = [...new Set(ids.filter((id) => trackId.has(id)).map((id) => trackId.get(id)!))];
+  const rows = songs.map((track_id, position) => ({ playlist_id: playlistId, track_id, position, added_by: userId }));
   for (const part of chunk(rows, 200)) {
     const { error } = await db.from('playlist_tracks').insert(part);
     if (error) throw error;

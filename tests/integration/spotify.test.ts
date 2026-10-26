@@ -19,6 +19,19 @@ beforeAll(async () => {
 }, 60_000);
 
 describe('spotify sync', () => {
+  it('treats another release of a known song (new id, same title + artist) as the same song', async () => {
+    const sfx = Math.random().toString(36).slice(2, 8);
+    const t = (id: string, title: string) => ({ id: id.padEnd(22, '0'), title, artists: `Rel ${sfx}`, durationMs: 1, artworkUrl: null });
+    const first: SpotifyPlaylist = { id: `Pa${sfx}`.padEnd(22, '0'), name: `rel a ${sfx}`, description: null, artworkUrl: null, truncated: false,
+      tracks: [t(`Xa${sfx}`, `Hit ${sfx}`), t(`Xb${sfx}`, `hit ${sfx}`), t(`Xc${sfx}`, `Hit ${sfx} - Acoustic`)] };
+    const r1 = await syncSpotifyPlaylist(admin, COMPANY_ID, adminId, first);
+    expect(r1.tracks).toBe(2);
+    const second: SpotifyPlaylist = { ...first, id: `Pb${sfx}`.padEnd(22, '0'), name: `rel b ${sfx}`, tracks: [t(`Xd${sfx}`, `HIT ${sfx}`)] };
+    await syncSpotifyPlaylist(admin, COMPANY_ID, adminId, second);
+    const rows = await sql<{ title: string }>(`select t.title from public.music_tracks t join public.artists a on a.id = t.artist_id where a.name = $1 order by t.title`, [`Rel ${sfx}`]);
+    expect(rows.map((r) => r.title)).toEqual([`Hit ${sfx}`, `Hit ${sfx} - Acoustic`]);
+  });
+
   it('creates a published editorial playlist with tracks in Spotify order', async () => {
     const r = await syncSpotifyPlaylist(admin, COMPANY_ID, adminId, fixture([1, 2, 3]));
     expect(r.tracks).toBe(3);
