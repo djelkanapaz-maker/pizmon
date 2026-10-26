@@ -145,10 +145,11 @@ export async function adminSetTrackTags(trackId: string, tagIds: unknown): Promi
     const { data: tags } = await c.db.from('tags').select('id').eq('company_id', c.s.company.id).in('id', ids);
     if ((tags ?? []).length !== ids.length) return fail('validation');
   }
-  const del = await c.db.from('track_tags').delete().eq('track_id', trackId);
+  // playlist-fed rows (auto) are owned by the category's sources; only hand-set rows are replaced here
+  const del = await c.db.from('track_tags').delete().eq('track_id', trackId).eq('auto', false);
   if (del.error) return dbFail(del.error);
   if (ids.length) {
-    const { error } = await c.db.from('track_tags').insert(ids.map((tag_id) => ({ track_id: trackId, tag_id })));
+    const { error } = await c.db.from('track_tags').upsert(ids.map((tag_id) => ({ track_id: trackId, tag_id })), { onConflict: 'track_id,tag_id', ignoreDuplicates: true });
     if (error) return dbFail(error);
   }
   revalidatePath(`/admin/catalog/${trackId}`);
@@ -210,6 +211,42 @@ export async function adminSaveTag(kind: 'category' | 'mood', input: unknown): P
   return saveNamed('tags', input, { kind });
 }
 export async function adminDeleteTag(id: string) { return deleteNamed('tags', id); }
+
+const categorySourcesInput = z.object({
+  hidden: z.boolean(),
+  sources: z.array(z.object({ playlist_id: uuid, language: z.enum(['all', 'he', 'intl']) })).max(30),
+});
+
+/** Which playlists feed a category (with a language filter), and whether couples see it. Rebuilds the category. */
+export async function adminSetCategorySources(tagId: string, input: unknown): Promise<ActionResult<{ tracks: number }>> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  const p = categorySourcesInput.safeParse(input);
+  if (!p.success || !uuid.safeParse(tagId).success) return fail('validation');
+  const { data: tag } = await c.db.from('tags').select('id').eq('id', tagId).eq('company_id', c.s.company.id).eq('kind', 'category').maybeSingle();
+  if (!tag) return fail('not_found');
+  const ids = [...new Set(p.data.sources.map((x) => x.playlist_id))];
+  if (ids.length) {
+    const { data: pls } = await c.db.from('playlists').select('id').eq('company_id', c.s.company.id).eq('kind', 'editorial').in('id', ids);
+    if ((pls ?? []).length !== ids.length) return fail('validation');
+  }
+  const up = await c.db.from('tags').update({ is_hidden: p.data.hidden }).eq('id', tagId);
+  if (up.error) return dbFail(up.error);
+  const del = await c.db.from('category_sources').delete().eq('tag_id', tagId);
+  if (del.error) return dbFail(del.error);
+  if (p.data.sources.length) {
+    const rows = ids.map((id) => ({ tag_id: tagId, playlist_id: id, language: p.data.sources.find((x) => x.playlist_id === id)!.language }));
+    const { error } = await c.db.from('category_sources').insert(rows);
+    if (error) return dbFail(error);
+    // a playlist-fed category shows only its playlists' songs: drop the hand-set (seed) rows
+    const clr = await c.db.from('track_tags').delete().eq('tag_id', tagId).eq('auto', false);
+    if (clr.error) return dbFail(clr.error);
+  }
+  const r = await c.db.rpc('refresh_category_tracks', { p_company: c.s.company.id });
+  if (r.error) return dbFail(r.error);
+  const { count } = await c.db.from('track_tags').select('*', { count: 'exact', head: true }).eq('tag_id', tagId);
+  revalidatePath('/admin/taxonomy'); revalidatePath('/discover');
+  return ok({ tracks: count ?? 0 });
+}
 
 // ─────────────────────────── wedding moments ───────────────────────────
 const momentInput = z.object({
@@ -293,7 +330,9 @@ async function importIds(c: NonNullable<Awaited<ReturnType<typeof adminCtx>>>, i
       out.push({ id, ok: false, error: e instanceof Error && e.message.startsWith('spotify_') ? e.message : 'spotify_failed' });
     }
   }
-  revalidatePath('/admin/playlists'); revalidatePath('/discover'); revalidatePath('/home');
+  // categories fed by these playlists follow the new contents
+  await c.db.rpc('refresh_category_tracks', { p_company: c.s.company.id });
+  revalidatePath('/admin/playlists'); revalidatePath('/admin/taxonomy'); revalidatePath('/discover'); revalidatePath('/home');
   return out;
 }
 

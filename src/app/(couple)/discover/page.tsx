@@ -24,7 +24,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
     getTrackContext(s.eventId, s.company.id),
     getGenres(s.company.id),
     getMoments(s.company.id),
-    db.from('tags').select('id, kind, slug, name_he, name_en').eq('company_id', s.company.id).order('sort_order'),
+    db.from('tags').select('id, kind, slug, name_he, name_en').eq('company_id', s.company.id).eq('is_hidden', false).order('sort_order'),
     db.from('playlists').select('id, title, description, purpose, artwork_url, playlist_tracks(count)').eq('company_id', s.company.id).in('kind', ['editorial', 'dj']).eq('status', 'published').order('is_featured', { ascending: false }).order('created_at'),
   ]);
   const categories = (tags ?? []).filter((t) => t.kind === 'category');
