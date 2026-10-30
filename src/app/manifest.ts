@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
-  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
+  const name = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
   return {
     name,
     short_name: name.split(' ').slice(0, 2).join(' '),

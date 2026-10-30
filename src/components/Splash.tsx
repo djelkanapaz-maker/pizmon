@@ -1,12 +1,12 @@
 'use client';
 /**
  * Opening animation, once per app launch (per browser session): flow lines draw across the ivory,
- * a sound wave rises and the פזמון wordmark with its tagline settles in, then it lifts away.
+ * the פסקול logo with its tagline settles in, then it lifts away.
  * The app renders underneath the whole time, so nothing waits on the animation.
  * A tiny inline script (SPLASH_SCRIPT, run before paint) hides it on later navigations/reloads.
  */
 import { useEffect, useState } from 'react';
-import { FLOW_LINES, TAGLINE_HE, WAVE, WORDMARK } from './pizmon-mark';
+import { FLOW_LINES, LOGO, TAGLINE_HE, WORDMARK } from './pizmon-mark';
 
 export const SPLASH_KEY = 'pizmon-splash';
 export const SPLASH_SCRIPT = `try{if(sessionStorage.getItem('${SPLASH_KEY}'))document.documentElement.dataset.splash='done'}catch(e){}`;
@@ -29,10 +29,8 @@ export function Splash() {
         {FLOW_LINES.map((d, i) => <path key={i} d={d} />)}
       </svg>
       <div className="splash-center">
-        <div className="splash-wave">
-          {WAVE.map((h, i) => <i key={i} style={{ height: h, animationDelay: `${180 + Math.abs(i - 6) * 55}ms` }} />)}
-        </div>
-        <div className="splash-word" dir="rtl">{WORDMARK}</div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- brand asset, shown before hydration */}
+        <img className="splash-logo" src={LOGO.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
         <div className="splash-tag" dir="rtl">{TAGLINE_HE}</div>
       </div>
     </div>

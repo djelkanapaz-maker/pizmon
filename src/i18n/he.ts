@@ -55,7 +55,7 @@ export const he: Messages = {
     noDate: 'הוסיפו את תאריך החתונה', yourDj: 'הדיג׳יי שלכם', djPending: 'ממתין לאישור', djProposed: 'ממתין לאישור שלכם',
     progress: 'התקדמות התכנון', progressDetail: '{done} מתוך {total} שלבים הושלמו', nextUp: 'הצעד הבא',
     recommended: 'הדיג׳יי שלכם ממליץ', savedRecently: 'נשמרו לאחרונה', ceremony: 'אוספים לחופה',
-    featuredMixes: 'מיקסים של אלקנה', radio: 'Pizmon Radio', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
+    featuredMixes: 'מיקסים של אלקנה', radio: 'רדיו פסקול', updates: 'עדכונים מהדיג׳יי', pending: 'מחכה לתשובה שלכם',
     emptySaved: 'שירים שתשמרו ממאגר המוזיקה יופיעו כאן.', exploreNow: 'לגלות מוזיקה',
     tasks: { onboarding: 'היכרות ופרטים', dj: 'דיג׳יי מאושר', questionnaire: 'השאלון המוזיקלי', moments: 'שירים לרגעים המיוחדים', restrictions: 'חובה / לעולם לא', submit: 'התקציר נשלח לדיג׳יי' },
     action: {

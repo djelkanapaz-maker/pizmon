@@ -1,7 +1,10 @@
-// פזמון brand marks (from the brand board). One place for the icon "פ", the sound-wave and
+// פסקול (Paskol) brand marks. The logo image lives in public/brand/; here: wordmark text, the sound-wave and
 // the flow lines, shared by the header, splash, app icons and the PDF brief.
 export const BRAND_COLORS = { ivory: '#f8f4ed', champagne: '#d7c3a6', taupe: '#a89886', charcoal: '#1f1f1f', white: '#ffffff' };
-export const WORDMARK = 'פזמון';
+export const WORDMARK = 'פסקול';
+export const BRAND_LATIN = 'Paskol';
+/** The logo (record + horn + פסקול), transparent background. */
+export const LOGO = { src: '/brand/paskol-logo.webp', small: '/brand/paskol-logo-sm.webp', png: '/brand/paskol-logo.png', ratio: 999 / 922 };
 export const TAGLINE_HE = 'הרגעים שלכם. המוזיקה שלנו.';
 export const TAGLINE_EN = 'Your moments. Our music.';
 

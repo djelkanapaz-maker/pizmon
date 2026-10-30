@@ -66,8 +66,8 @@ export function briefAssets(): BriefAssets {
     fonts: [
       ...[300, 400, 500, 700, 900].flatMap((w) => [font('Heebo', `heebo-hebrew-${w}.woff2`, w), font('Heebo', `heebo-latin-${w}.woff2`, w)]),
     ],
-    // the פזמון wordmark in Heebo Black, as on the typography board (the PDF stays black & white)
-    logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 48"><text x="150" y="38" text-anchor="end" direction="rtl" font-family="Heebo" font-weight="900" font-size="44" letter-spacing="-0.5" fill="#111">${WORDMARK}</text></svg>`,
+    // the פסקול logo (record, horn and wordmark)
+    logoSvg: `<img alt="${WORDMARK}" src="data:image/png;base64,${readFileSync(join(fs, 'paskol-logo.png')).toString('base64')}">`,
   };
   return assets;
 }

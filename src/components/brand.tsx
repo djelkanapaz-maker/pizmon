@@ -1,14 +1,16 @@
 import Link from 'next/link';
-import { FLOW_LINES, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE, WORDMARK } from './pizmon-mark';
+import { FLOW_LINES, LOGO, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE } from './pizmon-mark';
 
-export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
+export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
 
-/** The פזמון wordmark in Rubik Black (poster typography). `tagline` adds "הרגעים שלכם. המוזיקה שלנו." */
+/** The פסקול logo (record, horn and wordmark). `size` is the logo height in px; `tagline` adds "הרגעים שלכם. המוזיקה שלנו." */
 export function BrandMark({ name = BRAND, href = '/', tagline = false, size = 26 }: { name?: string; href?: string; tagline?: boolean; size?: number }) {
+  const h = Math.round(size * 1.7);
   return (
-    <Link href={href} className="inline-flex flex-col items-start leading-none text-paper" aria-label={name} dir="rtl">
-      <span className="font-[family-name:var(--font-display)] font-black leading-[0.95]" style={{ fontSize: size }}>{WORDMARK}</span>
-      {tagline && <span className="mt-1.5 text-[11px] font-bold tracking-[0.02em] text-paper-dim">{TAGLINE_HE}</span>}
+    <Link href={href} className="inline-flex items-center gap-3 leading-none text-paper" aria-label={name} dir="rtl">
+      {/* eslint-disable-next-line @next/next/no-img-element -- small static brand asset */}
+      <img src={h > 80 ? LOGO.src : LOGO.small} alt={name} width={Math.round(h * LOGO.ratio)} height={h} className="shrink-0" style={{ height: h, width: 'auto' }} />
+      {tagline && <span className="text-[11px] font-bold tracking-[0.02em] text-paper-dim max-w-[9rem] leading-snug">{TAGLINE_HE}</span>}
     </Link>
   );
 }

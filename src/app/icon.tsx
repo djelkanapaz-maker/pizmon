@@ -1,19 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
-import { BRAND_COLORS, PE_PATH } from '@/components/pizmon-mark';
 
 export const size = { width: 512, height: 512 };
 export const contentType = 'image/png';
 
-/** פזמון app icon: the thin "פ" in charcoal on ivory (brand board, icon variation "Ivory"). */
+/** פסקול app icon: the logo (record, horn and wordmark) on ivory. */
 export default function Icon() {
-  return new ImageResponse(
-    (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BRAND_COLORS.ivory }}>
-        <svg width="330" height="330" viewBox="0 0 64 64">
-          <path d={PE_PATH} fill="none" stroke={BRAND_COLORS.charcoal} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-    ),
-    size,
-  );
+  const src = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/brand/paskol-icon.png')).toString('base64')}`;
+  // eslint-disable-next-line @next/next/no-img-element -- rendered by ImageResponse, not the browser
+  return new ImageResponse(<img src={src} width={512} height={512} alt="" />, size);
 }

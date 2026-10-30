@@ -13,7 +13,7 @@
 @import '@fontsource/rubik/hebrew-900.css';
 @import '@fontsource/rubik/latin-900.css';
 
-/* ── פזמון / Pizmon design tokens (brand board: ivory · champagne · taupe · charcoal · white) ──
+/* ── פסקול / Paskol design tokens (brand board: ivory · champagne · taupe · charcoal · white) ──
    The token names are semantic and shared with the original app:
    ink*   = surfaces (ivory page, white cards, warm hover)    paper* = text (charcoal, taupe-grey)
    ember  = primary action (charcoal)                          crimson = champagne accent
@@ -109,7 +109,7 @@ body {
 }
 
 /* ── Opening splash (components/Splash.tsx): flow lines draw across the ivory, a sound wave
-      rises, the פזמון wordmark and tagline settle in, then everything lifts away ── */
+      rises, the פסקול logo and tagline settle in, then everything lifts away ── */
 .splash {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; cursor: pointer;
   background: radial-gradient(circle at 50% 46%, #fbf8f3 0%, #f8f4ed 55%, #efe7da 100%);
@@ -124,6 +124,8 @@ html[data-splash='done'] .splash { display: none; }
 .splash-center { display: flex; flex-direction: column; align-items: center; gap: 22px; }
 .splash-wave { display: flex; align-items: center; gap: 7px; height: 64px; }
 .splash-wave i { display: block; width: 1.5px; border-radius: 2px; background: #8f7756; transform: scaleY(0); animation: splash-bar 900ms cubic-bezier(.2, .8, .2, 1) forwards; }
+.splash-logo { width: min(68vw, 300px); height: auto; opacity: 0; transform: scale(.94) rotate(-6deg); filter: blur(6px); animation: splash-logo 1000ms cubic-bezier(.2, .8, .2, 1) 450ms forwards; }
+@keyframes splash-logo { to { opacity: 1; transform: none; filter: blur(0); } }
 .splash-word { font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 19vw, 128px); line-height: .95; color: #1f1f1f; letter-spacing: 0; text-shadow: -4px 4px 0 #d7c3a6; opacity: 0; filter: blur(6px); animation: splash-word 900ms ease-out 700ms forwards; }
 .splash-tag { font-size: 13px; letter-spacing: .32em; color: #6f6457; opacity: 0; animation: splash-word 900ms ease-out 1100ms forwards; }
 @keyframes splash-draw { to { stroke-dashoffset: 0; } }
@@ -132,5 +134,5 @@ html[data-splash='done'] .splash { display: none; }
 @keyframes splash-out { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-12px); visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
   .splash { animation: splash-out 300ms ease-in 500ms forwards; }
-  .splash-lines path, .splash-wave i, .splash-word, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
+  .splash-lines path, .splash-wave i, .splash-word, .splash-logo, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
 }

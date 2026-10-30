@@ -41,7 +41,7 @@ async function sendAndroid(token: string, title: string, link: string) {
   const a = await fcmAuth(); if (!a) return 'unconfigured';
   const r = await fetch(`https://fcm.googleapis.com/v1/projects/${a.project}/messages:send`, {
     method: 'POST', headers: { authorization: `Bearer ${a.token}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ message: { token, notification: { title: 'Pizmon', body: title }, data: { link }, android: { priority: 'high', notification: { color: '#6f5cff', sound: 'default' } } } }),
+    body: JSON.stringify({ message: { token, notification: { title: 'פסקול', body: title }, data: { link }, android: { priority: 'high', notification: { color: '#6f5cff', sound: 'default' } } } }),
   });
   if (r.ok) return 'sent';
   const t = await r.text();
@@ -65,7 +65,7 @@ async function sendIos(token: string, title: string, link: string) {
   const r = await fetch(`https://${host}/3/device/${token}`, {
     method: 'POST',
     headers: { authorization: `bearer ${jwt}`, 'apns-topic': Deno.env.get('APNS_BUNDLE_ID') ?? 'com.elkanapaz.pizmon', 'apns-push-type': 'alert', 'apns-priority': '10' },
-    body: JSON.stringify({ aps: { alert: { title: 'Pizmon', body: title }, sound: 'default' }, link }),
+    body: JSON.stringify({ aps: { alert: { title: 'פסקול', body: title }, sound: 'default' }, link }),
   });
   if (r.ok) return 'sent';
   return r.status === 410 || r.status === 400 ? 'gone' : 'failed';

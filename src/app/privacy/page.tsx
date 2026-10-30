@@ -1,13 +1,13 @@
 import { getI18n } from '@/i18n/server';
 import { BrandMark } from '@/components/brand';
 
-export const metadata = { title: 'Privacy · Pizmon' };
+export const metadata = { title: 'Privacy · Paskol' };
 
 const UPDATED = '2026-10-21';
 
 const he = {
   title: 'מדיניות פרטיות',
-  intro: 'Pizmon, האפליקציה של אלקנה פז, עוזרת לזוגות לתכנן את המוזיקה של החתונה יחד עם ה-DJ שלהם. המסמך הזה מסביר איזה מידע נשמר, למה, ומה אפשר לעשות איתו.',
+  intro: 'פסקול, האפליקציה של אלקנה פז, עוזרת לזוגות לתכנן את המוזיקה של החתונה יחד עם ה-DJ שלהם. המסמך הזה מסביר איזה מידע נשמר, למה, ומה אפשר לעשות איתו.',
   sections: [
     ['מי אחראי על המידע', 'אלקנה פז (Elkana Paz Music Services) אחראי על המידע באפליקציה. חשבונות נפתחים רק על ידי אלקנה, עבור זוגות שעובדים איתו.'],
     ['איזה מידע נשמר', 'שם, כתובת מייל, פרטי החתונה (תאריך, מקום, מספר אורחים), בחירות מוזיקליות (שאלון, רגעים מיוחדים, פלייליסטים, שירים שאהבתם או שלא), בקשות והודעות בינכם לבין ה-DJ, ומועד פגישת התיאום. באפליקציה לטלפון נשמר גם מזהה התראות של המכשיר כדי לשלוח לכם התראות.'],
@@ -23,7 +23,7 @@ const he = {
 
 const en = {
   title: 'Privacy policy',
-  intro: 'Pizmon, Elkana Paz’s app, helps couples plan their wedding music with their DJ. This page explains what is stored, why, and what you can do about it.',
+  intro: 'Paskol, Elkana Paz’s app, helps couples plan their wedding music with their DJ. This page explains what is stored, why, and what you can do about it.',
   sections: [
     ['Who is responsible', 'Elkana Paz (Elkana Paz Music Services) is responsible for the data in the app. Accounts are created only by Elkana, for couples who work with him.'],
     ['What we store', 'Name, email, wedding details (date, venue, guest count), music choices (questionnaire, special moments, playlists, songs you liked or not), requests and messages between you and your DJ, and the planning-meeting time. The phone app also stores a device notification token so we can send you notifications.'],

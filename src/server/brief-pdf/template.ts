@@ -1,5 +1,5 @@
 /**
- * One-page, Pizmon-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
+ * One-page, Paskol-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
  * inlined), printed to PDF by headless Chromium. Pure function: no server or DB access here.
  */
 
@@ -40,7 +40,7 @@ const T = {
     less: 'פחות מתאים לנו', lessSpecific: 'אמנים / שירים שפחות נרצה', artists: 'אמנים אהובים', vibe: 'אווירה', eras: 'תקופות',
     languages: 'שפות', traditions: 'מסורות', israeli: 'מוזיקה ישראלית', must: 'חובה לנגן', never: 'לעולם לא', neverPref: 'עדיף שלא',
     playlist: 'הפלייליסט שלנו', more: 'ועוד {n} שירים באפליקציה', notes: 'הערות ל-DJ', family: 'על המשפחה והקהל',
-    guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'פזמון · הרגעים שלכם. המוזיקה שלנו. · אלקנה פז',
+    guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'פסקול · הרגעים שלכם. המוזיקה שלנו. · אלקנה פז',
     draft: 'טיוטה — עוד לא נשלח ל-DJ', sent: 'נשלח ל-DJ',
     status: { confirmed: 'מאושר', awaiting_confirmation: 'ממתין לאישור', browsing: 'בבחירה', shortlisted: 'ברשימה קצרה', change_requested: 'בקשת שינוי', not_started: 'טרם נבחר', approved: 'מאושר', maybe: 'אולי', backup: 'גיבוי' } as Record<string, string>,
   },
@@ -49,7 +49,7 @@ const T = {
     less: 'Not for us', lessSpecific: 'Artists / songs we’d rather skip', artists: 'Favorite artists', vibe: 'Vibe', eras: 'Eras',
     languages: 'Languages', traditions: 'Traditions', israeli: 'Israeli music', must: 'Must play', never: 'Never play', neverPref: 'Rather not',
     playlist: 'Our playlist', more: '+{n} more songs in the app', notes: 'Notes for the DJ', family: 'About our family & crowd',
-    guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Pizmon · Your moments. Our music. · Elkana Paz',
+    guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Paskol · Your moments. Our music. · Elkana Paz',
     draft: 'Draft — not yet sent to the DJ', sent: 'Sent to the DJ',
     status: { confirmed: 'Confirmed', awaiting_confirmation: 'Awaiting OK', browsing: 'Choosing', shortlisted: 'Shortlisted', change_requested: 'Change requested', not_started: 'Not chosen', approved: 'Approved', maybe: 'Maybe', backup: 'Backup' } as Record<string, string>,
   },
@@ -94,7 +94,7 @@ body { font-family: Heebo, Arial, sans-serif; color: #111; font-size: 8.7pt; lin
 #page { width: 210mm; height: 296mm; padding: 13mm 14mm 9mm; display: flex; flex-direction: column }
 header { padding-bottom: 5mm; border-bottom: .6mm solid #111 }
 header .top { display: flex; justify-content: space-between; align-items: center }
-header .logo svg { height: 9mm; width: auto; display: block }
+header .logo svg, header .logo img { height: 16mm; width: auto; display: block }
 header .kicker { font-size: 9pt; font-weight: 500; color: #555; ${rtl ? '' : 'letter-spacing: .14em; text-transform: uppercase;'} }
 header h1 { font-family: Heebo, sans-serif; font-weight: 900; font-size: 25pt; line-height: 1.1; margin-top: 6mm; letter-spacing: -.01em }
 header .facts { margin-top: 2mm; font-size: 9pt; color: #333 }

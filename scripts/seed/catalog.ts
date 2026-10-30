@@ -6,7 +6,7 @@
 export const COMPANY = {
   id: '00000000-0000-4000-8000-000000000001',
   slug: 'pizmon',
-  brand_name: 'Pizmon',
+  brand_name: 'Paskol',
   brand_tagline_he: 'הפסקול של החתונה שלכם, עם אלקנה פז',
   brand_tagline_en: 'The soundtrack of your wedding, with Elkana Paz',
 };

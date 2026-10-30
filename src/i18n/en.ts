@@ -53,7 +53,7 @@ export const en = {
     noDate: 'Add your wedding date', yourDj: 'Your DJ', djPending: 'Pending approval', djProposed: 'Awaiting your confirmation',
     progress: 'Planning progress', progressDetail: '{done} of {total} steps complete', nextUp: 'Next up',
     recommended: 'Your DJ recommends', savedRecently: 'Recently saved', ceremony: 'Ceremony collections',
-    featuredMixes: 'Mixes by Elkana', radio: 'Pizmon Radio', updates: 'Updates from your DJ', pending: 'Needs your answer',
+    featuredMixes: 'Mixes by Elkana', radio: 'Paskol Radio', updates: 'Updates from your DJ', pending: 'Needs your answer',
     emptySaved: 'Tracks you save while exploring appear here.', exploreNow: 'Explore music',
     tasks: { onboarding: 'Welcome & details', dj: 'DJ confirmed', questionnaire: 'Music questionnaire', moments: 'Special-moment songs', restrictions: 'Must / never play', submit: 'Brief sent to DJ' },
     action: {

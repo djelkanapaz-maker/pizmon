@@ -8,7 +8,7 @@ import { SpotifyPlayerProvider } from '@/components/audio/SpotifyPlayer';
 import { ToastProvider } from '@/components/overlay';
 import { Splash, SPLASH_SCRIPT } from '@/components/Splash';
 
-const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
+const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
 
 export const metadata: Metadata = {
   title: { default: BRAND, template: `%s · ${BRAND}` },

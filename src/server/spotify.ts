@@ -13,7 +13,7 @@ export async function fetchSpotifyPlaylist(id: string, userToken?: string | null
     try { return await viaWebApi(id, userToken); } catch { /* fall back to the embed page */ }
   }
   const r = await fetch(`https://open.spotify.com/embed/playlist/${id}`, {
-    headers: { 'accept-language': 'he,en;q=0.8', 'user-agent': 'Mozilla/5.0 (compatible; PizmonWeddingMusic/1.0)' },
+    headers: { 'accept-language': 'he,en;q=0.8', 'user-agent': 'Mozilla/5.0 (compatible; PaskolWeddingMusic/1.0)' },
     cache: 'no-store', signal: AbortSignal.timeout(15000),
   });
   if (r.status === 404) throw new Error('spotify_not_found');

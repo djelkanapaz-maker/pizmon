@@ -2,7 +2,7 @@
 -- DEVELOPMENT / DEMO CONTENT. Rows are flagged is_demo where the table supports it.
 begin;
 insert into public.companies (id, slug, brand_name, brand_tagline_he, brand_tagline_en)
-values ('00000000-0000-4000-8000-000000000001', 'pizmon', 'Pizmon', 'הפסקול של החתונה שלכם, עם אלקנה פז', 'The soundtrack of your wedding, with Elkana Paz')
+values ('00000000-0000-4000-8000-000000000001', 'pizmon', 'Paskol', 'הפסקול של החתונה שלכם, עם אלקנה פז', 'The soundtrack of your wedding, with Elkana Paz')
 on conflict (id) do nothing;
 insert into public.genres (id, company_id, slug, name_he, name_en, sort_order) values (md5('00000000-0000-4000-8000-000000000001:genre:pop')::uuid, '00000000-0000-4000-8000-000000000001', 'pop', 'פופ', 'Pop', 0) on conflict do nothing;
 insert into public.genres (id, company_id, slug, name_he, name_en, sort_order) values (md5('00000000-0000-4000-8000-000000000001:genre:israeli-pop')::uuid, '00000000-0000-4000-8000-000000000001', 'israeli-pop', 'פופ ישראלי', 'Israeli pop', 1) on conflict do nothing;
@@ -431,7 +431,7 @@ insert into public.playlist_tracks (playlist_id, track_id, position, status) val
 insert into public.playlist_tracks (playlist_id, track_id, position, status) values (md5('00000000-0000-4000-8000-000000000001:playlist:Breaking the glass picks')::uuid, md5('00000000-0000-4000-8000-000000000001:track:Marry You|Bruno Mars')::uuid, 3, 'confirmed') on conflict do nothing;
 insert into public.playlist_tracks (playlist_id, track_id, position, status) values (md5('00000000-0000-4000-8000-000000000001:playlist:Breaking the glass picks')::uuid, md5('00000000-0000-4000-8000-000000000001:track:Celebration|Kool & The Gang')::uuid, 4, 'confirmed') on conflict do nothing;
 insert into public.radio_stations (id, company_id, name, description, mode, stream_url)
-values (md5('00000000-0000-4000-8000-000000000001:radio:main')::uuid, '00000000-0000-4000-8000-000000000001', 'PIZMON RADIO', 'Demo mode: an original looping placeholder, not a live broadcast. Configure a stream URL in Admin → Radio.', 'demo', '/demo-audio/golden-hour.mp3') on conflict do nothing;
+values (md5('00000000-0000-4000-8000-000000000001:radio:main')::uuid, '00000000-0000-4000-8000-000000000001', 'PASKOL RADIO', 'Demo mode: an original looping placeholder, not a live broadcast. Configure a stream URL in Admin → Radio.', 'demo', '/demo-audio/golden-hour.mp3') on conflict do nothing;
 insert into public.radio_schedule_items (id, station_id, title, description, host_dj_id, starts_at, ends_at) values
  (md5('00000000-0000-4000-8000-000000000001:show:1')::uuid, md5('00000000-0000-4000-8000-000000000001:radio:main')::uuid, 'Golden Hour (Demo show)', 'Warm reception grooves', null, date_trunc('day', now()) + interval '1 day 18 hours', date_trunc('day', now()) + interval '1 day 20 hours'),
  (md5('00000000-0000-4000-8000-000000000001:show:2')::uuid, md5('00000000-0000-4000-8000-000000000001:radio:main')::uuid, 'Mizrahi Nights (Demo show)', 'Israeli party classics', null, date_trunc('day', now()) + interval '2 days 20 hours', date_trunc('day', now()) + interval '2 days 22 hours'),
