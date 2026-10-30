@@ -3,18 +3,12 @@ import { FLOW_LINES, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE, WORDMARK } from './pi
 
 export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'Pizmon';
 
-/** The פזמון wordmark (heavy Hebrew letters, typography board). `tagline` adds the "PIZMON — הרגעים שלכם. המוזיקה שלנו." line. */
+/** The פזמון wordmark in Rubik Black (poster typography). `tagline` adds "הרגעים שלכם. המוזיקה שלנו." */
 export function BrandMark({ name = BRAND, href = '/', tagline = false, size = 26 }: { name?: string; href?: string; tagline?: boolean; size?: number }) {
   return (
     <Link href={href} className="inline-flex flex-col items-start leading-none text-paper" aria-label={name} dir="rtl">
-      <span className="font-[family-name:var(--font-display)] font-black tracking-[-0.01em] leading-[0.9]" style={{ fontSize: size }}>{WORDMARK}</span>
-      {tagline && (
-        <span className="mt-2 flex items-center gap-2 text-[10.5px] text-paper-dim whitespace-nowrap">
-          <span className="tracking-[0.08em]">{TAGLINE_HE}</span>
-          <span aria-hidden className="h-px w-5 bg-paper/50" />
-          <span dir="ltr" className="font-[family-name:var(--font-display)] [font-stretch:125%] font-medium tracking-[0.45em] text-paper">PIZMON</span>
-        </span>
-      )}
+      <span className="font-[family-name:var(--font-display)] font-black leading-[0.95]" style={{ fontSize: size }}>{WORDMARK}</span>
+      {tagline && <span className="mt-1.5 text-[11px] font-bold tracking-[0.02em] text-paper-dim">{TAGLINE_HE}</span>}
     </Link>
   );
 }
