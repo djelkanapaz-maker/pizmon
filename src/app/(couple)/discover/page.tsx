@@ -9,8 +9,7 @@ import { PageHeader, SectionHeader, Cover, EmptyState } from '@/components/ui';
 import { TrackList } from '@/components/music/TrackList';
 import { DiscoverFilters } from './DiscoverFilters';
 import { SpotifyResults } from './SpotifyResults';
-import { appAccessToken } from '@/server/spotify-auth';
-import { searchSpotifyTracks, type SpotifySearchHit } from '@/server/spotify';
+import { searchSpotifyCached, type SpotifySearchHit } from '@/server/spotify';
 
 type SP = { q?: string; genre?: string; mood?: string; cat?: string; lang?: string; energy?: string; moment?: string; hidden?: string };
 const isUuid = (v?: string) => !!v && /^[0-9a-f-]{36}$/i.test(v);
@@ -64,19 +63,17 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   // songs from Spotify's whole catalog for a text search (not already shown from the library)
   let spotifyHits: SpotifySearchHit[] = [];
   let spotifyAdded: string[] = [];
+  let spotifyBusy = false;
   if (q.length >= 2) {
-    const token = await appAccessToken();
-    if (token) {
-      try {
-        const shown = new Set(results.map((t) => t.provider_track_id).filter(Boolean));
-        spotifyHits = (await searchSpotifyTracks(q, token, 50)).filter((h) => !shown.has(h.id));
-        if (spotifyHits.length) {
-          const { data: known } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', s.company.id).eq('provider', 'spotify').in('provider_track_id', spotifyHits.map((h) => h.id));
-          const ours = new Set(ctx.ours ?? []);
-          spotifyAdded = (known ?? []).filter((k) => ours.has(k.id as string)).map((k) => k.provider_track_id as string);
-        }
-      } catch { spotifyHits = []; }
-    }
+    try {
+      const shown = new Set(results.map((t) => t.provider_track_id).filter(Boolean));
+      spotifyHits = (await searchSpotifyCached(q, 30)).filter((h) => !shown.has(h.id));
+      if (spotifyHits.length) {
+        const { data: known } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', s.company.id).eq('provider', 'spotify').in('provider_track_id', spotifyHits.map((h) => h.id));
+        const ours = new Set(ctx.ours ?? []);
+        spotifyAdded = (known ?? []).filter((k) => ours.has(k.id as string)).map((k) => k.provider_track_id as string);
+      }
+    } catch (e) { spotifyHits = []; spotifyBusy = e instanceof Error && e.message === 'spotify_quota'; }
   }
 
   // browse mode: a few shelves by category
@@ -104,6 +101,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           <p className="gutter label mb-2">{fmt(m.discover.results, { count: results.length })}</p>
           {results.length ? <TrackList tracks={results} ctx={ctx} /> : !spotifyHits.length && <div className="gutter"><EmptyState title={m.discover.noResults} /></div>}
           <SpotifyResults hits={spotifyHits} added={spotifyAdded} />
+          {spotifyBusy && <p className="gutter mt-4 text-sm text-paper-dim" role="status">{m.discover.spotifyBusy}</p>}
         </section>
       ) : (
         <>

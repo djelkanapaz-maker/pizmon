@@ -1,4 +1,6 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
+import { appAccessToken } from '@/server/spotify-auth';
 import { parseEmbedHtml, type SpotifyPlaylist, type SpotifyTrack } from '@/core/spotify';
 
 /**
@@ -21,11 +23,22 @@ export async function fetchSpotifyPlaylist(id: string, userToken?: string | null
 
 type ApiTrack = { id: string | null; name: string; type?: string; duration_ms?: number; artists?: { name: string }[]; album?: { images?: { url: string }[] } };
 
+/** Set when Spotify answers 429: no calls until then (this server instance). */
+let blockedUntil = 0;
+export const spotifyBlocked = () => Date.now() < blockedUntil;
+
 async function api<T>(url: string, token: string): Promise<T> {
+  if (spotifyBlocked()) throw new Error('spotify_quota');
   const r = await fetch(url.startsWith('https://') ? url : `https://api.spotify.com/v1${url}`, {
     headers: { authorization: `Bearer ${token}` }, cache: 'no-store', signal: AbortSignal.timeout(15000),
   });
   if (r.status === 404) throw new Error('spotify_not_found');
+  if (r.status === 429) {
+    const wait = Number(r.headers.get('retry-after')) || 60;
+    blockedUntil = Date.now() + Math.min(wait, 86_400) * 1000;
+    console.error('spotify api 429', url.split('?')[0], 'retry-after', wait);
+    throw new Error('spotify_quota');
+  }
   if (!r.ok) {
     console.error('spotify api', r.status, url.split('?')[0], r.headers.get('retry-after') ?? '', (await r.text().catch(() => '')).slice(0, 200));
     throw new Error('spotify_api');
@@ -82,6 +95,8 @@ export async function searchSpotifyTracks(q: string, token: string, total = 50):
   const query = encodeURIComponent(q.slice(0, 100));
   const results = await Promise.allSettled(Array.from({ length: pages }, (_, i) =>
     api<{ tracks?: { items: ApiTrack[] } }>(`/search?type=track&market=IL&limit=10&offset=${i * 10}&q=${query}`, token)));
+  // nothing came back and Spotify is rate-limiting: fail, so the empty answer isn't cached
+  if (results.every((r) => r.status === 'rejected')) throw (results[0] as PromiseRejectedResult).reason;
   const seen = new Set<string>();
   const hits: SpotifySearchHit[] = [];
   for (const r of results) {
@@ -92,6 +107,23 @@ export async function searchSpotifyTracks(q: string, token: string, total = 50):
     }
   }
   return hits;
+}
+
+/**
+ * Catalog search through a shared server cache (a week per query), so a search typed by many couples,
+ * re-rendered after adding a song, or repeated later costs Spotify nothing. Failures aren't cached.
+ */
+const cachedSearch = unstable_cache(async (q: string, total: number) => {
+  const token = await appAccessToken();
+  if (!token) throw new Error('spotify_auth');
+  return searchSpotifyTracks(q, token, total);
+}, ['spotify-search-v1'], { revalidate: 7 * 86_400 });
+
+export async function searchSpotifyCached(q: string, total = 30): Promise<SpotifySearchHit[]> {
+  const key = q.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase().slice(0, 100);
+  if (key.length < 2) return [];
+  if (spotifyBlocked()) throw new Error('spotify_quota');
+  return cachedSearch(key, total);
 }
 
 export async function getSpotifyTrack(id: string, token: string) {

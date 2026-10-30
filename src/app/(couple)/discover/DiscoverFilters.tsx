@@ -29,7 +29,7 @@ export function DiscoverFilters({ initial, genres, moods, categories, moments }:
   const onSearch = (v: string) => {
     setQ(v);
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => push({ ...initial, q: v.trim() || undefined }), 300);
+    timer.current = setTimeout(() => push({ ...initial, q: v.trim() || undefined }), 700);
   };
   const activeCount = ['genre', 'mood', 'lang', 'energy', 'moment'].filter((k) => initial[k]).length;
 

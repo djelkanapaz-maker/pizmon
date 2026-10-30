@@ -8,7 +8,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { getSession } from '@/server/session';
 import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { appAccessToken } from '@/server/spotify-auth';
-import { getSpotifyTrack, searchSpotifyTracks, type SpotifySearchHit } from '@/server/spotify';
+import { getSpotifyTrack, searchSpotifyCached, type SpotifySearchHit } from '@/server/spotify';
 import { addSpotifyToOurPlaylist } from './couple';
 
 const TOKEN = /^[A-Za-z0-9_-]{20,64}$/;
@@ -72,9 +72,7 @@ export async function shareSearch(token: string, q: string): Promise<ActionResul
   const query = String(q ?? '').trim().slice(0, 100);
   if (query.length < 2) return ok([]);
   if (!(await validToken(token))) return fail('not_found');
-  const app = await appAccessToken();
-  if (!app) return fail('network');
-  try { return ok(await searchSpotifyTracks(query, app, 30)); } catch { return fail('network'); }
+  try { return ok(await searchSpotifyCached(query, 30)); } catch { return fail('network'); }
 }
 
 const suggestion = z.object({

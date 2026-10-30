@@ -75,7 +75,7 @@ export const en = {
     title: 'Music library', sub: 'Find the songs that sound like you.', searchPlaceholder: 'Song or artist',
     genre: 'Genre', mood: 'Mood', language: 'Language', energy: 'Energy', moment: 'Wedding moment', category: 'Category',
     results: '{count} tracks', noResults: 'Nothing matches yet. Try fewer filters or a different spelling.',
-    fromSpotify: 'More from Spotify', fromSpotifyHint: 'Songs not in our library yet. Tap + to add one to your playlist.', chuppahIdeas: 'Chuppah song ideas', collections: 'Curated collections', shelves: 'Browse', save: 'Save', saved: 'Saved', reject: 'Not for us', rejected: 'Hidden',
+    spotifyBusy: 'Spotify search is unavailable right now. Songs from our library still show; try again later.', fromSpotify: 'More from Spotify', fromSpotifyHint: 'Songs not in our library yet. Tap + to add one to your playlist.', chuppahIdeas: 'Chuppah song ideas', collections: 'Curated collections', shelves: 'Browse', save: 'Save', saved: 'Saved', reject: 'Not for us', rejected: 'Hidden',
     addToPlaylist: 'Add to playlist', addToMoment: 'Use for a moment', listen: 'Listen', searchOn: 'Search on {service}',
     externalNote: 'Opens an external search. Playback rights for this track are not licensed in the app.',
     preview: 'Preview', play: 'Play', pause: 'Pause', compare: 'Compare', compareTitle: 'Compare tracks', compareHint: 'Select up to 3 tracks to compare.',
