@@ -64,10 +64,10 @@ export function briefAssets(): BriefAssets {
   const font = (family: string, file: string, weight: number) => ({ family, weight, base64: readFileSync(join(fs, file)).toString('base64') });
   assets = {
     fonts: [
-      ...[200, 300, 400, 500, 700].flatMap((w) => [font('Heebo', `heebo-hebrew-${w}.woff2`, w), font('Heebo', `heebo-latin-${w}.woff2`, w)]),
+      ...[300, 400, 500, 700, 900].flatMap((w) => [font('Heebo', `heebo-hebrew-${w}.woff2`, w), font('Heebo', `heebo-latin-${w}.woff2`, w)]),
     ],
-    // the פזמון wordmark in thin Heebo, as on the brand board (the PDF stays black & white)
-    logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 48"><text x="150" y="38" text-anchor="end" direction="rtl" font-family="Heebo" font-weight="200" font-size="44" letter-spacing="1" fill="#111">${WORDMARK}</text></svg>`,
+    // the פזמון wordmark in Heebo Black, as on the typography board (the PDF stays black & white)
+    logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 48"><text x="150" y="38" text-anchor="end" direction="rtl" font-family="Heebo" font-weight="900" font-size="44" letter-spacing="-0.5" fill="#111">${WORDMARK}</text></svg>`,
   };
   return assets;
 }

@@ -42,7 +42,7 @@ export default async function AdminOverview() {
         {tiles.map((t) => (
           <div key={t.label} className={`card p-4 ${t.alert ? 'border-ember' : ''}`}>
             <p className="label">{t.label}</p>
-            <p className="display text-3xl mt-2 tabular">{t.value}</p>
+            <p className="numeral text-3xl mt-2">{t.value}</p>
           </div>
         ))}
       </section>

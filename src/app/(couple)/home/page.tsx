@@ -89,7 +89,7 @@ export default async function HomePage() {
         <div className="card p-5">
           <div className="flex items-baseline justify-between mb-3">
             <p className="label">{m.home.progress}</p>
-            <p className="display text-2xl tabular">{pct}%</p>
+            <p className="numeral text-[28px] leading-none">{pct}%</p>
           </div>
           <Progress value={pct} label={m.home.progress} />
           <p className="text-sm text-paper-dim mt-2">{fmt(m.home.progressDetail, { done: tasks.filter((t) => t.done).length, total: tasks.length })}</p>

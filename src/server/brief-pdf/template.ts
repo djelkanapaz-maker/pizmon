@@ -96,13 +96,13 @@ header { padding-bottom: 5mm; border-bottom: .6mm solid #111 }
 header .top { display: flex; justify-content: space-between; align-items: center }
 header .logo svg { height: 9mm; width: auto; display: block }
 header .kicker { font-size: 9pt; font-weight: 500; color: #555; ${rtl ? '' : 'letter-spacing: .14em; text-transform: uppercase;'} }
-header h1 { font-family: Heebo, sans-serif; font-weight: 300; font-size: 25pt; line-height: 1.1; margin-top: 6mm; letter-spacing: -.01em }
+header h1 { font-family: Heebo, sans-serif; font-weight: 900; font-size: 25pt; line-height: 1.1; margin-top: 6mm; letter-spacing: -.01em }
 header .facts { margin-top: 2mm; font-size: 9pt; color: #333 }
 header .facts span + span::before { content: '|'; color: #aaa; margin: 0 2.5mm }
 header .state { margin-top: 2mm; font-size: 7.6pt; color: #666 }
 main { flex: 1; display: grid; grid-template-columns: 1.12fr 1fr; gap: 9mm; padding-top: 6mm; min-height: 0 }
 .col { display: flex; flex-direction: column; gap: 5.5mm; min-width: 0 }
-.sec h3 { font-family: Heebo, sans-serif; font-weight: 500; letter-spacing: .04em; font-size: 10pt; margin-bottom: 2.2mm; display: flex; align-items: center; gap: 2.5mm }
+.sec h3 { font-family: Heebo, sans-serif; font-weight: 700; letter-spacing: 0; font-size: 10pt; margin-bottom: 2.2mm; display: flex; align-items: center; gap: 2.5mm }
 .sec h3::after { content: ''; flex: 1; border-top: .25mm solid #111 }
 h4 { font-size: 7.4pt; font-weight: 700; color: #555; margin: 2.4mm 0 .6mm }
 h4:first-of-type { margin-top: 0 }

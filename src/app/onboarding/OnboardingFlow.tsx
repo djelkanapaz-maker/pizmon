@@ -54,7 +54,7 @@ export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, pol
             <p className="label mb-4 text-ember">{m.onboarding.welcomeKicker}</p>
             <h1 className="display-xl poster-shadow mb-6">{m.onboarding.welcomeTitle}</h1>
             <p className="text-lg text-paper-dim max-w-prose mb-10">{m.onboarding.welcomeBody}</p>
-            <Button size="lg" onClick={() => go('dj')} disabled={busy}>{m.onboarding.start}</Button>
+            <Button size="lg" variant="champagne" onClick={() => go('dj')} disabled={busy}>{m.onboarding.start}</Button>
           </section>
         )}
         {step === 'dj' && <DjStep assignment={assignment} djs={djs} mixes={mixes} policy={policy} onNext={() => go('details')} busy={busy} />}
@@ -114,7 +114,7 @@ function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: 
             <DjGrid djs={eligible.filter((d) => d.id !== assignment?.dj?.id)} onOpen={setOpen} />
           </div>
         )}
-        <div className="mt-10"><Button size="lg" onClick={onNext} disabled={busy}>{m.common.continue}</Button></div>
+        <div className="mt-10"><Button size="lg" arrow onClick={onNext} disabled={busy}>{m.common.continue}</Button></div>
         <DjSheet dj={open} mixes={mixes} onClose={() => setOpen(null)} onChoose={choose} pending={pending} />
       </section>
     );
@@ -128,7 +128,7 @@ function DjStep({ assignment, djs, mixes, policy, onNext, busy }: { assignment: 
       </div>
       {eligible.length === 0 ? (
         <div className="gutter"><p className="card p-5 text-paper-dim" role="status">{m.onboarding.djNone}</p>
-          <div className="mt-8"><Button size="lg" onClick={onNext} disabled={busy}>{m.common.continue}</Button></div></div>
+          <div className="mt-8"><Button size="lg" arrow onClick={onNext} disabled={busy}>{m.common.continue}</Button></div></div>
       ) : <div className="gutter"><DjGrid djs={eligible} onOpen={setOpen} /></div>}
       <DjSheet dj={open} mixes={mixes} onClose={() => setOpen(null)} onChoose={choose} pending={pending} />
       <p className="sr-only">{fmt(m.onboarding.step, { n: 2, total: 3 })}</p>
@@ -222,7 +222,7 @@ function DetailsStep({ event, onDone, onBack }: { event: WeddingEvent; onDone: (
         </Field>
         <div className="flex gap-3 mt-4">
           <Button type="button" variant="ghost" onClick={onBack}>{m.common.back}</Button>
-          <Button type="submit" size="lg" disabled={busy} className="flex-1 sm:flex-none">{busy ? m.common.saving : m.onboarding.finish}</Button>
+          <Button type="submit" size="lg" arrow disabled={busy} className="flex-1 sm:flex-none">{busy ? m.common.saving : m.onboarding.finish}</Button>
         </div>
       </form>
     </section>

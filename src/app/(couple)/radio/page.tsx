@@ -27,7 +27,7 @@ export default async function RadioPage() {
           <div className="mt-2 flex items-center gap-2">
             {station && station.mode !== 'off' ? <Badge tone={live ? 'danger' : 'neutral'} className={live ? '' : 'bg-ink/10 text-ink'}>{live ? m.radio.live : m.radio.demo}</Badge> : <Badge className="bg-ink/10 text-ink">{m.radio.off}</Badge>}
           </div>
-          <p className="display text-3xl md:text-5xl mt-3 max-w-md">{station?.name ?? '—'}</p>
+          <p className="relative display text-[26px] md:text-5xl mt-3 max-w-[16ch] md:max-w-md break-words">{station?.name ?? '—'}</p>
           <p className="mt-2 text-sm opacity-70 max-w-md">{station?.mode === 'demo' ? m.radio.demoNote : station?.mode === 'off' || !station ? m.radio.offNote : station.description}</p>
           {station?.stream_url && station.mode !== 'off' && (
             <div className="mt-6 flex items-center gap-3">

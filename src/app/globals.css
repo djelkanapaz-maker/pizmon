@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-@import '@fontsource/heebo/hebrew-200.css';
-@import '@fontsource/heebo/latin-200.css';
 @import '@fontsource/heebo/hebrew-300.css';
 @import '@fontsource/heebo/latin-300.css';
 @import '@fontsource/heebo/hebrew-400.css';
@@ -9,6 +7,11 @@
 @import '@fontsource/heebo/latin-500.css';
 @import '@fontsource/heebo/hebrew-700.css';
 @import '@fontsource/heebo/latin-700.css';
+@import '@fontsource/heebo/hebrew-900.css';
+@import '@fontsource/heebo/latin-900.css';
+/* Latin headlines & numerals: Archivo at its widest (wdth 125), the free match for the board's
+   "Monument Extended". It has no Hebrew, so Hebrew in the same stack falls through to Heebo. */
+@import '@fontsource-variable/archivo/wdth.css';
 
 /* ── פזמון / Pizmon design tokens (brand board: ivory · champagne · taupe · charcoal · white) ──
    The token names are semantic and shared with the original app:
@@ -32,7 +35,8 @@
   --color-danger: #b4443c;
   --color-ok: #4f7a5a;
 
-  --font-display: 'Heebo', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  --font-display: 'Archivo Variable', 'Heebo', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  --font-numeral: 'Archivo Variable', 'Heebo', system-ui, sans-serif;
   --font-sans: 'Heebo', -apple-system, 'SF Pro Text', system-ui, 'Segoe UI', sans-serif;
 
   --radius-box: 16px;
@@ -72,13 +76,18 @@ body {
 
 :focus-visible { outline: 2px solid var(--color-ember); outline-offset: 3px; border-radius: 6px; }
 
-@utility display { font-family: var(--font-display); font-weight: 300; letter-spacing: -0.01em; line-height: 1.08; &:where([dir='rtl'], [dir='rtl'] *) { letter-spacing: 0.005em; } }
-@utility display-xl { @apply display text-[42px] md:text-[68px]; font-weight: 200; }
-@utility display-l { @apply display text-[32px] md:text-[48px]; }
-@utility display-m { @apply display text-[24px] md:text-[30px]; }
+/* Type scale (brand typography board): H1 72 Black · H2 48 Bold · H3 32 Bold · H4 24 Medium · body 16 Regular.
+   Hebrew headlines are Heebo; Latin letters and digits in them are Archivo Extended. */
+@utility display { font-family: var(--font-display); font-stretch: 125%; font-weight: 700; letter-spacing: -0.015em; line-height: 1.04; &:where([dir='rtl'], [dir='rtl'] *) { letter-spacing: -0.005em; } }
+@utility display-xl { @apply display text-[40px] md:text-[72px]; font-weight: 900; line-height: 1; }
+@utility display-l { @apply display text-[30px] md:text-[48px]; font-weight: 700; }
+@utility display-m { @apply display text-[24px] md:text-[32px]; font-weight: 700; }
+@utility display-s { @apply display text-[20px] md:text-[24px]; font-weight: 500; }
+/* numbers in the board's extended heavy style (countdowns, percentages, scores) */
+@utility numeral { font-family: var(--font-numeral); font-stretch: 125%; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 /* headline accent: a thin champagne rule under the big titles (brand board stationery) */
 @utility poster-shadow { &::after { content: ''; display: block; width: 44px; height: 1px; margin-top: .32em; background: var(--color-taupe); } }
-@utility label { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-paper-dim); &:where([dir='rtl'], [dir='rtl'] *) { letter-spacing: 0.06em; font-size: 12px; } }
+@utility label { font-size: 11px; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: var(--color-paper-dim); &:where([dir='rtl'], [dir='rtl'] *) { letter-spacing: 0.06em; font-size: 12px; } }
 @utility card { background: var(--color-ink-2); border: 1px solid var(--color-line); border-radius: var(--radius-box); }
 @utility card-hard { @apply card; box-shadow: var(--shadow-hard-paper); }
 @utility gutter { padding-inline: 20px; }
@@ -115,7 +124,8 @@ html[data-splash='done'] .splash { display: none; }
 .splash-center { display: flex; flex-direction: column; align-items: center; gap: 22px; }
 .splash-wave { display: flex; align-items: center; gap: 7px; height: 64px; }
 .splash-wave i { display: block; width: 1.5px; border-radius: 2px; background: #8f7756; transform: scaleY(0); animation: splash-bar 900ms cubic-bezier(.2, .8, .2, 1) forwards; }
-.splash-word { font-family: var(--font-display); font-weight: 200; font-size: clamp(56px, 16vw, 104px); line-height: 1; color: #1f1f1f; letter-spacing: .02em; opacity: 0; filter: blur(6px); animation: splash-word 900ms ease-out 700ms forwards; }
+.splash-word { font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 19vw, 128px); line-height: .9; color: #1f1f1f; letter-spacing: -.01em; opacity: 0; filter: blur(6px); animation: splash-word 900ms ease-out 700ms forwards; }
+.splash-latin { font-family: var(--font-display); font-stretch: 125%; font-weight: 500; font-size: 12px; letter-spacing: .6em; color: #1f1f1f; opacity: 0; animation: splash-word 900ms ease-out 950ms forwards; direction: ltr; }
 .splash-tag { font-size: 13px; letter-spacing: .32em; color: #6f6457; opacity: 0; animation: splash-word 900ms ease-out 1100ms forwards; }
 @keyframes splash-draw { to { stroke-dashoffset: 0; } }
 @keyframes splash-bar { to { transform: scaleY(1); } }
@@ -123,5 +133,5 @@ html[data-splash='done'] .splash { display: none; }
 @keyframes splash-out { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-12px); visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
   .splash { animation: splash-out 300ms ease-in 500ms forwards; }
-  .splash-lines path, .splash-wave i, .splash-word, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
+  .splash-lines path, .splash-wave i, .splash-word, .splash-latin, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
 }

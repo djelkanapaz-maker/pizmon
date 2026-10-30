@@ -33,6 +33,7 @@ export function Splash() {
           {WAVE.map((h, i) => <i key={i} style={{ height: h, animationDelay: `${180 + Math.abs(i - 6) * 55}ms` }} />)}
         </div>
         <div className="splash-word" dir="rtl">{WORDMARK}</div>
+        <div className="splash-latin">PIZMON</div>
         <div className="splash-tag" dir="rtl">{TAGLINE_HE}</div>
       </div>
     </div>

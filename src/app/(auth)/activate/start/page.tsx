@@ -23,7 +23,7 @@ export default async function ActivateStartPage({ searchParams }: { searchParams
         <input type="hidden" name="token_hash" value={sp.token_hash} />
         <input type="hidden" name="type" value={sp.type} />
         <input type="hidden" name="next" value={sp.next ?? '/activate'} />
-        <Button type="submit" size="lg" full>{m.auth.activateStartCta}</Button>
+        <Button type="submit" size="lg" full arrow>{m.auth.activateStartCta}</Button>
       </form>
     </div>
   );

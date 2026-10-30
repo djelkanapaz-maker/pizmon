@@ -5,24 +5,32 @@ import { IconChevron } from './icons';
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'gold';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'gold' | 'champagne';
 const variants: Record<Variant, string> = {
   primary: 'bg-ember text-ink shadow-[var(--shadow-hard-paper)] hover:bg-black active:translate-y-px',
   secondary: 'bg-transparent text-paper border border-paper hover:bg-paper hover:text-ink',
   ghost: 'bg-transparent text-paper hover:bg-ink-3',
   danger: 'bg-transparent text-danger border border-danger hover:bg-danger hover:text-ink',
   gold: 'bg-gold text-ink hover:brightness-105',
+  champagne: 'bg-champagne text-paper hover:brightness-[1.04] active:translate-y-px',
 };
 const sizes = { sm: 'h-9 px-4 text-sm', md: 'h-11 px-5 text-[15px]', lg: 'h-14 px-7 text-base' };
 const btn = (variant: Variant, size: keyof typeof sizes, full?: boolean) =>
   cx('inline-flex items-center justify-center gap-2 rounded-full font-bold transition-[background,color,transform] duration-150 select-none',
     'disabled:opacity-50 disabled:pointer-events-none', variants[variant], sizes[size], full && 'w-full');
 
-export function Button({ variant = 'primary', size = 'md', full, className, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean }) {
-  return <button {...p} className={cx(btn(variant, size, full), className)} />;
+/** The board's "next step" mark: a champagne circle with an arrow, at the end of a primary pill. */
+const Arrow = () => (
+  <span aria-hidden className="-me-4 ms-2 grid size-10 shrink-0 place-items-center rounded-full bg-champagne text-paper">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  </span>
+);
+
+export function Button({ variant = 'primary', size = 'md', full, arrow, className, children, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean; arrow?: boolean }) {
+  return <button {...p} className={cx(btn(variant, size, full), arrow && 'justify-between', className)}>{children}{arrow && <Arrow />}</button>;
 }
-export function ButtonLink({ variant = 'primary', size = 'md', full, className, ...p }: ComponentProps<typeof Link> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean }) {
-  return <Link {...p} className={cx(btn(variant, size, full), className)} />;
+export function ButtonLink({ variant = 'primary', size = 'md', full, arrow, className, children, ...p }: ComponentProps<typeof Link> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean; arrow?: boolean }) {
+  return <Link {...p} className={cx(btn(variant, size, full), arrow && 'justify-between', className)}>{children}{arrow && <Arrow />}</Link>;
 }
 /** Plain anchor styled as a button (file downloads, API routes). */
 export function ButtonA({ variant = 'primary', size = 'md', full, className, ...p }: ComponentProps<'a'> & { variant?: Variant; size?: keyof typeof sizes; full?: boolean }) {
