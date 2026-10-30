@@ -196,6 +196,11 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
   await step('meeting', async () => {
     await c.goto('/wedding/meeting'); await settle(c);
     const freeDay = c.locator('[role=grid] button:not([disabled])').first();
+    // late in the month there may be no free day left: go to the next month
+    if (!(await freeDay.isVisible({ timeout: 4000 }).catch(() => false))) {
+      await c.getByRole('button', { name: 'החודש הבא' }).click().catch(() => undefined);
+      await settle(c);
+    }
     await freeDay.waitFor({ timeout: 8000 });
     await snap(c, 'p12-calendar', freeDay);
     await freeDay.click();

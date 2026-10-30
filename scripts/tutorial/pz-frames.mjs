@@ -14,7 +14,8 @@ const WAVE = [10, 18, 28, 42, 56, 42, 30, 20, 34, 48, 34, 22, 14];
 const FLOW = Array.from({ length: 7 }, (_, i) => { const o = i * 11; return `M-40 ${236 + o}C 200 ${150 + o * 1.5}, 430 ${330 + o * 0.7}, 650 ${236 + o}S 1010 ${110 + o * 1.7}, 1240 ${196 + o * 0.6}`; });
 const font = (w) => `@font-face{font-family:Heebo;font-weight:${w};src:url(data:font/woff2;base64,${readFileSync(`node_modules/@fontsource/heebo/files/heebo-hebrew-${w}-normal.woff2`).toString('base64')}) format('woff2')}`
   + `@font-face{font-family:HeeboL;font-weight:${w};src:url(data:font/woff2;base64,${readFileSync(`node_modules/@fontsource/heebo/files/heebo-latin-${w}-normal.woff2`).toString('base64')}) format('woff2')}`;
-const fonts = [100, 200, 300, 400, 500].map(font).join('');
+const rubik = (w) => ['hebrew', 'latin'].map((r) => `@font-face{font-family:Rubik;font-weight:${w};src:url(data:font/woff2;base64,${readFileSync(`node_modules/@fontsource/rubik/files/rubik-${r}-${w}-normal.woff2`).toString('base64')}) format('woff2')}`).join('');
+const fonts = [300, 400, 500, 700].map(font).join('') + rubik(900);
 const flow = (op = 1) => `<svg class="flow" viewBox="0 0 1200 400" preserveAspectRatio="none" style="opacity:${op}">${FLOW.map((d, i) => `<path d="${d}" fill="none" stroke="${i % 3 === 2 ? C.charcoal : i % 2 ? C.taupe : C.gold}" stroke-opacity="${i % 3 === 2 ? 0.22 : 0.55}" stroke-width="1.6"/>`).join('')}</svg>`;
 const wave = (scale = 1, color = C.taupe) => `<div class="wave">${WAVE.map((h) => `<i style="height:${h * scale}px;width:${3 * scale}px;background:${color}"></i>`).join('')}</div>`;
 const base = `${fonts}
@@ -35,11 +36,11 @@ function frameHtml(part, pi, shotId) {
   const top = 520;
   return `<!doctype html><html><head><meta charset="utf-8"><style>${base}
     .bar{position:absolute;top:64px;right:72px;left:72px;display:flex;justify-content:space-between;align-items:center}
-    .mark{font-weight:200;font-size:58px;letter-spacing:.02em}
-    .count{font-family:HeeboL,Heebo;font-weight:300;font-size:32px;letter-spacing:.18em;color:${C.taupe};direction:ltr}
+    .mark{font-family:Rubik,Heebo;font-weight:900;font-size:56px}
+    .count{font-family:HeeboL,Heebo;font-weight:700;font-size:30px;letter-spacing:.12em;color:${C.taupe};direction:ltr}
     .rule{position:absolute;top:168px;right:72px;width:120px;height:2px;background:${C.gold}}
-    h1{position:absolute;top:214px;right:72px;left:72px;font-weight:200;font-size:96px;line-height:1.05;letter-spacing:-.01em}
-    .tip{position:absolute;top:338px;right:72px;left:72px;font-weight:300;font-size:40px;line-height:1.35;color:#6b5f54}
+    h1{position:absolute;top:206px;right:72px;left:72px;font-family:Rubik,Heebo;font-weight:900;font-size:92px;line-height:.98;text-shadow:-5px 5px 0 ${C.champagne}}
+    .tip{position:absolute;top:338px;right:72px;left:72px;font-weight:400;font-size:38px;line-height:1.35;color:#6b5f54}
     .phone{position:absolute;top:${top}px;left:${(W - pw) / 2 - 18}px;width:${pw + 36}px;height:${ph + 36}px;border-radius:78px;background:${C.charcoal};padding:18px;box-shadow:0 40px 90px rgba(31,31,31,.22),0 8px 24px rgba(31,31,31,.12)}
     .screen{position:relative;width:${pw}px;height:${ph}px;border-radius:62px;overflow:hidden;background:#fff}
     .screen img{width:100%;height:100%;display:block}
@@ -60,10 +61,10 @@ function frameHtml(part, pi, shotId) {
 
 const card = (inner) => `<!doctype html><html><head><meta charset="utf-8"><style>${base}
   .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:260px}
-  .word{font-weight:100;font-size:260px;line-height:1;letter-spacing:.02em;margin-top:56px}
-  .tag{margin-top:40px;font-weight:300;font-size:40px;letter-spacing:.24em;color:${C.taupe}}
+  .word{font-family:Rubik,Heebo;font-weight:900;font-size:240px;line-height:.95;margin-top:56px;text-shadow:-9px 9px 0 ${C.champagne}}
+  .tag{margin-top:44px;font-weight:700;font-size:38px;letter-spacing:.04em;color:${C.taupe}}
   .rule{width:140px;height:2px;background:${C.gold};margin:72px auto 56px}
-  .kicker{font-weight:300;font-size:54px}
+  .kicker{font-family:Rubik,Heebo;font-weight:900;font-size:60px}
   .small{margin-top:22px;font-family:HeeboL,Heebo;font-weight:300;font-size:36px;letter-spacing:.12em;color:#6b5f54;direction:ltr}
 </style></head><body>${flow(0.9)}<div class="c">${inner}</div></body></html>`;
 
