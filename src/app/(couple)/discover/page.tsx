@@ -9,7 +9,8 @@ import { PageHeader, SectionHeader, Cover, EmptyState } from '@/components/ui';
 import { TrackList } from '@/components/music/TrackList';
 import { DiscoverFilters } from './DiscoverFilters';
 import { SpotifyResults } from './SpotifyResults';
-import { searchSpotifyCached, type SpotifySearchHit } from '@/server/spotify';
+import { normSong, searchSpotifyCached, type SpotifySearchHit } from '@/server/spotify';
+import { searchAppleCached, type AppleHit } from '@/server/apple';
 
 type SP = { q?: string; genre?: string; mood?: string; cat?: string; lang?: string; energy?: string; moment?: string; hidden?: string };
 const isUuid = (v?: string) => !!v && /^[0-9a-f-]{36}$/i.test(v);
@@ -63,7 +64,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   // songs from Spotify's whole catalog for a text search (not already shown from the library)
   let spotifyHits: SpotifySearchHit[] = [];
   let spotifyAdded: string[] = [];
-  let spotifyBusy = false;
+  let spotifyFailed = false;
   if (q.length >= 2) {
     try {
       const shown = new Set(results.map((t) => t.provider_track_id).filter(Boolean));
@@ -73,7 +74,23 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         const ours = new Set(ctx.ours ?? []);
         spotifyAdded = (known ?? []).filter((k) => ours.has(k.id as string)).map((k) => k.provider_track_id as string);
       }
-    } catch (e) { spotifyHits = []; spotifyBusy = e instanceof Error && e.message === 'spotify_quota'; }
+    } catch { spotifyHits = []; spotifyFailed = true; }
+  }
+
+  // Spotify unavailable (rate limit, outage): search Apple's catalog instead, so couples still find songs
+  let appleHits: AppleHit[] = [];
+  let appleAdded: string[] = [];
+  let spotifyBusy = false;
+  if (spotifyFailed) {
+    try {
+      const shown = new Set(results.map((t) => `${normSong(t.title)}|${normSong(t.artist?.name ?? '')}`));
+      appleHits = (await searchAppleCached(q, 30)).filter((h) => !shown.has(`${normSong(h.title)}|${normSong(h.artists)}`));
+      if (appleHits.length) {
+        const { data: known } = await db.from('music_tracks').select('id, provider_track_id').eq('company_id', s.company.id).eq('provider', 'apple_music').in('provider_track_id', appleHits.map((h) => h.id));
+        const ours = new Set(ctx.ours ?? []);
+        appleAdded = (known ?? []).filter((k) => ours.has(k.id as string)).map((k) => k.provider_track_id as string);
+      }
+    } catch { appleHits = []; spotifyBusy = true; }
   }
 
   // browse mode: a few shelves by category
@@ -101,6 +118,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           <p className="gutter label mb-2">{fmt(m.discover.results, { count: results.length })}</p>
           {results.length ? <TrackList tracks={results} ctx={ctx} /> : !spotifyHits.length && <div className="gutter"><EmptyState title={m.discover.noResults} /></div>}
           <SpotifyResults hits={spotifyHits} added={spotifyAdded} />
+          <SpotifyResults hits={appleHits} added={appleAdded} source="apple" />
           {spotifyBusy && <p className="gutter mt-4 text-sm text-paper-dim" role="status">{m.discover.spotifyBusy}</p>}
         </section>
       ) : (

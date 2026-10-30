@@ -6,18 +6,22 @@ import { useToast } from '@/components/overlay';
 import { Cover, cx } from '@/components/ui';
 import { IconCheck, IconPlus } from '@/components/icons';
 import { SpotifyPlayButton } from '@/components/audio/SpotifyPlayer';
-import { addSpotifyToOurPlaylist } from '@/server/actions/couple';
+import { addAppleToOurPlaylist, addSpotifyToOurPlaylist } from '@/server/actions/couple';
 import type { SpotifySearchHit } from '@/server/spotify';
 
-/** Songs from Spotify's whole catalog that aren't in the company library yet. */
-export function SpotifyResults({ hits, added }: { hits: SpotifySearchHit[]; added: string[] }) {
+type Hit = SpotifySearchHit & { url?: string | null };
+
+/** Songs from Spotify's whole catalog (or Apple's, while Spotify is unavailable) that aren't in the library yet. */
+export function SpotifyResults({ hits, added, source = 'spotify' }: { hits: Hit[]; added: string[]; source?: 'spotify' | 'apple' }) {
   const { m } = useI18n();
   const toast = useToast();
   const router = useRouter();
   const [done, setDone] = useState(() => new Set(added));
   const [busy, start] = useTransition();
-  const add = (h: SpotifySearchHit) => start(async () => {
-    const r = await addSpotifyToOurPlaylist(h.id, m.playlists.ours);
+  const apple = source === 'apple';
+  const add = (h: Hit) => start(async () => {
+    const r = apple ? await addAppleToOurPlaylist(h.id, m.playlists.ours)
+      : await addSpotifyToOurPlaylist(h.id, m.playlists.ours, { title: h.title, artists: h.artists, artworkUrl: h.artworkUrl });
     if (!r.ok) return toast((m.errors as Record<string, string>)[r.error] ?? m.common.error, 'error');
     setDone((s) => new Set(s).add(h.id));
     toast(m.playlists.addedOurs); router.refresh();
@@ -25,8 +29,8 @@ export function SpotifyResults({ hits, added }: { hits: SpotifySearchHit[]; adde
   if (!hits.length) return null;
   return (
     <section className="mt-8" aria-labelledby="sp-results">
-      <p id="sp-results" className="gutter label mb-1">{m.discover.fromSpotify}</p>
-      <p className="gutter text-xs text-paper-dim mb-2">{m.discover.fromSpotifyHint}</p>
+      <p id="sp-results" className="gutter label mb-1">{apple ? m.discover.fromApple : m.discover.fromSpotify}</p>
+      <p className="gutter text-xs text-paper-dim mb-2">{apple ? m.discover.fromAppleHint : m.discover.fromSpotifyHint}</p>
       <ul className="flex flex-col">
         {hits.map((h) => {
           const isIn = done.has(h.id);
@@ -37,7 +41,7 @@ export function SpotifyResults({ hits, added }: { hits: SpotifySearchHit[]; adde
                 <span className="block font-bold truncate" dir="auto">{h.title}</span>
                 <span className="block text-sm text-paper-dim truncate" dir="auto">{h.artists}</span>
               </span>
-              <SpotifyPlayButton trackId={h.id} title={h.title} />
+              {!apple && <SpotifyPlayButton trackId={h.id} title={h.title} />}
               <button type="button" disabled={busy || isIn} onClick={() => add(h)} aria-pressed={isIn}
                 aria-label={`${isIn ? m.playlists.inOurs : m.playlists.addOurs}: ${h.title}`}
                 className={cx('size-11 grid place-items-center rounded-full transition-colors', isIn ? 'bg-gold text-ink' : 'text-paper-dim hover:text-paper border border-line')}>

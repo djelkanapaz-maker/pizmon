@@ -28,6 +28,9 @@ export async function GET() {
       else body.items = ((await s.json()) as { tracks?: { items?: unknown[] } }).tracks?.items?.length ?? 0;
     }
   }
+  const a = await fetch('https://itunes.apple.com/search?term=omer%20adam&country=IL&media=music&entity=song&limit=3', { cache: 'no-store', signal: AbortSignal.timeout(10000) }).catch(() => null);
+  body.apple = a?.status ?? 0;
+  if (a?.ok) body.appleItems = ((await a.json()) as { results?: unknown[] }).results?.length ?? 0;
   last = { at: Date.now(), body };
   return NextResponse.json(body);
 }

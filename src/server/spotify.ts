@@ -129,3 +129,21 @@ export async function searchSpotifyCached(q: string, total = 30): Promise<Spotif
 export async function getSpotifyTrack(id: string, token: string) {
   return hit(await api<ApiTrack>(`/tracks/${id}?market=IL`, token));
 }
+
+/** Loose song identity: lower case, no "(…)", "[…]" or " - …" version suffixes, no punctuation. */
+export const normSong = (s: string) => s.normalize('NFKC').toLowerCase().replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const artistsOf = (s: string) => s.split(/,|&| x | feat\.? | ft\.? /i).map(normSong).filter(Boolean);
+
+/** Finds the Spotify track for a title + artist (one request), or null when nothing matches closely. */
+export async function findSpotifyTrack(title: string, artist: string, token: string): Promise<SpotifySearchHit | null> {
+  const lead = artistsOf(artist)[0] ?? '';
+  const q = encodeURIComponent(`track:${normSong(title)} artist:${lead}`.slice(0, 200));
+  const r = await api<{ tracks?: { items: ApiTrack[] } }>(`/search?type=track&market=IL&limit=5&q=${q}`, token);
+  const want = normSong(title);
+  for (const item of r.tracks?.items ?? []) {
+    const h = hit(item);
+    if (h && normSong(h.title) === want && artistsOf(h.artists).includes(lead)) return h;
+  }
+  return null;
+}

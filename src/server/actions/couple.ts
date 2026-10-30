@@ -7,6 +7,7 @@ import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { deriveStatus, EMPTY_SELECTION, type SelectionState } from '@/core/moments';
 import { sanitizeAnswers } from '@/core/questionnaire/answers';
 import { appAccessToken } from '@/server/spotify-auth';
+import { getAppleTrack } from '@/server/apple';
 import { getSpotifyTrack } from '@/server/spotify';
 import type { QuestionnaireDefinition } from '@/core/questionnaire/types';
 
@@ -142,16 +143,33 @@ async function mainPlaylistId(c: NonNullable<Awaited<ReturnType<typeof coupleCtx
 }
 
 /** Add a song found in Spotify's catalog to the couple's playlist (it joins the catalog as metadata). */
-export async function addSpotifyToOurPlaylist(spotifyId: string, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ trackId: string }>> {
+export async function addSpotifyToOurPlaylist(spotifyId: string, title = 'הפלייליסט שלנו', shown?: { title: string; artists: string; artworkUrl: string | null }): Promise<ActionResult<{ trackId: string }>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   if (!/^[A-Za-z0-9]{22}$/.test(spotifyId)) return fail('validation');
+  let t: { id: string; title: string; artists: string; artworkUrl: string | null } | null = null;
   const token = await appAccessToken();
-  if (!token) return fail('network');
-  let t: Awaited<ReturnType<typeof getSpotifyTrack>>;
-  try { t = await getSpotifyTrack(spotifyId, token); } catch { return fail('network'); }
-  if (!t) return fail('validation');
+  if (token) { try { t = await getSpotifyTrack(spotifyId, token); } catch { t = null; } }
+  // Spotify is busy: use what the couple was shown (from our cached search); it only joins their wedding's songs
+  if (!t && shown && typeof shown.title === 'string' && typeof shown.artists === 'string') {
+    t = { id: spotifyId, title: shown.title.slice(0, 300), artists: shown.artists.slice(0, 300), artworkUrl: typeof shown.artworkUrl === 'string' ? shown.artworkUrl : null };
+  }
+  if (!t) return fail('network');
   const art = t.artworkUrl && /^https:\/\/i\.scdn\.co\/image\/[A-Za-z0-9]+$/.test(t.artworkUrl) ? t.artworkUrl : null;
   const { data, error } = await c.db.rpc('couple_add_spotify_track', { p_spotify: t.id, p_title: t.title, p_artists: t.artists, p_artwork: art });
+  if (error || !data) return fail(errorCode(error));
+  const r = await toggleOurPlaylist(data as string, true, title);
+  if (!r.ok) return fail(r.error);
+  return ok({ trackId: data as string });
+}
+
+/** Add a song found in Apple's catalog (the fallback search) to the couple's playlist. */
+export async function addAppleToOurPlaylist(appleId: string, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ trackId: string }>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  if (!/^[0-9]{1,15}$/.test(appleId)) return fail('validation');
+  let t: Awaited<ReturnType<typeof getAppleTrack>>;
+  try { t = await getAppleTrack(appleId); } catch { return fail('network'); }
+  if (!t) return fail('validation');
+  const { data, error } = await c.db.rpc('couple_add_apple_track', { p_apple: t.id, p_title: t.title, p_artists: t.artists, p_artwork: t.artworkUrl, p_url: t.url });
   if (error || !data) return fail(errorCode(error));
   const r = await toggleOurPlaylist(data as string, true, title);
   if (!r.ok) return fail(r.error);

@@ -1,10 +1,21 @@
 import type { ReactNode } from 'react';
+import { after } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { supabaseServer } from '@/lib/supabase/server';
+import { publicEnv } from '@/lib/env';
+import { completeAppleTracks } from '@/server/spotify-link';
 import { requireRole } from '@/server/session';
 import { getI18n } from '@/i18n/server';
 import { StaffShell } from '@/components/StaffShell';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const s = await requireRole('admin');
+  // songs couples added from Apple's catalog get their Spotify link once Spotify answers again
+  const token = (await (await supabaseServer()).auth.getSession()).data.session?.access_token;
+  if (token) after(async () => {
+    const db = createClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, { global: { headers: { Authorization: `Bearer ${token}` } }, auth: { persistSession: false, autoRefreshToken: false } });
+    try { await completeAppleTracks(db, s.company.id); } catch (e) { console.error('apple→spotify linking', e instanceof Error ? e.message : e); }
+  });
   const { m } = await getI18n();
   const items = [
     { href: '/admin', label: m.admin.overview, exact: true },
