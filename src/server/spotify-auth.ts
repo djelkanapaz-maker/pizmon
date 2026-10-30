@@ -16,7 +16,10 @@ export async function tokenRequest(params: Record<string, string>) {
     method: 'POST', headers: { authorization: basic(), 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(params).toString(), cache: 'no-store', signal: AbortSignal.timeout(10000),
   });
-  if (!r.ok) throw new Error('spotify_auth');
+  if (!r.ok) {
+    console.error('spotify token', params.grant_type, r.status, (await r.text().catch(() => '')).slice(0, 200));
+    throw new Error('spotify_auth');
+  }
   return await r.json() as { access_token: string; refresh_token?: string; expires_in: number };
 }
 

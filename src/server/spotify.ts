@@ -26,7 +26,10 @@ async function api<T>(url: string, token: string): Promise<T> {
     headers: { authorization: `Bearer ${token}` }, cache: 'no-store', signal: AbortSignal.timeout(15000),
   });
   if (r.status === 404) throw new Error('spotify_not_found');
-  if (!r.ok) throw new Error('spotify_api');
+  if (!r.ok) {
+    console.error('spotify api', r.status, url.split('?')[0], r.headers.get('retry-after') ?? '', (await r.text().catch(() => '')).slice(0, 200));
+    throw new Error('spotify_api');
+  }
   return await r.json() as T;
 }
 
