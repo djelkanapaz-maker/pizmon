@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { spotifyConfigured } from '@/server/spotify-auth';
+import { fetchSpotifyPlaylist } from '@/server/spotify';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,8 @@ export async function GET() {
   const a = await fetch('https://itunes.apple.com/search?term=omer%20adam&country=IL&media=music&entity=song&limit=3', { cache: 'no-store', signal: AbortSignal.timeout(10000) }).catch(() => null);
   body.apple = a?.status ?? 0;
   if (a?.ok) body.appleItems = ((await a.json()) as { results?: unknown[] }).results?.length ?? 0;
+  // the public playlist page couples' "upload our playlist" reads (no API quota)
+  try { const pl = await fetchSpotifyPlaylist('3NSFElDCyaNmcMoGWn6iuW'); body.embed = pl.tracks.length; } catch (e) { body.embed = e instanceof Error ? e.message : 'failed'; }
   last = { at: Date.now(), body };
   return NextResponse.json(body);
 }

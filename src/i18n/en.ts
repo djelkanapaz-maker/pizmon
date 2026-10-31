@@ -86,6 +86,15 @@ export const en = {
   },
   track: { by: 'by {artist}', genre: 'Genre', energy: 'Energy', language: 'Language', era: 'Era', moments: 'Fits', rights: 'Rights', metadataOnly: 'Metadata only' },
   playlists: {
+    import: {
+      button: 'Upload our playlist', title: 'Upload a Spotify playlist',
+      sub: 'Have a playlist on Spotify? Paste its link here and all its songs join your playlist, next to what you already picked.',
+      label: 'Playlist link', hint: 'In Spotify: the three dots next to the playlist → Share → Copy link. The playlist must be public.',
+      submit: 'Add the songs', working: 'Adding the songs…',
+      added: '{count} songs added to your playlist', already: '{count} songs were already in your playlist', blocked: '{count} songs skipped: they are on your “never” list',
+      skipped: '{count} songs could not be added', truncated: 'The first 100 songs were added. If the playlist has more, add the rest from the music library.',
+      errors: { spotify_bad_link: 'That doesn’t look like a Spotify playlist link. Copy it from the Share button and try again.', spotify_not_found: 'We couldn’t find that playlist. Make sure it is public and the link is right.', spotify_unreadable: 'We couldn’t read the playlist right now. Make sure it is public and try again in a moment.', spotify_empty: 'The playlist is empty.' },
+    },
     ours: 'Our playlist', addOurs: 'Add to our playlist', inOurs: 'In our playlist', addedOurs: 'Added to our playlist', removedOurs: 'Removed from our playlist', others: 'Other playlists', emptyOurs: 'No songs yet. Open the Music library and tap + next to a song to add it here.', oursSub: 'Every song you picked from every playlist, in one place. Your DJ sees this list.',
     title: 'Playlists', mine: 'Our playlists', create: 'New playlist', name: 'Name', purpose: 'Purpose', notes: 'Notes',
     purposes: { reception: 'Reception', ceremony: 'Ceremony', dancefloor: 'Dancefloor', late_night: 'Late night', family: 'Family', inspiration: 'Inspiration', other: 'Other' },

@@ -7,6 +7,7 @@ import { TRACK_SELECT, type Track } from '@/server/queries';
 import { ButtonLink, Cover, EmptyState, PageHeader } from '@/components/ui';
 import { PlaylistEditor } from './PlaylistControls';
 import { FriendsPanel, type FriendSuggestion } from './FriendsPanel';
+import { ImportPlaylist } from './ImportPlaylist';
 
 /** The couple's one playlist: every pick from the Music library lands here. */
 export default async function PlaylistsPage() {
@@ -29,7 +30,7 @@ export default async function PlaylistsPage() {
   return (
     <div>
       <PageHeader back={{ href: '/wedding', label: m.wedding.title }} title={m.playlists.ours} sub={m.playlists.oursSub}
-        actions={<ButtonLink href="/discover" size="sm" variant="secondary">{m.discover.title}</ButtonLink>} />
+        actions={<div className="flex flex-col items-stretch gap-2"><ButtonLink href="/discover" size="sm" variant="secondary">{m.discover.title}</ButtonLink><ImportPlaylist /></div>} />
       {main && items.length > 0
         ? <PlaylistEditor playlist={{ id: main.id, title: main.title, purpose: main.purpose, shared_with_dj: main.shared_with_dj }} items={items} isMain />
         : <div className="gutter"><EmptyState title={m.playlists.emptyOurs} /></div>}

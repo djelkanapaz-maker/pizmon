@@ -8,7 +8,8 @@ import { deriveStatus, EMPTY_SELECTION, type SelectionState } from '@/core/momen
 import { sanitizeAnswers } from '@/core/questionnaire/answers';
 import { appAccessToken } from '@/server/spotify-auth';
 import { getAppleTrack } from '@/server/apple';
-import { getSpotifyTrack } from '@/server/spotify';
+import { fetchSpotifyPlaylist, getSpotifyTrack } from '@/server/spotify';
+import { parsePlaylistIds } from '@/core/spotify';
 import type { QuestionnaireDefinition } from '@/core/questionnaire/types';
 
 const uuid = z.guid();
@@ -174,6 +175,39 @@ export async function addAppleToOurPlaylist(appleId: string, title = 'הפליי
   const r = await toggleOurPlaylist(data as string, true, title);
   if (!r.ok) return fail(r.error);
   return ok({ trackId: data as string });
+}
+
+/**
+ * Import the songs of the couple's own Spotify playlist into "our playlist".
+ * Reads Spotify's public playlist page (no API quota; up to 100 songs), then one RPC adds them.
+ */
+export async function importSpotifyPlaylistToOurs(text: string, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ name: string; added: number; already: number; blocked: number; skipped: number; total: number; truncated: boolean }>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  const input = String(text ?? '').trim().slice(0, 2000);
+  let id = parsePlaylistIds(input)[0];
+  // share links from the Spotify app (spotify.link / spoti.fi) redirect to open.spotify.com
+  if (!id) {
+    const short = input.match(/https:\/\/(?:spotify\.link|spoti\.fi)\/[A-Za-z0-9]+/)?.[0];
+    if (short) {
+      try {
+        const r = await fetch(short, { redirect: 'manual', cache: 'no-store', signal: AbortSignal.timeout(8000) });
+        id = parsePlaylistIds(r.headers.get('location') ?? '')[0];
+        if (!id && r.ok) id = parsePlaylistIds((await r.text()).slice(0, 200_000))[0];
+      } catch { /* fall through */ }
+    }
+  }
+  if (!id) return fail('spotify_bad_link');
+  let pl: Awaited<ReturnType<typeof fetchSpotifyPlaylist>>;
+  try { pl = await fetchSpotifyPlaylist(id); } catch (e) { return fail(e instanceof Error && e.message === 'spotify_not_found' ? 'spotify_not_found' : 'spotify_unreadable'); }
+  if (!pl.tracks.length) return fail('spotify_empty');
+  let playlistId: string;
+  try { playlistId = await mainPlaylistId(c, String(title).trim().slice(0, 120) || 'הפלייליסט שלנו'); } catch (e) { return fail(errorCode(e as { message?: string })); }
+  const tracks = pl.tracks.slice(0, 200).map((t) => ({ id: t.id, title: t.title, artists: t.artists, artworkUrl: t.artworkUrl }));
+  const { data, error } = await c.db.rpc('couple_import_spotify_tracks', { p_playlist: playlistId, p_tracks: tracks });
+  if (error || !data) return fail(errorCode(error));
+  const r = data as { added: number; already: number; blocked: number; skipped: number };
+  revalidatePath('/wedding/playlists'); revalidatePath('/wedding'); revalidatePath('/home');
+  return ok({ name: pl.name, ...r, total: tracks.length, truncated: pl.truncated });
 }
 
 /** Add a track to (or remove it from) the couple's main playlist. */
