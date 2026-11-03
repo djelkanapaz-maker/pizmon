@@ -49,10 +49,10 @@ export function Badge({ tone = 'neutral', children, className }: { tone?: 'neutr
   return <span className={cx('inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-xs font-bold whitespace-nowrap', t, className)}>{children}</span>;
 }
 
-export function Field({ label, hint, error, children, htmlFor }: { label: string; hint?: string; error?: string | null; children: ReactNode; htmlFor?: string }) {
+export function Field({ label, hint, error, children, htmlFor, required }: { label: string; hint?: string; error?: string | null; children: ReactNode; htmlFor?: string; required?: boolean }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-bold text-paper">{label}</label>
+      <label htmlFor={htmlFor} className="text-sm font-bold text-paper">{label}{required && <span className="text-danger" aria-hidden> *</span>}</label>
       {children}
       {error ? <p className="text-sm text-danger" role="alert">{error}</p> : hint ? <p className="text-sm text-paper-dim">{hint}</p> : null}
     </div>

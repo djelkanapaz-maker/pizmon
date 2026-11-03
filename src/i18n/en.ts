@@ -282,10 +282,10 @@ export const en = {
     title: 'Sign up free', sub: 'A few details and you’re in. It takes a minute.',
     partnerOne: 'Your name', partnerTwo: 'Your partner’s name', email: 'Email', password: 'Password', phone: 'Phone',
     date: 'Wedding date', venue: 'Venue', city: 'City', guests: 'Guests (approx.)',
-    hasDjQ: 'Have you booked a DJ?', hasDjYes: 'Yes, we have', hasDjNo: 'Not yet', otherDj: 'Who is your DJ? (optional)',
+    noDate: 'We haven’t set a date yet', hasDjQ: 'Have you booked a DJ?', hasDjYes: 'Yes, we have', hasDjNo: 'Not yet', otherDj: 'Who is your DJ? (optional)',
     terms: 'By signing up you agree to our privacy policy.', submit: 'Create our account', submitting: 'Creating…',
     haveAccount: 'Already have an account?', signIn: 'Sign in',
-    errors: { email_exists: 'This email is already registered. Sign in instead.', rate_limited: 'Too many attempts. Please try again later.', has_dj: 'Tell us whether you’ve booked a DJ.', phone: 'Check the phone number.', signup_closed: 'Sign-up is closed right now.' },
+    errors: { required: 'Please fill in all the fields marked with an asterisk.', email_exists: 'This email is already registered. Sign in instead.', rate_limited: 'Too many attempts. Please try again later.', has_dj: 'Tell us whether you’ve booked a DJ.', phone: 'Check the phone number.', signup_closed: 'Sign-up is closed right now.' },
   },
   lead: {
     noDjTitle: 'Haven’t booked a DJ yet?', noDjBody: 'Elkana Paz, the DJ behind Paskol, would be happy to meet you and send you an offer for your wedding.',
@@ -299,7 +299,7 @@ export const en = {
     hasDj: 'Has a DJ', noDj: 'No DJ yet', callRequested: 'Asked for a call {when}',
     call: 'Call', whatsapp: 'WhatsApp', note: 'Private note', saveNote: 'Save', source: 'Source: {source}', signedUp: 'Signed up {when}', guests: '{count} guests',
     waText: 'Hi {name}, this is Elkana Paz from Paskol. I saw you signed up ahead of your wedding{date}. Congratulations! I’d love to hear about it.',
-    selfBadge: 'Self sign-up', count: '{count} leads',
+    noDate: 'No date yet', selfBadge: 'Self sign-up', count: '{count} leads',
   },
   errors: {
     slot_taken: 'That time was just taken. Please pick another.',

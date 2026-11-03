@@ -63,7 +63,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                   <div className="min-w-0">
                     <Link href={`/admin/couples/${e.id}`} className="display text-xl hover:underline" dir="auto">{names}</Link>
                     <p className="text-sm text-paper-dim mt-1" dir="auto">
-                      {[e.wedding_date && `${formatDate(e.wedding_date, locale)}${days !== null && days > 0 ? ` (${fmt(m.home.countdown, { days })})` : ''}`,
+                      {[e.wedding_date ? `${formatDate(e.wedding_date, locale)}${days !== null && days > 0 ? ` (${fmt(m.home.countdown, { days })})` : ''}` : m.leads.noDate,
                         [e.venue_name, e.venue_city].filter(Boolean).join(', '), e.guest_count && fmt(m.leads.guests, { count: e.guest_count })].filter(Boolean).join(' · ')}
                     </p>
                   </div>

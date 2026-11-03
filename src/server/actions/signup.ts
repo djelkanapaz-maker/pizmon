@@ -8,12 +8,13 @@ const optional = (max: number) => z.string().trim().max(max).optional().transfor
 
 const signup = z.object({
   partner_one_name: z.string().trim().min(1).max(80),
-  partner_two_name: optional(80),
+  partner_two_name: z.string().trim().min(1).max(80),
   email: z.string().trim().toLowerCase().email().max(254),
   password: z.string().min(8).max(72),
   phone: z.string().trim().regex(/^\+?[0-9 ()-]{7,20}$/),
   wedding_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')).transform((v) => v || null),
   venue_name: optional(120),
+  no_date: z.boolean().optional(),
   venue_city: optional(80),
   guest_count: z.union([z.literal(''), z.coerce.number().int().min(1).max(5000)]).optional().transform((v) => (v === '' || v === undefined ? null : v)),
   has_dj: z.enum(['yes', 'no']).transform((v) => v === 'yes'),
@@ -21,6 +22,11 @@ const signup = z.object({
   source: z.string().max(200).optional(),
   website: z.string().max(200).optional(), // honeypot: real people leave it empty
   locale: z.enum(['he', 'en']).optional(),
+}).superRefine((v, ctx) => {
+  // the date and the venue are required, unless the couple hasn't set a date yet
+  if (v.no_date) return;
+  if (!v.wedding_date) ctx.addIssue({ code: 'custom', path: ['wedding_date'], message: 'required' });
+  if (!v.venue_name) ctx.addIssue({ code: 'custom', path: ['venue_name'], message: 'required' });
 });
 
 /**
@@ -41,7 +47,7 @@ export async function selfSignup(input: Record<string, unknown>): Promise<Action
         ...(process.env.SIGNUP_SECRET ? { 'x-signup-secret': process.env.SIGNUP_SECRET, 'x-client-ip': ip } : {}),
       },
       // signing up includes being contacted about the wedding (privacy policy), so there is no separate checkbox
-      body: JSON.stringify({ action: 'self_signup', ...parsed.data, contact_consent: true, source: parsed.data.source?.slice(0, 120) }),
+      body: JSON.stringify({ action: 'self_signup', ...parsed.data, no_date: undefined, contact_consent: true, source: parsed.data.source?.slice(0, 120) }),
       cache: 'no-store',
     });
     const json = await r.json().catch(() => ({}));
