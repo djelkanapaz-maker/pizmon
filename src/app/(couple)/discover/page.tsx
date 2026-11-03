@@ -35,14 +35,22 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   let results: Track[] = [];
   if (filtering) {
     const tagFilter = [sp.mood, sp.cat].filter(isUuid) as string[];
+    // a category is listed newest first (unless searching by text)
+    let catOrder: string[] | null = null;
+    if (isUuid(sp.cat) && !q) {
+      const { data: ranked } = await db.from('track_tags').select('track_id').eq('tag_id', sp.cat!)
+        .order('added_rank', { ascending: false, nullsFirst: false }).limit(150);
+      catOrder = (ranked ?? []).map((r) => r.track_id as string);
+    }
     let query = db.from('music_tracks')
       .select(`${TRACK_SELECT}${tagFilter.length ? ', track_tags!inner(tag_id)' : ''}${isUuid(sp.moment) ? ', moment_tracks!inner(moment_id)' : ''}`)
-      .eq('company_id', s.company.id).eq('status', 'published').or(`added_by_event.is.null,added_by_event.eq.${s.eventId}`).order('title').limit(120);
+      .eq('company_id', s.company.id).eq('status', 'published').or(`added_by_event.is.null,added_by_event.eq.${s.eventId}`).order('title').limit(catOrder ? 150 : 120);
     if (isUuid(sp.genre)) query = query.eq('genre_id', sp.genre!);
     if (sp.lang && /^[a-z]{2,12}$/.test(sp.lang)) query = query.eq('language', sp.lang);
     if (sp.energy && /^[1-5]$/.test(sp.energy)) query = query.eq('energy', Number(sp.energy));
     if (isUuid(sp.moment)) query = query.eq('moment_tracks.moment_id', sp.moment!);
     if (tagFilter.length) query = query.in('track_tags.tag_id', tagFilter);
+    if (catOrder) query = query.in('id', catOrder.length ? catOrder : ['00000000-0000-0000-0000-000000000000']);
     if (q) {
       const { data: arts } = await db.from('artists').select('id').eq('company_id', s.company.id).ilike('name', `%${q}%`).limit(50);
       const ids = (arts ?? []).map((a) => a.id);
@@ -58,6 +66,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       (both ?? []).forEach((r) => counts.set(r.track_id, (counts.get(r.track_id) ?? 0) + 1));
       results = results.filter((r) => counts.get(r.id) === 2);
     }
+    if (catOrder) { const at = new Map(catOrder.map((id, i) => [id, i])); results.sort((x, y) => (at.get(x.id) ?? 1e9) - (at.get(y.id) ?? 1e9)); }
     if (sp.hidden !== '1') results = results.filter((t) => !ctx.rejected.includes(t.id));
   }
 
@@ -94,10 +103,13 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   }
 
   // browse mode: a few shelves by category
+  // newest first: the order the songs were added to the category's source playlists
   const shelves = filtering ? [] : await Promise.all(categories.slice(0, 6).map(async (c) => {
-    const { data } = await db.from('music_tracks').select(`${TRACK_SELECT}, track_tags!inner(tag_id)`)
-      .eq('company_id', s.company.id).eq('status', 'published').eq('track_tags.tag_id', c.id).order('title').limit(8);
-    return { tag: c, tracks: ((data ?? []) as unknown as Track[]).filter((t) => !ctx.rejected.includes(t.id)) };
+    const { data } = await db.from('track_tags').select(`added_rank, track:music_tracks!inner(${TRACK_SELECT})`)
+      .eq('tag_id', c.id).eq('track.company_id', s.company.id).eq('track.status', 'published')
+      .order('added_rank', { ascending: false, nullsFirst: false }).limit(12);
+    const tracks = ((data ?? []) as unknown as { track: Track | null }[]).map((r) => r.track).filter((t): t is Track => !!t && !ctx.rejected.includes(t.id));
+    return { tag: c, tracks: tracks.slice(0, 8) };
   }));
 
   const label = (x: { name_he: string; name_en: string }) => (locale === 'he' ? x.name_he : x.name_en);

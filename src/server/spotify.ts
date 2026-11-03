@@ -52,13 +52,14 @@ async function viaWebApi(id: string, token: string): Promise<SpotifyPlaylist> {
   // newer API: /items with { item }, older: /tracks with { track }
   let next: string | null = `/playlists/${id}/items?limit=50`;
   for (let page = 0; next && page < 40; page++) {
-    const j: { next: string | null; items: { item?: ApiTrack | null; track?: ApiTrack | null }[] } = await api(next, token);
+    const j: { next: string | null; items: { item?: ApiTrack | null; track?: ApiTrack | null; added_at?: string | null }[] } = await api(next, token);
     for (const it of j.items ?? []) {
       const t = it.item ?? it.track;
       if (!t || !t.id || (t.type && t.type !== 'track')) continue;
       tracks.push({
         id: t.id, title: t.name.slice(0, 300), artists: (t.artists ?? []).map((a) => a.name).join(', ').slice(0, 300) || 'Unknown',
         durationMs: t.duration_ms ?? null, artworkUrl: t.album?.images?.at(-2)?.url ?? t.album?.images?.[0]?.url ?? null,
+        addedAt: it.added_at && !Number.isNaN(Date.parse(it.added_at)) ? it.added_at : null,
       });
     }
     next = j.next;

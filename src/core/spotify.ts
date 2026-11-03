@@ -1,6 +1,7 @@
 // Pure helpers for reading public Spotify playlists (shared by the server sync and tests).
 
-export type SpotifyTrack = { id: string; title: string; artists: string; durationMs: number | null; artworkUrl: string | null };
+/** addedAt: when the song was added to the playlist (Web API only; the embed fallback has no dates). */
+export type SpotifyTrack = { id: string; title: string; artists: string; durationMs: number | null; artworkUrl: string | null; addedAt?: string | null };
 export type SpotifyPlaylist = { id: string; name: string; description: string | null; artworkUrl: string | null; tracks: SpotifyTrack[]; truncated: boolean };
 
 const ID = /^[A-Za-z0-9]{22}$/;

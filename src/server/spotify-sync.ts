@@ -95,7 +95,13 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
   const { error: e3 } = await db.from('playlist_tracks').delete().eq('playlist_id', playlistId);
   if (e3) throw e3;
   const songs = [...new Set(ids.filter((id) => trackId.has(id)).map((id) => trackId.get(id)!))];
-  const rows = songs.map((track_id, position) => ({ playlist_id: playlistId, track_id, position, added_by: userId }));
+  // when each song was added on Spotify (the newest of its releases), so categories can show the newest songs first
+  const addedAt = new Map<string, string>();
+  for (const t of pl.tracks) {
+    const row = trackId.get(t.id);
+    if (row && t.addedAt && (!addedAt.has(row) || t.addedAt > addedAt.get(row)!)) addedAt.set(row, t.addedAt);
+  }
+  const rows = songs.map((track_id, position) => ({ playlist_id: playlistId, track_id, position, added_by: userId, source_added_at: addedAt.get(track_id) ?? null }));
   for (const part of chunk(rows, 200)) {
     const { error } = await db.from('playlist_tracks').insert(part);
     if (error) throw error;
