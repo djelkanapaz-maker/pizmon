@@ -274,8 +274,8 @@ export const en = {
     ],
     stepsTitle: 'How it works',
     steps: ['Sign up in a minute', 'Build your wedding soundtrack together', 'Send the brief to your DJ'],
-    aboutKicker: 'Behind Paskol', aboutTitle: 'Elkana Paz, wedding DJ',
-    aboutBody: 'I built Paskol for the couples I play for, so that the music at their wedding is exactly theirs. Now it is open to every couple. Haven’t booked a DJ yet? I’d be happy to meet you.',
+    aboutKicker: 'Behind Paskol', aboutTitle: 'DJ and music producer Elkana Paz',
+    aboutBody: ['With more than 600 weddings behind me, and couples who chose me to be part of their day, I built Paskol for my couples, so that the music at their wedding is exactly theirs, down to the smallest detail.', 'Now the app is open to every couple getting close to their wedding day who wants a bigger say in how the music makes their wedding a success. Haven’t booked a DJ yet? I’d love to meet you :)'],
     aboutCta: 'More about Elkana', footer: 'Paskol · Your moments. Our music.', privacy: 'Privacy',
   },
   signup: {

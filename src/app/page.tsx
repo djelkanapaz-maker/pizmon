@@ -84,7 +84,7 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
         <div className="rounded-[24px] bg-paper text-ink p-7 md:p-10">
           <p className="label !text-champagne mb-3">{L.aboutKicker}</p>
           <h2 className="display-l">{L.aboutTitle}</h2>
-          <p className="mt-4 max-w-2xl leading-relaxed opacity-85">{L.aboutBody}</p>
+          {L.aboutBody.map((t) => <p key={t} className="mt-4 max-w-2xl leading-relaxed opacity-85">{t}</p>)}
           <a href="https://www.elkanapaz.com" target="_blank" rel="noopener" className="mt-6 inline-flex h-11 items-center rounded-full bg-champagne px-6 font-bold text-paper">{L.aboutCta}</a>
         </div>
       </section>
