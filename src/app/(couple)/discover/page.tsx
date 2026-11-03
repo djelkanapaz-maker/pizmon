@@ -35,7 +35,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   let results: Track[] = [];
   if (filtering) {
     const tagFilter = [sp.mood, sp.cat].filter(isUuid) as string[];
-    // a category is listed newest first (unless searching by text)
+    // a category is listed in its playlists' order (unless searching by text)
     let catOrder: string[] | null = null;
     if (isUuid(sp.cat) && !q) {
       const { data: ranked } = await db.from('track_tags').select('track_id').eq('tag_id', sp.cat!)
@@ -103,7 +103,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   }
 
   // browse mode: a few shelves by category
-  // newest first: the order the songs were added to the category's source playlists
+  // in the order of the category's source playlists, as arranged on Spotify
   const shelves = filtering ? [] : await Promise.all(categories.slice(0, 6).map(async (c) => {
     const { data } = await db.from('track_tags').select(`added_rank, track:music_tracks!inner(${TRACK_SELECT})`)
       .eq('tag_id', c.id).eq('track.company_id', s.company.id).eq('track.status', 'published')

@@ -45,17 +45,15 @@ describe('playlist-fed categories', () => {
     expect(await tagged(f.tag)).toEqual([{ track_id: f.en, auto: false }]);
   });
 
-  it('ranks songs newest first: Spotify date, else a later playlist position', async () => {
+  it('keeps the playlist order (top of the playlist first), whatever the dates', async () => {
     const f = await fixture();
     await f.admin.from('category_sources').insert({ tag_id: f.tag, playlist_id: f.pl, language: 'all' });
     const order = async () => (await sql<{ track_id: string }>(`select track_id from public.track_tags where tag_id = $1 order by added_rank desc`, [f.tag])).map((r) => r.track_id);
-    // no dates (embed fallback): positions 0,1,2 → the last one is the newest
     await f.admin.rpc('refresh_category_tracks', { p_company: COMPANY_ID });
-    expect(await order()).toEqual([f.en, f.heByArtist, f.he]);
-    // Spotify dates win
-    await sql(`update public.playlist_tracks set source_added_at = case track_id when $2 then '2026-10-01'::timestamptz when $3 then '2025-01-01'::timestamptz else '2024-01-01'::timestamptz end where playlist_id = $1`, [f.pl, f.he, f.en]);
+    expect(await order()).toEqual([f.he, f.heByArtist, f.en]);
+    await sql(`update public.playlist_tracks set source_added_at = case track_id when $2 then '2026-10-01'::timestamptz else '2024-01-01'::timestamptz end where playlist_id = $1`, [f.pl, f.en]);
     await f.admin.rpc('refresh_category_tracks', { p_company: COMPANY_ID });
-    expect(await order()).toEqual([f.he, f.en, f.heByArtist]);
+    expect(await order()).toEqual([f.he, f.heByArtist, f.en]);
   });
 
   it('is admin-only', async () => {
