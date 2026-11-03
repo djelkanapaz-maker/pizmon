@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/api/health/', '/login', '/activate', '/forgot-password', '/auth/', '/setup', '/manifest.webmanifest', '/icon', '/apple-icon', '/privacy', '/s/'];
+const PUBLIC_PATHS = ['/api/health/', '/login', '/activate', '/forgot-password', '/auth/', '/setup', '/manifest.webmanifest', '/icon', '/apple-icon', '/privacy', '/s/', '/signup'];
 
 /**
  * Refreshes the Supabase session cookie on every navigation and sends signed-out
@@ -32,10 +32,11 @@ export async function proxy(request: NextRequest) {
   const signedIn = !!data?.claims?.sub;
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+  // '/' is the public landing page for signed-out visitors (paskol.app)
+  const isPublic = path === '/' || PUBLIC_PATHS.some((p) => path.startsWith(p));
   if (!signedIn && !isPublic) {
     const login = new URL('/login', request.url);
-    if (path !== '/') login.searchParams.set('next', path + request.nextUrl.search);
+    login.searchParams.set('next', path + request.nextUrl.search);
     return NextResponse.redirect(login);
   }
   return response;

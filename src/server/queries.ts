@@ -22,6 +22,9 @@ export type WeddingEvent = {
   id: string; company_id: string; partner_one_name: string; partner_two_name: string | null; wedding_date: string | null; start_time: string | null;
   venue_name: string | null; venue_city: string | null; guest_count: number | null; languages: string[]; cultural_notes: string | null;
   onboarding_step: 'welcome' | 'dj' | 'details' | 'done'; onboarding_completed_at: string | null; is_demo: boolean; created_at: string; updated_at: string;
+  /** 'self' = signed up for free at paskol.app (no DJ assignment; a lead for the company) */
+  signup_source: 'admin' | 'self'; phone: string | null; has_dj: boolean | null; other_dj_name: string | null;
+  contact_consent: boolean; call_requested_at: string | null;
 };
 
 export type Dj = {
@@ -138,6 +141,7 @@ export async function getProgressFacts(eventId: string, companyId: string): Prom
   const pendingRecs = ((recs.data ?? []) as { response: unknown[] | { id: string } | null }[]).filter((r) => !r.response || (Array.isArray(r.response) && r.response.length === 0)).length;
   return {
     onboardingDone: !!event?.onboarding_completed_at,
+    selfService: event?.signup_source === 'self' && !assignment,
     djStatus: assignment ? (assignment.status as ProgressFacts['djStatus']) : 'none',
     questionnaireSectionsTotal: qSections.length,
     questionnaireSectionsComplete: complete,

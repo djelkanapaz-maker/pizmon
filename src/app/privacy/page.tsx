@@ -3,15 +3,15 @@ import { BrandMark } from '@/components/brand';
 
 export const metadata = { title: 'Privacy · Paskol' };
 
-const UPDATED = '2026-10-21';
+const UPDATED = '2026-11-03';
 
 const he = {
   title: 'מדיניות פרטיות',
   intro: 'פסקול, האפליקציה של אלקנה פז, עוזרת לזוגות לתכנן את המוזיקה של החתונה יחד עם ה-DJ שלהם. המסמך הזה מסביר איזה מידע נשמר, למה, ומה אפשר לעשות איתו.',
   sections: [
-    ['מי אחראי על המידע', 'אלקנה פז (Elkana Paz Music Services) אחראי על המידע באפליקציה. חשבונות נפתחים רק על ידי אלקנה, עבור זוגות שעובדים איתו.'],
-    ['איזה מידע נשמר', 'שם, כתובת מייל, פרטי החתונה (תאריך, מקום, מספר אורחים), בחירות מוזיקליות (שאלון, רגעים מיוחדים, פלייליסטים, שירים שאהבתם או שלא), בקשות והודעות בינכם לבין ה-DJ, ומועד פגישת התיאום. באפליקציה לטלפון נשמר גם מזהה התראות של המכשיר כדי לשלוח לכם התראות.'],
-    ['למה', 'כדי שה-DJ שלכם יכיר את הטעם המוזיקלי שלכם, כדי לתאם איתכם פגישה, וכדי לשלוח לכם עדכונים על החתונה. המידע לא נמכר ולא משמש לפרסום.'],
+    ['מי אחראי על המידע', 'אלקנה פז (Elkana Paz Music Services) אחראי על המידע באפליקציה. חשבון נפתח על ידי אלקנה עבור זוגות שעובדים איתו, או על ידי הזוג עצמו בהרשמה החינמית.'],
+    ['איזה מידע נשמר', 'שם, כתובת מייל, מספר טלפון, פרטי החתונה (תאריך, מקום, מספר אורחים, ואם כבר סגרתם דיג׳יי), בחירות מוזיקליות (שאלון, רגעים מיוחדים, פלייליסטים, שירים שאהבתם או שלא), בקשות והודעות בינכם לבין ה-DJ, ומועד פגישת התיאום. באפליקציה לטלפון נשמר גם מזהה התראות של המכשיר כדי לשלוח לכם התראות.'],
+    ['למה', 'כדי שה-DJ שלכם יכיר את הטעם המוזיקלי שלכם, כדי לתאם איתכם פגישה, וכדי לשלוח לכם עדכונים על החתונה. המידע לא נמכר ולא מועבר לאף אחד. אם נרשמתם בעצמכם ואישרתם זאת (בהרשמה או בכפתור ״אשמח שאלקנה יחזור אליי״), אלקנה פז עשוי ליצור איתכם קשר בטלפון או בוואטסאפ עם הצעה לדיג׳יי לחתונה. אפשר לבטל את האישור בכל זמן בפנייה אלינו.'],
     ['מי רואה את המידע', 'אתם, ה-DJ שמשובץ לחתונה שלכם, ומנהלי החברה. ההרשאות נאכפות במסד הנתונים עצמו.'],
     ['שירותים חיצוניים', 'המידע נשמר אצל Supabase (שרתים באיחוד האירופי) והאתר מתארח ב-Vercel. נגן השירים הוא הנגן הרשמי של Spotify, ו-Spotify עשויים לאסוף מידע לפי מדיניות הפרטיות שלהם. כשנקבעת פגישה, היא נכנסת ליומן Google של ה-DJ, ונשלח לו מייל מכתובת ה-Gmail של החברה. התראות לטלפון נשלחות דרך Apple ו-Google.'],
     ['כמה זמן', 'המידע נשמר כל עוד יש לכם חשבון, ולתקופה סבירה אחרי החתונה לצורך שירות. אפשר לבקש מחיקה בכל זמן.'],
@@ -25,9 +25,9 @@ const en = {
   title: 'Privacy policy',
   intro: 'Paskol, Elkana Paz’s app, helps couples plan their wedding music with their DJ. This page explains what is stored, why, and what you can do about it.',
   sections: [
-    ['Who is responsible', 'Elkana Paz (Elkana Paz Music Services) is responsible for the data in the app. Accounts are created only by Elkana, for couples who work with him.'],
-    ['What we store', 'Name, email, wedding details (date, venue, guest count), music choices (questionnaire, special moments, playlists, songs you liked or not), requests and messages between you and your DJ, and the planning-meeting time. The phone app also stores a device notification token so we can send you notifications.'],
-    ['Why', 'So your DJ knows your musical taste, to schedule a meeting with you, and to send you updates about your wedding. Data is never sold or used for advertising.'],
+    ['Who is responsible', 'Elkana Paz (Elkana Paz Music Services) is responsible for the data in the app. Accounts are created by Elkana for couples who work with him, or by couples themselves through the free sign-up.'],
+    ['What we store', 'Name, email, phone number, wedding details (date, venue, guest count, and whether you already booked a DJ), music choices (questionnaire, special moments, playlists, songs you liked or not), requests and messages between you and your DJ, and the planning-meeting time. The phone app also stores a device notification token so we can send you notifications.'],
+    ['Why', 'So your DJ knows your musical taste, to schedule a meeting with you, and to send you updates about your wedding. Data is never sold or passed on. If you signed up yourself and agreed to it (at sign-up or with “I’d like Elkana to call me”), Elkana Paz may contact you by phone or WhatsApp with a DJ offer for your wedding. You can withdraw this at any time by contacting us.'],
     ['Who can see it', 'You, the DJ assigned to your wedding, and company admins. Permissions are enforced in the database itself.'],
     ['Outside services', 'Data is stored with Supabase (servers in the EU) and the site is hosted on Vercel. Songs play in Spotify’s official player, and Spotify may collect data under its own privacy policy. When a meeting is booked it is added to the DJ’s Google Calendar and the DJ is emailed from the company Gmail. Phone notifications are delivered through Apple and Google.'],
     ['How long', 'As long as you have an account, and for a reasonable period after the wedding for service purposes. You can ask for deletion at any time.'],

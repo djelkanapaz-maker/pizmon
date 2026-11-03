@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const items = [
     { href: '/admin', label: m.admin.overview, exact: true },
     { href: '/admin/couples', label: m.admin.couples },
+    { href: '/admin/leads', label: m.admin.leads },
     { href: '/admin/djs', label: m.admin.djs },
     { href: '/admin/catalog', label: m.admin.catalog },
     { href: '/admin/taxonomy', label: m.admin.taxonomy },

@@ -168,3 +168,14 @@ export async function adminUpdateSettings(input: unknown): Promise<ActionResult>
   revalidatePath('/', 'layout');
   return ok(undefined);
 }
+
+// ───────────── leads (self-signup couples) ─────────────
+const LEAD_STATUS = ['new', 'call_requested', 'contacted', 'booked', 'not_relevant'] as const;
+export async function adminUpdateLead(eventId: string, status: (typeof LEAD_STATUS)[number], note: string): Promise<ActionResult> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  if (!uuid.safeParse(eventId).success || !LEAD_STATUS.includes(status) || typeof note !== 'string' || note.length > 2000) return fail('validation');
+  const { error } = await c.db.rpc('admin_update_lead', { p_event: eventId, p_status: status, p_note: note.trim() || null });
+  if (error) return fail(errorCode(error));
+  revalidatePath('/admin/leads');
+  return ok(undefined);
+}

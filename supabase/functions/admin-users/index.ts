@@ -1,6 +1,6 @@
 // admin-users — the only place the service-role key is used.
 // Creates couple / DJ accounts and returns one-time activation links.
-// Every action except `bootstrap` requires the caller to be an admin of the target company.
+// Every action except `bootstrap` and the public `self_signup` requires the caller to be an admin of the target company.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
@@ -14,12 +14,13 @@ async function appUrlFor(companyId: string) {
   return ((data?.app_url as string | null) ?? ENV_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 }
 const BOOTSTRAP_SECRET = Deno.env.get('BOOTSTRAP_SECRET');
+const SIGNUP_SECRET = Deno.env.get('SIGNUP_SECRET');
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const EMAIL_FROM = Deno.env.get('EMAIL_FROM');
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-bootstrap-secret',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-bootstrap-secret, x-signup-secret, x-client-ip',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -131,6 +132,9 @@ async function removeCoupleLogin(companyId: string, userId: string) {
 const inviteHtml = (name: string, link: string) =>
   `<p>Hi ${name.replace(/[<>&]/g, '')},</p><p>Your wedding music workspace is ready. Activate your account:</p><p><a href="${link}">${link}</a></p>`;
 
+/** self_signup attempts per client IP in the last hour (per function instance; a light brake on abuse). */
+const signupHits = new Map<string, number[]>();
+
 // ── actions ──
 type Body = Record<string, unknown>;
 const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
@@ -204,6 +208,78 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
       await admin.from('wedding_events').delete().eq('id', ev.id);
       throw err;
     }
+  },
+
+  /**
+   * Public: a couple signs up for free (paskol.app). Creates the login (password, no email round-trip),
+   * a wedding with signup_source 'self' and its lead details, and tells the company's admins.
+   */
+  async self_signup(req, b) {
+    if (typeof b.website === 'string' && b.website.trim()) throw new HttpError(400, 'invalid_input'); // honeypot
+    // the web app's server action forwards the visitor's IP with the shared SIGNUP_SECRET; anyone else is keyed by their own IP
+    const presented = req.headers.get('x-signup-secret') ?? '';
+    const trusted = !!presented && (presented === SIGNUP_SECRET
+      || (await admin.rpc('check_app_secret', { p_name: 'signup', p_secret: presented })).data === true);
+    const ip = (trusted && req.headers.get('x-client-ip')) || (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+    const now = Date.now();
+    const hits = (signupHits.get(ip) ?? []).filter((t) => now - t < 3_600_000);
+    const all = (signupHits.get('*') ?? []).filter((t) => now - t < 3_600_000);
+    if (hits.length >= 6 || all.length >= 300) throw new HttpError(429, 'rate_limited');
+    signupHits.set(ip, [...hits, now]);
+    signupHits.set('*', [...all, now]);
+
+    const slug = Deno.env.get('SELF_SIGNUP_COMPANY') ?? 'pizmon';
+    const { data: company } = await admin.from('companies').select('id').eq('slug', slug).maybeSingle();
+    if (!company) throw new HttpError(503, 'signup_closed');
+    const e = email(b.email)!;
+    const password = typeof b.password === 'string' ? b.password : '';
+    if (password.length < 8 || password.length > 72) throw new HttpError(400, 'invalid_input', 'password is invalid');
+    const p1 = str(b.partner_one_name, 'partner_one_name', { required: true, max: 80 })!;
+    const phone = str(b.phone, 'phone', { required: true, max: 20 })!;
+    if (!/^\+?[0-9 ()-]{7,20}$/.test(phone)) throw new HttpError(400, 'invalid_input', 'phone is invalid');
+    const date = str(b.wedding_date, 'wedding_date', { max: 10 });
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new HttpError(400, 'invalid_input', 'wedding_date is invalid');
+    const guest = b.guest_count === undefined || b.guest_count === null || b.guest_count === '' ? null : Number(b.guest_count);
+    if (guest !== null && (!Number.isInteger(guest) || guest < 1 || guest > 5000)) throw new HttpError(400, 'invalid_input', 'guest_count is invalid');
+    if (typeof b.has_dj !== 'boolean') throw new HttpError(400, 'invalid_input', 'has_dj is required');
+    if (await findUserByEmail(e)) throw new HttpError(409, 'email_exists');
+
+    const { data: created, error: uErr } = await admin.auth.admin.createUser({
+      email: e, password, email_confirm: true, user_metadata: { full_name: p1, locale: b.locale === 'en' ? 'en' : 'he' },
+    });
+    if (uErr || !created.user) throw new HttpError(uErr?.status === 422 ? 409 : 500, uErr?.status === 422 ? 'email_exists' : 'signup_failed', uErr?.message);
+    const userId = created.user.id;
+    const { data: ev, error } = await admin.from('wedding_events').insert({
+      company_id: company.id, partner_one_name: p1,
+      partner_two_name: str(b.partner_two_name, 'partner_two_name', { max: 80 }),
+      wedding_date: date, venue_name: str(b.venue_name, 'venue_name', { max: 120 }),
+      venue_city: str(b.venue_city, 'venue_city', { max: 80 }), guest_count: guest,
+      invite_email: e, created_by: userId, signup_source: 'self', phone,
+      has_dj: b.has_dj, other_dj_name: b.has_dj ? str(b.other_dj_name, 'other_dj_name', { max: 120 }) : null,
+      contact_consent: b.contact_consent === true,
+    }).select('id').single();
+    if (error) { await admin.auth.admin.deleteUser(userId); throw new HttpError(400, 'create_failed', error.message); }
+    try {
+      await ensureMembership(admin, company.id, userId, 'couple');
+      const { error: cmErr } = await admin.from('couple_members').insert({ event_id: ev.id, user_id: userId });
+      if (cmErr) throw new HttpError(500, 'membership_failed', cmErr.message);
+      const { error: lErr } = await admin.from('event_leads').insert({ event_id: ev.id, company_id: company.id, status: 'new',
+        source: typeof b.source === 'string' ? b.source.replace(/[^\w .:/-]/g, '').slice(0, 120) || null : null });
+      if (lErr) throw new HttpError(500, 'lead_failed', lErr.message);
+    } catch (err) {
+      await admin.from('wedding_events').delete().eq('id', ev.id);
+      await admin.auth.admin.deleteUser(userId);
+      throw err;
+    }
+    await admin.from('activity_events').insert({ company_id: company.id, event_id: ev.id, actor_id: userId,
+      type: 'couple_self_signup', entity_type: 'wedding_event', entity_id: ev.id, staff_only: true, payload: { has_dj: b.has_dj } });
+    const { data: admins } = await admin.from('company_members').select('user_id').eq('company_id', company.id).eq('role', 'admin');
+    const names = [p1, str(b.partner_two_name, 'partner_two_name', { max: 80 })].filter(Boolean).join(' & ');
+    await admin.from('notifications').insert((admins ?? []).map((a: { user_id: string }) => ({
+      user_id: a.user_id, company_id: company.id, event_id: ev.id, type: 'lead_new',
+      title_he: `ליד חדש: ${names}${b.has_dj ? '' : ' · עוד לא סגרו DJ'}`, title_en: `New lead: ${names}${b.has_dj ? '' : ' · no DJ yet'}`, link: '/admin/leads',
+    })));
+    return { event_id: ev.id };
   },
 
   async add_partner(req, b) {

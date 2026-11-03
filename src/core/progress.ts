@@ -4,6 +4,8 @@
  */
 export type ProgressFacts = {
   onboardingDone: boolean;
+  /** signed up on their own and no DJ of the company is assigned: there is no DJ step */
+  selfService?: boolean;
   djStatus: 'none' | 'proposed' | 'pending_approval' | 'confirmed';
   questionnaireSectionsTotal: number;      // question-type sections only
   questionnaireSectionsComplete: number;
@@ -19,7 +21,7 @@ export type TaskId = 'onboarding' | 'dj' | 'questionnaire' | 'moments' | 'restri
 export type Task = { id: TaskId; done: boolean; detail?: { done: number; total: number } };
 
 export function planningTasks(f: ProgressFacts): Task[] {
-  return [
+  const tasks: Task[] = [
     { id: 'onboarding', done: f.onboardingDone },
     { id: 'dj', done: f.djStatus === 'confirmed' },
     {
@@ -35,6 +37,7 @@ export function planningTasks(f: ProgressFacts): Task[] {
     { id: 'restrictions', done: f.restrictionsCount > 0 },
     { id: 'submit', done: f.questionnaireSubmitted },
   ];
+  return f.selfService ? tasks.filter((t) => t.id !== 'dj') : tasks;
 }
 
 export function progressPercent(tasks: Task[]) {
@@ -60,7 +63,7 @@ export type NextAction =
 export function nextAction(f: ProgressFacts): NextAction {
   if (f.openClarifications > 0) return { kind: 'answer_clarification' };
   if (!f.onboardingDone) return { kind: 'finish_onboarding' };
-  if (f.djStatus === 'none') return { kind: 'choose_dj' };
+  if (f.djStatus === 'none' && !f.selfService) return { kind: 'choose_dj' };
   if (f.djStatus === 'proposed') return { kind: 'confirm_dj' };
   if (f.pendingRecommendations > 0) return { kind: 'review_recommendations', count: f.pendingRecommendations };
   if (f.questionnaireSectionsComplete === 0) return { kind: 'start_questionnaire' };

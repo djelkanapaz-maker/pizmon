@@ -67,6 +67,12 @@ describe('progress', () => {
     expect(nextAction(facts({ questionnaireSubmitted: false })).kind).toBe('submit_brief');
     expect(nextAction(facts()).kind).toBe('all_done');
   });
+  it('self-signup couples have no DJ step', () => {
+    const f = facts({ djStatus: 'none', selfService: true });
+    expect(planningTasks(f).map((t) => t.id)).not.toContain('dj');
+    expect(progressPercent(planningTasks(f))).toBe(100);
+    expect(nextAction(f).kind).toBe('all_done');
+  });
   it('counts days to the wedding', () => {
     expect(daysUntil('2026-10-25', new Date(2026, 9, 20))).toBe(5);
     expect(daysUntil(null)).toBeNull();

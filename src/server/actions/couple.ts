@@ -453,3 +453,13 @@ export async function searchCatalog(query: string, type: 'track' | 'artist'): Pr
   if (error) return fail(errorCode(error));
   return ok((data ?? []).map((t) => ({ id: t.id as string, label: t.title as string, sub: (t.artist as unknown as { name: string } | null)?.name })));
 }
+
+// ───────────── self-signup couples ─────────────
+/** A couple who signed up on their own asks Elkana to call them about DJ services. */
+export async function requestCall(): Promise<ActionResult> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  const { error } = await c.db.rpc('couple_request_call');
+  if (error) return fail(errorCode(error));
+  revalidatePath('/', 'layout');
+  return ok(undefined);
+}

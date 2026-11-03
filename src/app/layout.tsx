@@ -11,6 +11,8 @@ import { Splash, SPLASH_SCRIPT } from '@/components/Splash';
 const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
 
 export const metadata: Metadata = {
+  // absolute URLs for share previews (Facebook, WhatsApp): the public address of the app
+  metadataBase: new URL(process.env.NEXT_PUBLIC_PUBLIC_URL ?? 'https://www.paskol.app'),
   title: { default: BRAND, template: `%s · ${BRAND}` },
   description: 'The digital home of your wedding’s music.',
   applicationName: BRAND,

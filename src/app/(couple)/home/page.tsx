@@ -12,6 +12,7 @@ import { TrackList } from '@/components/music/TrackList';
 import { IconCheck, IconChevron, IconList } from '@/components/icons';
 import { MeetingPrompt } from '@/components/meeting/MeetingPrompt';
 import { MEETING_WINDOW_DAYS } from '@/core/meeting';
+import { LeadCard } from '@/components/lead/LeadCard';
 
 const ACTION_HREF: Record<NextAction['kind'], string> = {
   answer_clarification: '/wedding/requests', finish_onboarding: '/onboarding', choose_dj: '/onboarding?step=dj', await_dj_approval: '/onboarding?step=dj',
@@ -76,7 +77,7 @@ export default async function HomePage() {
 
       {/* DJ + progress */}
       <section className="gutter mt-6 grid md:grid-cols-2 gap-4">
-        <div className="card p-5 flex items-center gap-4">
+        {facts.selfService ? <LeadCard event={event} /> : <div className="card p-5 flex items-center gap-4">
           {dj ? <Portrait name={dj.display_name} src={dj.photo_url} size={72} /> : <div className="size-[72px] rounded-full border-2 border-dashed border-line" />}
           <div className="min-w-0">
             <p className="label">{m.home.yourDj}</p>
@@ -85,7 +86,7 @@ export default async function HomePage() {
             {facts.djStatus === 'proposed' && <Badge tone="ember">{m.home.djProposed}</Badge>}
             {dj?.is_demo && <DemoBadge label={m.common.demo} />}
           </div>
-        </div>
+        </div>}
         <div className="card p-5">
           <div className="flex items-baseline justify-between mb-3">
             <p className="label">{m.home.progress}</p>

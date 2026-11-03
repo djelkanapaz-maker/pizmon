@@ -16,15 +16,17 @@ import { DjBio, DjLinks, DjLogo } from '@/components/DjProfile';
 type Step = 'welcome' | 'dj' | 'details';
 type Mix = { id: string; title: string; kind: string; media_url: string; creator_dj_id: string; is_demo: boolean };
 
-export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, policy, brand }: {
+export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, policy, brand, selfService = false }: {
   initialStep: Step; event: WeddingEvent; assignment: Assignment | null; djs: Dj[]; mixes: Mix[]; policy: 'company_assigned' | 'couple_selects'; brand: string;
+  /** signed up on their own: no DJ step */
+  selfService?: boolean;
 }) {
   const { m, fmt } = useI18n();
   const router = useRouter();
   const toast = useToast();
-  const [step, setStep] = useState<Step>(initialStep);
+  const [step, setStep] = useState<Step>(selfService && initialStep === 'dj' ? 'details' : initialStep);
   const [busy, start] = useTransition();
-  const steps: Step[] = ['welcome', 'dj', 'details'];
+  const steps: Step[] = selfService ? ['welcome', 'details'] : ['welcome', 'dj', 'details'];
   const idx = steps.indexOf(step);
   const errMsg = (code: string) => (m.errors as Record<string, string>)[code] ?? m.common.error;
 
@@ -54,11 +56,11 @@ export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, pol
             <p className="label mb-4 text-ember">{m.onboarding.welcomeKicker}</p>
             <h1 className="display-xl poster-shadow mb-6">{m.onboarding.welcomeTitle}</h1>
             <p className="text-lg text-paper-dim max-w-prose mb-10">{m.onboarding.welcomeBody}</p>
-            <Button size="lg" onClick={() => go('dj')} disabled={busy}>{m.onboarding.start}</Button>
+            <Button size="lg" onClick={() => go(selfService ? 'details' : 'dj')} disabled={busy}>{m.onboarding.start}</Button>
           </section>
         )}
         {step === 'dj' && <DjStep assignment={assignment} djs={djs} mixes={mixes} policy={policy} onNext={() => go('details')} busy={busy} />}
-        {step === 'details' && <DetailsStep event={event} onDone={() => go('done')} onBack={() => setStep('dj')} />}
+        {step === 'details' && <DetailsStep event={event} onDone={() => go('done')} onBack={() => setStep(selfService ? 'welcome' : 'dj')} />}
       </div>
     </main>
   );
