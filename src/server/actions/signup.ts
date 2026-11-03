@@ -23,6 +23,8 @@ const signup = z.object({
   website: z.string().max(200).optional(), // honeypot: real people leave it empty
   locale: z.enum(['he', 'en']).optional(),
 }).superRefine((v, ctx) => {
+  // a couple who already booked a DJ says who
+  if (v.has_dj && !v.other_dj_name) ctx.addIssue({ code: 'custom', path: ['other_dj_name'], message: 'required' });
   // the date and the venue are required, unless the couple hasn't set a date yet
   if (v.no_date) return;
   if (!v.wedding_date) ctx.addIssue({ code: 'custom', path: ['wedding_date'], message: 'required' });

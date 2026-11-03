@@ -24,6 +24,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
     const missing = Object.fromEntries(need.filter((k) => !String(f[k] ?? '').trim()).map((k) => [k, 'required']));
     if (Object.keys(missing).length) { setFields(missing); setError(m.signup.errors.required); return; }
     if (!hasDj) { setFields({ has_dj: 'required' }); setError(m.signup.errors.has_dj); return; }
+    if (hasDj === 'yes' && !String(f.other_dj_name ?? '').trim()) { setFields({ other_dj_name: 'required' }); setError(m.signup.errors.other_dj); return; }
     setBusy(true); setError(null); setFields({});
     const r = await selfSignup({ ...f, ...(noDate ? { wedding_date: '' } : {}), no_date: noDate, has_dj: hasDj, source, locale });
     if (!r.ok) {
@@ -72,7 +73,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
       </div>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-sm font-bold mb-2">{m.signup.hasDjQ}</legend>
+        <legend className="text-sm font-bold mb-2">{m.signup.hasDjQ}<span className="text-danger" aria-hidden> *</span></legend>
         <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-invalid={inv('has_dj')}>
           {(['no', 'yes'] as const).map((v) => (
             <label key={v} className={cx('card p-4 flex items-center gap-3 cursor-pointer font-bold', hasDj === v && 'border-ember ring-2 ring-ember/40')}>
@@ -82,7 +83,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
           ))}
         </div>
         {hasDj === 'yes' && (
-          <Field label={m.signup.otherDj} htmlFor="other_dj"><Input id="other_dj" name="other_dj_name" maxLength={120} /></Field>
+          <Field label={m.signup.otherDj} htmlFor="other_dj" required><Input id="other_dj" name="other_dj_name" required maxLength={120} aria-invalid={inv('other_dj_name')} /></Field>
         )}
       </fieldset>
 

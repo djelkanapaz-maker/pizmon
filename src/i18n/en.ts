@@ -282,10 +282,10 @@ export const en = {
     title: 'Sign up free', sub: 'A few details and you’re in. It takes a minute.',
     partnerOne: 'Your name', partnerTwo: 'Your partner’s name', email: 'Email', password: 'Password', phone: 'Phone',
     date: 'Wedding date', venue: 'Venue', city: 'City', guests: 'Guests (approx.)',
-    noDate: 'We haven’t set a date yet', hasDjQ: 'Have you booked a DJ?', hasDjYes: 'Yes, we have', hasDjNo: 'Not yet', otherDj: 'Who is your DJ? (optional)',
+    noDate: 'We haven’t set a date yet', hasDjQ: 'Have you booked a DJ?', hasDjYes: 'Yes, we have', hasDjNo: 'Not yet', otherDj: 'Who is your DJ?',
     terms: 'By signing up you agree to our privacy policy.', submit: 'Create our account', submitting: 'Creating…',
     haveAccount: 'Already have an account?', signIn: 'Sign in',
-    errors: { required: 'Please fill in all the fields marked with an asterisk.', email_exists: 'This email is already registered. Sign in instead.', rate_limited: 'Too many attempts. Please try again later.', has_dj: 'Tell us whether you’ve booked a DJ.', phone: 'Check the phone number.', signup_closed: 'Sign-up is closed right now.' },
+    errors: { required: 'Please fill in all the fields marked with an asterisk.', email_exists: 'This email is already registered. Sign in instead.', rate_limited: 'Too many attempts. Please try again later.', has_dj: 'Tell us whether you’ve booked a DJ.', other_dj: 'Tell us who your DJ is.', phone: 'Check the phone number.', signup_closed: 'Sign-up is closed right now.' },
   },
   lead: {
     noDjTitle: 'Haven’t booked a DJ yet?', noDjBody: 'Elkana Paz, the DJ behind Paskol, would be happy to meet you and send you an offer for your wedding.',
