@@ -42,7 +42,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
         <Field label={m.signup.partnerOne} htmlFor="p1"><Input id="p1" name="partner_one_name" required maxLength={80} autoComplete="given-name" aria-invalid={inv('partner_one_name')} /></Field>
         <Field label={m.signup.partnerTwo} htmlFor="p2"><Input id="p2" name="partner_two_name" maxLength={80} /></Field>
       </div>
-      <Field label={m.signup.phone} htmlFor="phone" hint={m.signup.phoneHint}>
+      <Field label={m.signup.phone} htmlFor="phone">
         <Input id="phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" required dir="ltr" maxLength={20} placeholder="050-000-0000" aria-invalid={inv('phone')} />
       </Field>
       <Field label={m.signup.email} htmlFor="email">
@@ -70,12 +70,6 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
         </div>
         {hasDj === 'yes' && (
           <Field label={m.signup.otherDj} htmlFor="other_dj"><Input id="other_dj" name="other_dj_name" maxLength={120} /></Field>
-        )}
-        {hasDj === 'no' && (
-          <label className="flex items-start gap-3 text-sm leading-relaxed">
-            <input type="checkbox" name="contact_consent" className="mt-0.5 size-5 shrink-0 accent-[var(--color-ember)]" />
-            {m.signup.consent}
-          </label>
         )}
       </fieldset>
 

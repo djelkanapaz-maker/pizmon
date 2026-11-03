@@ -18,7 +18,6 @@ const signup = z.object({
   guest_count: z.union([z.literal(''), z.coerce.number().int().min(1).max(5000)]).optional().transform((v) => (v === '' || v === undefined ? null : v)),
   has_dj: z.enum(['yes', 'no']).transform((v) => v === 'yes'),
   other_dj_name: optional(120),
-  contact_consent: z.literal('on').optional().transform((v) => v === 'on'),
   source: z.string().max(200).optional(),
   website: z.string().max(200).optional(), // honeypot: real people leave it empty
   locale: z.enum(['he', 'en']).optional(),
@@ -41,7 +40,8 @@ export async function selfSignup(input: Record<string, unknown>): Promise<Action
         'content-type': 'application/json', apikey: publicEnv.supabaseAnonKey,
         ...(process.env.SIGNUP_SECRET ? { 'x-signup-secret': process.env.SIGNUP_SECRET, 'x-client-ip': ip } : {}),
       },
-      body: JSON.stringify({ action: 'self_signup', ...parsed.data, source: parsed.data.source?.slice(0, 120) }),
+      // signing up includes being contacted about the wedding (privacy policy), so there is no separate checkbox
+      body: JSON.stringify({ action: 'self_signup', ...parsed.data, contact_consent: true, source: parsed.data.source?.slice(0, 120) }),
       cache: 'no-store',
     });
     const json = await r.json().catch(() => ({}));

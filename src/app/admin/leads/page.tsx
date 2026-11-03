@@ -69,7 +69,6 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {e.has_dj ? <Badge>{m.leads.hasDj}{e.other_dj_name ? `: ${e.other_dj_name}` : ''}</Badge> : <Badge tone="gold">{m.leads.noDj}</Badge>}
-                    {e.contact_consent ? <Badge tone="ok">{m.leads.consent}</Badge> : <Badge>{m.leads.noConsent}</Badge>}
                     {e.call_requested_at && <Badge tone="ember">{fmt(m.leads.callRequested, { when: relativeTime(e.call_requested_at, locale) })}</Badge>}
                   </div>
                 </div>
