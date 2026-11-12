@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.atisuto.weddingmusic"
+    namespace = "app.paskol"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.atisuto.weddingmusic"
+        applicationId "app.paskol"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI sets these for store builds (versionCode must grow with every upload to Google Play)

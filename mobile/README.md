@@ -1,23 +1,30 @@
-# ATISUTO — iOS & Android app
+# פסקול — iOS & Android app
 
-A Capacitor shell around the live web app (`https://atisuto-wedding-music.vercel.app`).
-Every screen, permission and rule comes from the web app and the database, so most
-changes ship without a store release. Native adds push notifications, splash screen,
-status bar and the Android back button.
+A Capacitor shell around the live web app (`https://www.paskol.app`). Every screen, permission
+and rule comes from the web app and the database, so most changes ship without a store release.
+Native adds push notifications, the splash screen, the status bar and the Android back button.
 
-- App id: `com.atisuto.weddingmusic` · name: `ATISUTO`
-- Icons & splash: `assets/` → `npm run assets`
+- App id (both stores): `app.paskol` · name: `פסקול`
+- Icons & splash: sources in `assets/` → `npm run assets`
 - After changing config or plugins: `npx cap sync`
 
-## Builds
-- **CI** (`.github/workflows/mobile.yml`): every push to `mobile/**` builds an installable
-  Android debug APK (artifact `atisuto-android-debug`) and checks the iOS project compiles.
-- **Android release**: `npm run android:release` (needs the upload keystore) → upload the `.aab` to Play Console.
-- **iOS release**: open `ios/App/App.xcodeproj` in Xcode (or a cloud Mac), set the Team, Archive → App Store Connect.
+## Builds (GitHub Actions, `.github/workflows/mobile.yml`)
+- Every push to `mobile/**`: an installable Android debug APK (artifact `paskol-android-debug`)
+  and an iOS compile check.
+- **Store builds**: Actions → *Mobile apps* → *Run workflow* (version e.g. `1.0.0`, platforms).
+  - **iOS**: archived, signed automatically and uploaded to App Store Connect → TestFlight.
+    Secrets: `APPSTORE_API_KEY_P8` (the .p8 file's text), `APPSTORE_API_KEY_ID`, `APPSTORE_API_ISSUER_ID`,
+    `APPLE_TEAM_ID`. The API key needs the **Admin** role (cloud-managed signing).
+  - **Android**: signed `.aab` (artifact `paskol-google-play-bundle`). Secrets: `ANDROID_KEYSTORE_BASE64`,
+    `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, optional `GOOGLE_SERVICES_JSON`
+    (Firebase, for push). With `PLAY_SERVICE_ACCOUNT_JSON` it is also uploaded to Play's internal track
+    (the very first upload of the app must be done by hand in Play Console).
+  - The build number is the workflow run number, so every store build is newer than the last.
 
 ## Push notifications
-1. Android: Firebase project → Android app `com.atisuto.weddingmusic` → put `google-services.json`
-   in `android/app/`. Service account JSON → edge-function secret `FCM_SERVICE_ACCOUNT`.
-2. iOS: Apple Developer → Keys → APNs key (.p8) → secrets `APNS_KEY`, `APNS_KEY_ID`, `APNS_TEAM_ID`.
-3. Deploy the `send-push` edge function, set `PUSH_SECRET`, and store the function URL and
-   secret in `private.app_settings` (`push_function_url`, `push_secret`).
+1. Android: Firebase project → Android app `app.paskol` → `google-services.json` → GitHub secret
+   `GOOGLE_SERVICES_JSON`. Firebase service account JSON → Supabase edge-function secret `FCM_SERVICE_ACCOUNT`.
+2. iOS: Apple Developer → Keys → APNs key (.p8) → Supabase secrets `APNS_KEY`, `APNS_KEY_ID`, `APNS_TEAM_ID`
+   (`APNS_BUNDLE_ID` defaults to `app.paskol`).
+3. `send-push` edge function with `PUSH_SECRET`; its URL and secret in `private.app_settings`
+   (`push_function_url`, `push_secret`).

@@ -1,5 +1,5 @@
 {
-  "background_color": "#0b0909",
+  "background_color": "#F8F4ED",
   "icons": [
     {
       "src": "../icons/icon-48.webp",
@@ -43,5 +43,7 @@
       "sizes": "512x512",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "name": "פסקול",
+  "short_name": "פסקול"
 }

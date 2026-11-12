@@ -1,11 +1,11 @@
 {
-  "name": "atisuto-wedding-music-mobile",
+  "name": "paskol-mobile",
   "private": true,
   "version": "1.0.0",
-  "description": "iOS + Android shell (Capacitor) for the Atisuto wedding music app",
+  "description": "iOS + Android shell (Capacitor) for פסקול (Paskol)",
   "scripts": {
     "sync": "cap sync",
-    "assets": "capacitor-assets generate --iconBackgroundColor '#c01f22' --iconBackgroundColorDark '#c01f22' --splashBackgroundColor '#0b0909' --splashBackgroundColorDark '#0b0909'",
+    "assets": "capacitor-assets generate --iconBackgroundColor '#F8F4ED' --iconBackgroundColorDark '#F8F4ED' --splashBackgroundColor '#F8F4ED' --splashBackgroundColorDark '#F8F4ED'",
     "android:debug": "cd android && ./gradlew assembleDebug",
     "android:release": "cd android && ./gradlew bundleRelease"
   },

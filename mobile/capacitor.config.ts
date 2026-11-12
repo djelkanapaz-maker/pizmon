@@ -6,21 +6,22 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * store release. Native adds push notifications, the splash screen and status bar.
  */
 const config: CapacitorConfig = {
-  appId: 'com.atisuto.weddingmusic',
-  appName: 'ATISUTO',
+  appId: 'app.paskol',
+  appName: 'פסקול',
   webDir: 'www',
   server: {
-    url: process.env.CAP_SERVER_URL ?? 'https://atisuto-wedding-music.vercel.app',
+    url: process.env.CAP_SERVER_URL ?? 'https://www.paskol.app',
     // links to other sites (Spotify, YouTube, Google sign-in…) open in the system browser
-    allowNavigation: ['atisuto-wedding-music.vercel.app'],
+    allowNavigation: ['www.paskol.app', 'paskol.app'],
     errorPath: 'offline.html',
   },
-  backgroundColor: '#0b0909',
-  ios: { contentInset: 'never', scheme: 'ATISUTO', limitsNavigationsToAppBoundDomains: false },
+  backgroundColor: '#F8F4ED',
+  ios: { contentInset: 'never', scheme: 'Paskol', limitsNavigationsToAppBoundDomains: false },
   android: { allowMixedContent: false },
   plugins: {
-    SplashScreen: { launchShowDuration: 900, backgroundColor: '#0b0909', showSpinner: false, androidScaleType: 'CENTER_INSIDE' },
-    StatusBar: { style: 'DARK', backgroundColor: '#c01f22', overlaysWebView: false },
+    SplashScreen: { launchShowDuration: 900, backgroundColor: '#F8F4ED', showSpinner: false, androidScaleType: 'CENTER_INSIDE' },
+    // dark text on the ivory background
+    StatusBar: { style: 'LIGHT', backgroundColor: '#F8F4ED', overlaysWebView: false },
     PushNotifications: { presentationOptions: ['badge', 'sound', 'alert'] },
   },
 };

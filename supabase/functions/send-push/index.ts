@@ -64,7 +64,7 @@ async function sendIos(token: string, title: string, link: string) {
   const host = Deno.env.get('APNS_SANDBOX') === 'true' ? 'api.sandbox.push.apple.com' : 'api.push.apple.com';
   const r = await fetch(`https://${host}/3/device/${token}`, {
     method: 'POST',
-    headers: { authorization: `bearer ${jwt}`, 'apns-topic': Deno.env.get('APNS_BUNDLE_ID') ?? 'com.elkanapaz.pizmon', 'apns-push-type': 'alert', 'apns-priority': '10' },
+    headers: { authorization: `bearer ${jwt}`, 'apns-topic': Deno.env.get('APNS_BUNDLE_ID') ?? 'app.paskol', 'apns-push-type': 'alert', 'apns-priority': '10' },
     body: JSON.stringify({ aps: { alert: { title: 'פסקול', body: title }, sound: 'default' }, link }),
   });
   if (r.ok) return 'sent';

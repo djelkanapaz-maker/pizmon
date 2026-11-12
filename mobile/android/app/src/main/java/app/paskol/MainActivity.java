@@ -1,4 +1,4 @@
-package com.atisuto.weddingmusic;
+package app.paskol;
 
 import com.getcapacitor.BridgeActivity;
 

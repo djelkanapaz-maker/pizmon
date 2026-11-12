@@ -18,7 +18,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-        <string>ATISUTO</string>
+        <string>פסקול</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
