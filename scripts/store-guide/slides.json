@@ -1,0 +1,370 @@
+[
+ {
+  "kind": "cover",
+  "title": "מעלים את פסקול לחנויות",
+  "sub": "מדריך צעד אחר צעד: GitHub, אפל וגוגל",
+  "secs": 6
+ },
+ {
+  "kind": "overview",
+  "title": "מה עושים, ובאיזה סדר",
+  "items": [
+   "סודות ב-GitHub (פעם אחת)",
+   "אפל: מפתח, מזהה, אפליקציה, בנייה, TestFlight, שליחה",
+   "גוגל: אפליקציה, בדיקה סגורה, דף חנות, פרסום",
+   "התראות פוש (אפשר בהמשך)"
+  ],
+  "tip": "כדאי להתחיל בגוגל: אם החשבון פרטי, צריך 14 יום של בדיקה סגורה.",
+  "secs": 12
+ },
+ {
+  "kind": "part",
+  "n": "1",
+  "title": "סודות ב-GitHub",
+  "sub": "10 דקות, פעם אחת",
+  "secs": 4
+ },
+ {
+  "part": "GitHub",
+  "step": "1.1",
+  "title": "פותחים את מסך הסודות",
+  "path": [
+   "github.com/djelkanapaz-maker/pizmon",
+   "Settings",
+   "Secrets and variables",
+   "Actions",
+   "New repository secret"
+  ],
+  "items": [
+   "כל סוד = שם (Name) + ערך (Secret)",
+   "לוחצים Add secret אחרי כל אחד"
+  ],
+  "secs": 11
+ },
+ {
+  "part": "GitHub",
+  "step": "1.2",
+  "title": "ארבעת הסודות של אנדרואיד",
+  "items": [
+   "ANDROID_KEYSTORE_BASE64",
+   "ANDROID_KEYSTORE_PASSWORD",
+   "ANDROID_KEY_ALIAS",
+   "ANDROID_KEY_PASSWORD"
+  ],
+  "tip": "הערכים מחכים בקובץ github-secrets-android.txt. מעתיקים כל ערך כמו שהוא.",
+  "mono": true,
+  "secs": 12
+ },
+ {
+  "part": "GitHub",
+  "step": "1.3",
+  "title": "ארבעת הסודות של אפל",
+  "items": [
+   "APPSTORE_API_KEY_P8: כל התוכן של קובץ ה-p8",
+   "APPSTORE_API_KEY_ID: ה-Key ID",
+   "APPSTORE_API_ISSUER_ID: ה-Issuer ID",
+   "APPLE_TEAM_ID: ה-Team ID"
+  ],
+  "tip": "את ערכי אפל מקבלים בשלב 2.1. אפשר לחזור ולהוסיף אותם אחר כך.",
+  "secs": 12
+ },
+ {
+  "kind": "part",
+  "n": "2",
+  "title": "אפל · App Store",
+  "sub": "כשעה וחצי, ועוד יום-יומיים של בדיקה אצל אפל",
+  "secs": 4
+ },
+ {
+  "part": "אפל",
+  "step": "2.1",
+  "title": "מפתח API לבנייה האוטומטית",
+  "path": [
+   "appstoreconnect.apple.com",
+   "Users and Access",
+   "Integrations",
+   "App Store Connect API",
+   "Team Keys",
+   "+"
+  ],
+  "items": [
+   "Name: Paskol CI",
+   "Access: Admin (חובה)",
+   "Generate, ואז Download API Key: קובץ p8, אפשר להוריד פעם אחת בלבד",
+   "רושמים Key ID ו-Issuer ID",
+   "Team ID: ב-developer.apple.com, Account, Membership details"
+  ],
+  "tip": "מדביקים את ארבעתם בסודות של GitHub (שלב 1.3).",
+  "secs": 16
+ },
+ {
+  "part": "אפל",
+  "step": "2.2",
+  "title": "רישום מזהה האפליקציה",
+  "path": [
+   "developer.apple.com",
+   "Certificates, IDs & Profiles",
+   "Identifiers",
+   "+",
+   "App IDs",
+   "App"
+  ],
+  "items": [
+   "Description: Paskol",
+   "Bundle ID: Explicit · app.paskol",
+   "Capabilities: מסמנים Push Notifications",
+   "Continue, ואז Register"
+  ],
+  "secs": 13
+ },
+ {
+  "part": "אפל",
+  "step": "2.3",
+  "title": "יוצרים את האפליקציה",
+  "path": [
+   "App Store Connect",
+   "Apps",
+   "+",
+   "New App"
+  ],
+  "items": [
+   "Platform: iOS",
+   "Name: פסקול",
+   "Primary Language: Hebrew",
+   "Bundle ID: app.paskol",
+   "SKU: paskol-ios · User Access: Full Access"
+  ],
+  "tip": "אם השם תפוס: פסקול - מוזיקה לחתונה",
+  "secs": 13
+ },
+ {
+  "part": "אפל",
+  "step": "2.4",
+  "title": "בנייה ראשונה",
+  "path": [
+   "GitHub",
+   "Actions",
+   "Mobile apps",
+   "Run workflow"
+  ],
+  "items": [
+   "Version: 1.0.0",
+   "Platforms: ios",
+   "Run workflow, ומחכים 20–40 דקות",
+   "וי ירוק = הבנייה עלתה ל-App Store Connect"
+  ],
+  "tip": "איקס אדום? צילום מסך של השגיאה אליי, ואני מתקן.",
+  "secs": 13
+ },
+ {
+  "part": "אפל",
+  "step": "2.5",
+  "title": "בודקים בטלפון עם TestFlight",
+  "path": [
+   "App Store Connect",
+   "פסקול",
+   "TestFlight",
+   "Internal Testing",
+   "+"
+  ],
+  "items": [
+   "מוסיפים את עצמכם כבודקים",
+   "מתקינים את TestFlight מה-App Store",
+   "פותחים את פסקול מתוך TestFlight ובודקים"
+  ],
+  "secs": 12
+ },
+ {
+  "part": "אפל",
+  "step": "2.6",
+  "title": "חשבון לבודקים של אפל",
+  "path": [
+   "www.paskol.app/signup"
+  ],
+  "items": [
+   "נרשמים עם מייל נפרד וסיסמה פשוטה",
+   "במסך הלידים: מסמנים אותו ״לא רלוונטי״",
+   "את המייל והסיסמה מכניסים ב-App Review Information"
+  ],
+  "secs": 12
+ },
+ {
+  "part": "אפל",
+  "step": "2.7",
+  "title": "דף האפליקציה בחנות",
+  "path": [
+   "App Store Connect",
+   "פסקול",
+   "iOS App 1.0"
+  ],
+  "items": [
+   "Screenshots, 6.9-inch: 6 התמונות מתיקיית appstore",
+   "Subtitle, Promotional Text, Description, Keywords: מהמדריך",
+   "Support URL ו-Marketing URL",
+   "Build: בוחרים את הבנייה מ-TestFlight",
+   "App Review Information: חשבון הבדיקה + ההערות לבודק"
+  ],
+  "secs": 16
+ },
+ {
+  "part": "אפל",
+  "step": "2.8",
+  "title": "מידע כללי, מחיר ופרטיות",
+  "items": [
+   "App Information: Category Lifestyle · Content Rights: Yes",
+   "Age Rating: ״לא״ על הכל, יוצא 4+",
+   "Pricing and Availability: Free",
+   "App Privacy: Privacy Policy URL www.paskol.app/privacy",
+   "Data types: שם, מייל, טלפון, תוכן משתמש, מזהים · Tracking: No"
+  ],
+  "secs": 15
+ },
+ {
+  "part": "אפל",
+  "step": "2.9",
+  "title": "שולחים לבדיקה",
+  "items": [
+   "Add for Review",
+   "Submit to App Review",
+   "בדיקה של אפל: בדרך כלל 24–48 שעות",
+   "דחייה? מעתיקים לי את הנוסח, ואני מכין תשובה ותיקון"
+  ],
+  "secs": 11
+ },
+ {
+  "kind": "part",
+  "n": "3",
+  "title": "גוגל · Google Play",
+  "sub": "שעה, ועוד 14 יום של בדיקה סגורה בחשבון פרטי",
+  "secs": 4
+ },
+ {
+  "part": "גוגל",
+  "step": "3.1",
+  "title": "יוצרים את האפליקציה",
+  "path": [
+   "play.google.com/console",
+   "Create app"
+  ],
+  "items": [
+   "App name: פסקול",
+   "Default language: Hebrew",
+   "App · Free",
+   "מאשרים את ההצהרות, Create app"
+  ],
+  "secs": 11
+ },
+ {
+  "part": "גוגל",
+  "step": "3.2",
+  "title": "בונים את קובץ ההתקנה",
+  "path": [
+   "GitHub",
+   "Actions",
+   "Mobile apps",
+   "Run workflow"
+  ],
+  "items": [
+   "Version: 1.0.0 · Platforms: android",
+   "בסוף הריצה: Artifacts, paskol-google-play-bundle",
+   "מחלצים מה-zip את app-release.aab"
+  ],
+  "secs": 12
+ },
+ {
+  "part": "גוגל",
+  "step": "3.3",
+  "title": "בדיקה סגורה",
+  "path": [
+   "Test and release",
+   "Testing",
+   "Closed testing",
+   "Create track"
+  ],
+  "items": [
+   "Testers: רשימת מיילים של חשבונות גוגל",
+   "Create release: מעלים את app-release.aab",
+   "מאשרים Play App Signing",
+   "שולחים לבודקים את קישור ההצטרפות"
+  ],
+  "tip": "חשבון פרטי: 12 בודקים לפחות, 14 יום ברצף, לפני פרסום לכולם.",
+  "secs": 15
+ },
+ {
+  "part": "גוגל",
+  "step": "3.4",
+  "title": "App content",
+  "path": [
+   "Policy",
+   "App content"
+  ],
+  "items": [
+   "Privacy policy: www.paskol.app/privacy",
+   "App access: חשבון הבדיקה",
+   "Ads: No · Target audience: 18+",
+   "Content rating: השאלון, כמעט הכל ״לא״",
+   "Data safety: לפי הטבלה במדריך"
+  ],
+  "secs": 14
+ },
+ {
+  "part": "גוגל",
+  "step": "3.5",
+  "title": "דף החנות",
+  "path": [
+   "Grow",
+   "Store presence",
+   "Main store listing"
+  ],
+  "items": [
+   "שם, תיאור קצר, תיאור מלא: מהמדריך",
+   "App icon: icon-512.png",
+   "Feature graphic: feature-graphic-1024x500.png",
+   "Phone screenshots: 6 התמונות מתיקיית play",
+   "Category: Lifestyle"
+  ],
+  "secs": 14
+ },
+ {
+  "part": "גוגל",
+  "step": "3.6",
+  "title": "מפרסמים לכולם",
+  "path": [
+   "Dashboard",
+   "Apply for production"
+  ],
+  "items": [
+   "אחרי 14 יום של בדיקה סגורה",
+   "מעבירים את אותו ריליס ל-Production",
+   "Send for review: כמה ימים"
+  ],
+  "secs": 11
+ },
+ {
+  "kind": "part",
+  "n": "4",
+  "title": "התראות פוש",
+  "sub": "אפשר אחרי שהאפליקציות באוויר",
+  "secs": 4
+ },
+ {
+  "part": "פוש",
+  "step": "4.1",
+  "title": "מפתח לאפל ופרויקט ל-Firebase",
+  "items": [
+   "אפל: developer.apple.com, Keys, +, APNs: מורידים p8, רושמים Key ID",
+   "גוגל: console.firebase.google.com, Add project: Paskol",
+   "Add app, Android, package: app.paskol, מורידים google-services.json",
+   "התוכן של google-services.json הולך לסוד GOOGLE_SERVICES_JSON ב-GitHub",
+   "Project settings, Service accounts, Generate new private key"
+  ],
+  "tip": "כתבו לי ״סיימתי״, ואני משלים את החיבור לשרת.",
+  "secs": 16
+ },
+ {
+  "kind": "end",
+  "title": "זהו. פסקול בחנויות.",
+  "sub": "מכאן כל גרסה חדשה היא לחיצה אחת על Run workflow",
+  "secs": 6
+ }
+]
