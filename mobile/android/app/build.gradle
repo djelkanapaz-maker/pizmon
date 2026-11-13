@@ -25,9 +25,10 @@ android {
             def ks = System.getenv("ANDROID_KEYSTORE_PATH")
             if (ks) {
                 storeFile file(ks)
-                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("ANDROID_KEY_ALIAS")
-                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+                // trimmed: a value pasted into GitHub secrets often carries a trailing newline
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")?.trim()
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")?.trim()
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")?.trim()
             }
         }
     }
