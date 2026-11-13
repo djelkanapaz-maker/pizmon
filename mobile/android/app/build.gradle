@@ -8,8 +8,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI sets these for store builds (versionCode must grow with every upload to Google Play)
-        versionCode (System.getenv("ANDROID_VERSION_CODE") ?: "1").toInteger()
-        versionName System.getenv("ANDROID_VERSION_NAME") ?: "1.0"
+        def ciCode = System.getenv("ANDROID_VERSION_CODE")
+        def ciName = System.getenv("ANDROID_VERSION_NAME")
+        versionCode = ciCode ? Integer.parseInt(ciCode) : 1
+        versionName = ciName ?: "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
