@@ -11,8 +11,8 @@
     const r = await fetch(`/store-kit/${dir}/${n}`, { cache: 'no-store' });
     files.push({ name: n, type: r.headers.get('content-type') || 'image/png', buf: await r.arrayBuffer() });
   }
-  window.opener && window.opener.postMessage({ paskolStoreKit: true, files }, '*', files.map((f) => f.buf));
-  document.body.textContent = 'Sent ' + files.length + ' files. You can close this tab.';
-  setTimeout(() => window.close(), 800);
+  const target = window.opener || (window.parent !== window ? window.parent : null);
+  if (target) target.postMessage({ paskolStoreKit: true, files }, '*', files.map((f) => f.buf));
+  document.body.textContent = 'Sent ' + files.length + ' files.';
 })();
 </script></body></html>
