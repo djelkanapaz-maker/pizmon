@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Paskol store kit</title></head>
+<body style="font-family:sans-serif;background:#F8F4ED;padding:24px">Sending images…
+<script>
+// Hands store screenshots to the window that opened this page (used to upload them to the store consoles).
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const dir = q.get('dir') || 'appstore';
+  const names = (q.get('files') || '').split(',').filter(Boolean);
+  const files = [];
+  for (const n of names) {
+    const r = await fetch(`/store-kit/${dir}/${n}`, { cache: 'no-store' });
+    files.push({ name: n, type: r.headers.get('content-type') || 'image/png', buf: await r.arrayBuffer() });
+  }
+  window.opener && window.opener.postMessage({ paskolStoreKit: true, files }, '*', files.map((f) => f.buf));
+  document.body.textContent = 'Sent ' + files.length + ' files. You can close this tab.';
+  setTimeout(() => window.close(), 800);
+})();
+</script></body></html>
