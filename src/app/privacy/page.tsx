@@ -3,7 +3,7 @@ import { BrandMark } from '@/components/brand';
 
 export const metadata = { title: 'Privacy · Paskol' };
 
-const UPDATED = '2026-11-03';
+const UPDATED = '2026-11-14';
 
 const he = {
   title: 'מדיניות פרטיות',
@@ -17,6 +17,17 @@ const he = {
     ['כמה זמן', 'המידע נשמר כל עוד יש לכם חשבון, ולתקופה סבירה אחרי החתונה לצורך שירות. אפשר לבקש מחיקה בכל זמן.'],
     ['הזכויות שלכם', 'אפשר לעיין במידע, לתקן אותו ולבקש למחוק את החשבון: באפליקציה, במסך פרופיל ← "בקשה למחיקת החשבון", או בפנייה לחברה. בקשת מחיקה מטופלת ותאושר לכם במייל.'],
   ],
+  deletion: {
+    title: 'מחיקת החשבון בפסקול',
+    intro: 'אפשר למחוק את החשבון שלכם בפסקול ואת כל המידע שקשור אליו, בכל זמן ובלי עלות.',
+    steps: [
+      'באפליקציה פסקול או באתר paskol.app, היכנסו לחשבון.',
+      'עברו למסך "פרופיל".',
+      'לחצו על "בקשה למחיקת החשבון" ואשרו.',
+      'אין לכם גישה לחשבון? שלחו מייל ל-elkanapazmusic@gmail.com מהכתובת שאיתה נרשמתם, עם הכותרת "מחיקת חשבון פסקול".',
+    ],
+    what: 'מה נמחק: החשבון, פרטי החתונה, הטלפון, כל הבחירות המוזיקליות, ההודעות והבקשות, ומזהי ההתראות של המכשירים. הבקשה מטופלת תוך 30 יום ותאושר לכם במייל. לא נשמר מידע אחרי המחיקה, מלבד מה שהחוק מחייב לשמור.',
+  },
   contact: 'שאלות על פרטיות: elkanapazmusic@gmail.com או דרך האתר elkanapaz.com.',
   updated: 'עודכן לאחרונה',
 };
@@ -33,6 +44,17 @@ const en = {
     ['How long', 'As long as you have an account, and for a reasonable period after the wedding for service purposes. You can ask for deletion at any time.'],
     ['Your rights', 'You can view and correct your data and request account deletion: in the app under Profile → “Request account deletion”, or by contacting the company. Deletion requests are handled and confirmed by email.'],
   ],
+  deletion: {
+    title: 'Deleting your Paskol account',
+    intro: 'You can delete your Paskol account and all the data linked to it at any time, free of charge.',
+    steps: [
+      'Sign in to the Paskol app or to paskol.app.',
+      'Go to the “Profile” screen.',
+      'Tap “Request account deletion” and confirm.',
+      'Can’t sign in? Email elkanapazmusic@gmail.com from the address you signed up with, with the subject “Delete my Paskol account”.',
+    ],
+    what: 'What is deleted: your account, wedding details, phone number, all music choices, messages and requests, and device notification tokens. Requests are completed within 30 days and confirmed by email. Nothing is kept after deletion except what the law requires us to keep.',
+  },
   contact: 'Privacy questions: elkanapazmusic@gmail.com or through elkanapaz.com.',
   updated: 'Last updated',
 };
@@ -52,6 +74,14 @@ export default async function PrivacyPage() {
             <p className="leading-relaxed">{b}</p>
           </section>
         ))}
+        <section id="delete-account" className="flex flex-col gap-2 scroll-mt-6">
+          <h2 className="display text-xl">{t.deletion.title}</h2>
+          <p className="leading-relaxed">{t.deletion.intro}</p>
+          <ol className="list-decimal ps-5 flex flex-col gap-1 leading-relaxed">
+            {t.deletion.steps.map((x) => <li key={x}>{x}</li>)}
+          </ol>
+          <p className="leading-relaxed">{t.deletion.what}</p>
+        </section>
         <p className="text-paper-dim">{t.contact}</p>
         <p className="text-xs text-paper-dim">{t.updated}: {UPDATED}</p>
       </article>
