@@ -54,19 +54,33 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     await djClient.rpc('save_google_connection', { p_dj: elkana.id, p_cipher: 'fake', p_email: 'djelkanapaz@gmail.com' });
   }
 
+  // the demo calendar is "connected" (local only; busy times can't be fetched, so every hour shows as free)
+  await sql(`insert into private.google_connections (dj_id, token_cipher, google_email) values ($1, 'fake', 'djelkanapaz@gmail.com') on conflict (dj_id) do nothing`, [elkana.id]).catch((e) => failures.push('google: ' + e.message));
   const wedding = new Date(Date.now() + 26 * 86_400_000).toISOString().slice(0, 10);
   const created = await fn('create_couple', {
     company_id: COMPANY_ID, partner_one_name: 'דניאל', partner_two_name: 'נועה', email: `noa-daniel-${Date.now() % 100000}@pizmon.test`, wedding_date: wedding,
-    venue_name: 'אחוזת השרון', venue_city: 'תל אביב', guest_count: 350, locale: 'he',
+    venue_name: 'אחוזת השרון', venue_city: 'תל אביב', guest_count: 350, locale: 'he', dj_id: elkana.id,
   }, await token(admin));
   expect(created.status).toBe(200);
   const eventId = created.body.event_id as string;
+  // production: the one DJ (Elkana) is confirmed from the start
+  await sql(`update public.dj_assignments set status = 'confirmed' where event_id = $1`, [eventId]).catch((e) => failures.push('confirm: ' + e.message));
 
   const ctx = await browser.newContext(MOBILE);
   await ctx.route(/spotifycdn\.com|scdn\.co|i\.ytimg\.com/, (r) => r.fulfill({ status: 200, contentType: 'image/svg+xml', body: art(r.request().url()) }));
   const c = await ctx.newPage();
 
-  // 01 opening / 02 activation
+  // 01 opening (public landing) / 02 free sign-up + activation
+  await step('landing', async () => {
+    await c.goto('/'); await settle(c);
+    await snap(c, 'p01-landing');
+    await c.goto('/signup'); await settle(c);
+    await c.locator('input[name=partner_one_name]').fill('נועה');
+    await c.locator('input[name=partner_two_name]').fill('דניאל');
+    await c.locator('input[name=phone]').fill('050-123-4567');
+    await c.locator('input[name=email]').fill('noa.daniel@example.com');
+    await snap(c, 'p02-signup', c.locator('input[name=phone]'));
+  });
   await c.goto('/login'); await settle(c);
   await snap(c, 'p01-login');
   await c.goto(created.body.activation_link); await settle(c);
@@ -111,12 +125,6 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     await snap(c, 'p05-progress', c.getByText('התקדמות התכנון'));
   });
 
-  // 03 add to home screen (profile)
-  await step('profile', async () => {
-    await c.goto('/profile'); await settle(c);
-    await snap(c, 'p03-install', c.getByText('הוספה למסך הבית').first());
-  });
-
   // 06 discover
   await step('discover', async () => {
     await c.goto('/discover'); await settle(c);
@@ -141,6 +149,10 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     await snap(c, 'p07-added', c.getByRole('button', { name: /בפלייליסט שלנו:/ }).first());
     await c.goto('/wedding/playlists'); await settle(c);
     await snap(c, 'p07-ours', c.getByText('הפלייליסט שלנו').first());
+    await c.getByRole('button', { name: 'העלאת הפלייליסט שלנו' }).first().click();
+    await c.locator('#pl-link').fill('https://open.spotify.com/playlist/37i9dQZF1DX4wta20PHgwo');
+    await snap(c, 'p07-import', c.locator('#pl-link'));
+    await c.keyboard.press('Escape');
   });
 
   // 08 moments
@@ -201,7 +213,7 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
       await c.getByRole('button', { name: 'החודש הבא' }).click().catch(() => undefined);
       await settle(c);
     }
-    await freeDay.waitFor({ timeout: 8000 });
+    await freeDay.waitFor({ timeout: 8000 }).catch(async (e) => { await c.screenshot({ path: 'scripts/tutorial/out/meeting-debug.png' }); throw e; });
     await snap(c, 'p12-calendar', freeDay);
     await freeDay.click();
     await c.getByRole('button', { name: /^1[0-9]:00$/ }).first().click();

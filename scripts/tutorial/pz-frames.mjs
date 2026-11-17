@@ -1,4 +1,4 @@
-// Renders the Pizmon couples-tutorial frames (1080×1920): intro, one frame per shot, outro.
+// Renders the Paskol (פסקול) couples-tutorial frames (1080×1920): intro, one frame per shot, outro.
 // Input: scripts/tutorial/pz-plan.json + out/pz-shots.json. Output: out/pz-frames/*.png
 import { chromium } from '@playwright/test';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -26,6 +26,7 @@ const base = `${fonts}
   .wave i{display:block;border-radius:4px}
 `;
 
+const LOGO = 'data:image/png;base64,' + readFileSync('public/brand/paskol-logo.png').toString('base64');
 const total = plan.parts.length;
 function frameHtml(part, pi, shotId) {
   const s = shots[shotId];
@@ -36,7 +37,7 @@ function frameHtml(part, pi, shotId) {
   const top = 520;
   return `<!doctype html><html><head><meta charset="utf-8"><style>${base}
     .bar{position:absolute;top:64px;right:72px;left:72px;display:flex;justify-content:space-between;align-items:center}
-    .mark{font-family:Rubik,Heebo;font-weight:900;font-size:56px}
+    .mark img{height:92px;display:block}
     .count{font-family:HeeboL,Heebo;font-weight:700;font-size:30px;letter-spacing:.12em;color:${C.taupe};direction:ltr}
     .rule{position:absolute;top:168px;right:72px;width:120px;height:2px;background:${C.gold}}
     h1{position:absolute;top:206px;right:72px;left:72px;font-family:Rubik,Heebo;font-weight:900;font-size:92px;line-height:.98;text-shadow:-5px 5px 0 ${C.champagne}}
@@ -50,7 +51,7 @@ function frameHtml(part, pi, shotId) {
     .dots i.on{background:${C.charcoal}}
   </style></head><body>
     ${flow(0.55)}
-    <div class="bar"><span class="mark">פזמון</span><span class="count">${String(pi + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}</span></div>
+    <div class="bar"><span class="mark"><img src="${LOGO}"></span><span class="count">${String(pi + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}</span></div>
     <div class="rule"></div>
     <h1>${part.title}</h1>
     <div class="tip">${part.tip}</div>
@@ -61,7 +62,7 @@ function frameHtml(part, pi, shotId) {
 
 const card = (inner) => `<!doctype html><html><head><meta charset="utf-8"><style>${base}
   .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:260px}
-  .word{font-family:Rubik,Heebo;font-weight:900;font-size:240px;line-height:.95;margin-top:56px;text-shadow:-9px 9px 0 ${C.champagne}}
+  .logo{width:640px;margin-top:40px}
   .tag{margin-top:44px;font-weight:700;font-size:38px;letter-spacing:.04em;color:${C.taupe}}
   .rule{width:140px;height:2px;background:${C.gold};margin:72px auto 56px}
   .kicker{font-family:Rubik,Heebo;font-weight:900;font-size:60px}
@@ -72,7 +73,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 const page = await browser.newPage({ viewport: { width: W, height: H } });
 const render = async (html, name) => { await page.setContent(html, { waitUntil: 'load' }); await page.waitForTimeout(120); await page.screenshot({ path: `${OUT}/${name}.png` }); };
 
-await render(card(`${wave(2.2)}<div class="word">פזמון</div><div class="tag">הרגעים שלכם. המוזיקה שלנו.</div><div class="rule"></div><div class="kicker">${plan.introKicker}</div>`), 'intro');
+await render(card(`${wave(2.2)}<img class="logo" src="${LOGO}"><div class="tag">הרגעים שלכם. המוזיקה שלנו.</div><div class="rule"></div><div class="kicker">${plan.introKicker}</div>`), 'intro');
 const index = [];
 for (const [pi, part] of plan.parts.entries()) {
   for (const [si, id] of part.shots.entries()) {
@@ -82,7 +83,7 @@ for (const [pi, part] of plan.parts.entries()) {
     index.push({ part: pi + 1, name, shot: id });
   }
 }
-await render(card(`${wave(2.2)}<div class="word">פזמון</div><div class="tag">הרגעים שלכם. המוזיקה שלנו.</div><div class="rule"></div><div class="kicker">${plan.outroKicker}</div><div class="small">app.elkanapaz.com</div>`), 'outro');
+await render(card(`${wave(2.2)}<img class="logo" src="${LOGO}"><div class="tag">הרגעים שלכם. המוזיקה שלנו.</div><div class="rule"></div><div class="kicker">${plan.outroKicker}</div><div class="small">www.paskol.app</div>`), 'outro');
 writeFileSync(`${OUT}/index.json`, JSON.stringify(index, null, 1));
 await browser.close();
 console.log(`${index.length + 2} frames`);

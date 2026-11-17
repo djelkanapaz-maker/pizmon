@@ -27,13 +27,19 @@ export type Availability =
   | { state: 'error'; djName: string }
   | { state: 'ok'; djName: string; month: string; days: DaySlots[]; minMonth: string; maxMonth: string };
 
+// Local tutorial capture only: an always-free calendar. Needs DEMO_FREE_CALENDAR=1 AND the local stack,
+// so it can never switch on in production.
+const demoCalendar = () => process.env.DEMO_FREE_CALENDAR === '1' && (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').startsWith('http://127.0.0.1');
+const calendarToken = async (cipher: string | null) => (demoCalendar() ? 'demo' : accessFromCipher(cipher));
+const busyTimes = (token: string, from: number, to: number) => (demoCalendar() ? Promise.resolve([]) : freeBusy(token, from, to));
+
 const monthKey = (y: number, m: number) => `${y}-${String(m).padStart(2, '0')}`;
 
 export async function getMeetingAvailability(month?: string): Promise<ActionResult<Availability>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   const ctx = await meetingContext(c.db, c.s.eventId);
   if (!ctx) return ok({ state: 'no_dj' });
-  const token = await accessFromCipher(ctx.token_cipher);
+  const token = await calendarToken(ctx.token_cipher);
   if (!token) return ok({ state: 'not_connected', djName: ctx.dj_name });
 
   const now = Date.now();
@@ -53,7 +59,7 @@ export async function getMeetingAvailability(month?: string): Promise<ActionResu
   const to = Math.min(last, zonedToUtc(y, m + 1, 1, 0, 0, MEETING_TZ));
   if (to <= from) return ok({ state: 'ok', djName: ctx.dj_name, month: key, days: [], minMonth, maxMonth });
   try {
-    const busy = await freeBusy(token, from, to);
+    const busy = await busyTimes(token, from, to);
     const days = computeSlots({ hours: parseHours(ctx.meeting_hours), busy, from, to, tz: MEETING_TZ, durationMin: MEETING_MINUTES });
     return ok({ state: 'ok', djName: ctx.dj_name, month: key, days, minMonth, maxMonth });
   } catch {
@@ -71,12 +77,12 @@ export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: st
   if (!p.success || (p.data.mode === 'office' && !OFFICE_ADDRESS.he)) return fail('validation');
   const ctx = await meetingContext(c.db, c.s.eventId);
   if (!ctx) return fail('validation');
-  const token = await accessFromCipher(ctx.token_cipher);
+  const token = await calendarToken(ctx.token_cipher);
   if (!token) return fail('network');
   const start = Date.parse(p.data.start), end = start + MEETING_MINUTES * 60_000;
   // the slot must still be inside the DJ's hours and free right now
   try {
-    const busy = await freeBusy(token, start - 60_000, end + 60_000);
+    const busy = await busyTimes(token, start - 60_000, end + 60_000);
     const fits = computeSlots({ hours: parseHours(ctx.meeting_hours), busy, from: start, to: end, tz: MEETING_TZ, durationMin: MEETING_MINUTES })
       .some((d) => d.slots.includes(new Date(start).toISOString()));
     if (!fits) return fail('slot_taken' as never);
@@ -86,7 +92,7 @@ export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: st
   const { data: id, error } = await c.db.rpc('book_dj_meeting', { p_event: c.s.eventId, p_start: new Date(start).toISOString(), p_mode: p.data.mode, p_location: p.data.mode === 'other' ? p.data.location : null });
   if (error || !id) return fail(error?.code === '23P01' || error?.message?.includes('slot_taken') ? ('slot_taken' as never) : errorCode(error));
 
-  if (previous?.google_event_id) await deleteCalendarEvent(token, previous.google_event_id as string);
+  if (previous?.google_event_id && !demoCalendar()) await deleteCalendarEvent(token, previous.google_event_id as string);
   const { data: ev } = await c.db.from('wedding_events').select('partner_one_name, partner_two_name, wedding_date, venue_name').eq('id', c.s.eventId).single();
   const couple = [ev?.partner_one_name, ev?.partner_two_name].filter(Boolean).join(' & ');
   const when = fmtWhen(new Date(start).toISOString(), 'he');
@@ -94,7 +100,7 @@ export async function bookMeeting(input: unknown): Promise<ActionResult<{ id: st
   const contact = c.s.email ?? '';
 
   let googleId: string | null = null;
-  try {
+  if (!demoCalendar()) try {
     googleId = await createCalendarEvent(token, {
       summary: `פגישת תיאום מוזיקה · ${couple}`,
       description: `${place}\nהזוג: ${couple}${contact ? ` (${contact})` : ''}\nתאריך החתונה: ${ev?.wedding_date ?? '—'}${ev?.venue_name ? ` · ${ev.venue_name}` : ''}`,

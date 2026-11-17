@@ -20,7 +20,7 @@ dur = lambda f: float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_
 
 T = 0.5                 # crossfade
 INTRO, OUTRO = 3.6, 5.0
-LEAD, TAIL = 0.7, 0.9   # silence before / after each part's narration
+LEAD, TAIL = 0.8, 1.3   # silence before / after each part narration
 
 segs = [('intro', INTRO)]   # (frame, planned seconds)
 voice_at = []               # (file, start seconds)
