@@ -117,7 +117,7 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
 
   // a song row: the full title and artist are always readable; one "choose" button
   // (two-song mode: it asks groom or bride). The shortlist "+" only in one-song mode, never for glass breaking.
-  const showShortlist = !split && moment.slug !== 'breaking-the-glass';
+  const showShortlist = false; // the shortlist "+" is off in every moment: one clear "choose" button
   const row = (t: Track, key: string) => {
     const r = restrictionFor(t, ctx.restrictions as Restriction[]);
     const blocked = r?.kind === 'never_play' && r.strength === 'absolute';
