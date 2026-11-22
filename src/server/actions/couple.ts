@@ -7,8 +7,8 @@ import { errorCode, fail, ok, type ActionResult } from '@/server/result';
 import { deriveStatus, EMPTY_SELECTION, type SelectionState } from '@/core/moments';
 import { sanitizeAnswers } from '@/core/questionnaire/answers';
 import { appAccessToken } from '@/server/spotify-auth';
-import { getAppleTrack } from '@/server/apple';
-import { fetchSpotifyPlaylist, getSpotifyTrack } from '@/server/spotify';
+import { getAppleTrack, searchAppleCached, type AppleHit } from '@/server/apple';
+import { fetchSpotifyPlaylist, getSpotifyTrack, normSong, searchSpotifyCached, type SpotifySearchHit } from '@/server/spotify';
 import { parsePlaylistIds } from '@/core/spotify';
 import type { QuestionnaireDefinition } from '@/core/questionnaire/types';
 import { TRACK_SELECT, type Track } from '@/server/queries';
@@ -455,19 +455,63 @@ export async function searchCatalog(query: string, type: 'track' | 'artist'): Pr
   return ok((data ?? []).map((t) => ({ id: t.id as string, label: t.title as string, sub: (t.artist as unknown as { name: string } | null)?.name })));
 }
 
-/** Full track rows from the music library for a couple's text search (the special-moment search box). */
-export async function searchLibraryTracks(query: string): Promise<ActionResult<Track[]>> {
+export type MomentSearchResult = { library: Track[]; spotify: SpotifySearchHit[]; apple: AppleHit[] };
+
+/**
+ * The special-moment search box: the same reach as the main music-library search, i.e. the library
+ * first, then Spotify's whole catalog (or Apple's when Spotify is busy) for songs not in the library.
+ */
+export async function searchLibraryTracks(query: string): Promise<ActionResult<MomentSearchResult>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   const q = (query ?? '').replace(/[,()*%\\]/g, ' ').trim().slice(0, 80);
-  if (q.length < 2) return ok([]);
+  if (q.length < 2) return ok({ library: [], spotify: [], apple: [] });
   const { data: arts } = await c.db.from('artists').select('id').eq('company_id', c.s.company.id).ilike('name', `%${q}%`).limit(50);
   const ids = (arts ?? []).map((a) => a.id);
   const { data, error } = await c.db.from('music_tracks').select(TRACK_SELECT)
     .eq('company_id', c.s.company.id).eq('status', 'published').or(`added_by_event.is.null,added_by_event.eq.${c.s.eventId}`)
     .or([`title.ilike.%${q}%`, ...(ids.length ? [`artist_id.in.(${ids.join(',')})`] : [])].join(','))
-    .order('title').limit(40);
+    .order('title').limit(120);
   if (error) return fail(errorCode(error));
-  return ok((data ?? []) as unknown as Track[]);
+  const seen = new Set<string>();
+  const library = ((data ?? []) as unknown as Track[]).filter((t) => (seen.has(t.id) ? false : (seen.add(t.id), true)));
+  let spotify: SpotifySearchHit[] = [];
+  let apple: AppleHit[] = [];
+  try {
+    const shown = new Set(library.map((t) => t.provider_track_id).filter(Boolean));
+    spotify = (await searchSpotifyCached(q, 30)).filter((h) => !shown.has(h.id));
+  } catch {
+    try {
+      const shown = new Set(library.map((t) => `${normSong(t.title)}|${normSong(t.artist?.name ?? '')}`));
+      apple = (await searchAppleCached(q, 30)).filter((h) => !shown.has(`${normSong(h.title)}|${normSong(h.artists)}`));
+    } catch { apple = []; }
+  }
+  return ok({ library, spotify, apple });
+}
+
+/** A song the couple picked from Spotify / Apple search for a moment: make sure it is in the catalog, return its id. */
+export async function ensureExternalTrack(source: 'spotify' | 'apple', id: string, shown?: { title: string; artists: string; artworkUrl: string | null }): Promise<ActionResult<{ trackId: string }>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  if (source === 'spotify') {
+    if (!/^[A-Za-z0-9]{22}$/.test(id)) return fail('validation');
+    let t: { id: string; title: string; artists: string; artworkUrl: string | null } | null = null;
+    const token = await appAccessToken();
+    if (token) { try { t = await getSpotifyTrack(id, token); } catch { t = null; } }
+    if (!t && shown && typeof shown.title === 'string' && typeof shown.artists === 'string') {
+      t = { id, title: shown.title.slice(0, 300), artists: shown.artists.slice(0, 300), artworkUrl: typeof shown.artworkUrl === 'string' ? shown.artworkUrl : null };
+    }
+    if (!t) return fail('network');
+    const art = t.artworkUrl && /^https:\/\/i\.scdn\.co\/image\/[A-Za-z0-9]+$/.test(t.artworkUrl) ? t.artworkUrl : null;
+    const { data, error } = await c.db.rpc('couple_add_spotify_track', { p_spotify: t.id, p_title: t.title, p_artists: t.artists, p_artwork: art });
+    if (error || !data) return fail(errorCode(error));
+    return ok({ trackId: data as string });
+  }
+  if (!/^[0-9]{1,15}$/.test(id)) return fail('validation');
+  let a: Awaited<ReturnType<typeof getAppleTrack>>;
+  try { a = await getAppleTrack(id); } catch { return fail('network'); }
+  if (!a) return fail('validation');
+  const { data, error } = await c.db.rpc('couple_add_apple_track', { p_apple: a.id, p_title: a.title, p_artists: a.artists, p_artwork: a.artworkUrl, p_url: a.url });
+  if (error || !data) return fail(errorCode(error));
+  return ok({ trackId: data as string });
 }
 
 // ───────────── self-signup couples ─────────────

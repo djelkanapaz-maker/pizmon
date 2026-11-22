@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useI18n } from '@/i18n/client';
 import type { SelectionState } from '@/core/moments';
 import { restrictionFor, type Restriction } from '@/core/restrictions';
-import { saveSelection, searchLibraryTracks } from '@/server/actions/couple';
-import { useToast } from '@/components/overlay';
+import { ensureExternalTrack, saveSelection, searchLibraryTracks, type MomentSearchResult } from '@/server/actions/couple';
+import { Sheet, useToast } from '@/components/overlay';
 import { Badge, Button, Chip, Cover, Field, Input, Textarea, cx } from '@/components/ui';
 import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconCheck, IconDiscover, IconPlus, IconX, IconBan } from '@/components/icons';
@@ -22,10 +22,11 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
   const [busy, start] = useTransition();
   const [collection, setCollection] = useState<'he' | 'intl'>('he');
   const [notes, setNotes] = useState(selection?.notes ?? '');
-  const [openRow, setOpenRow] = useState<string | null>(null);
+  // a song waiting for "groom or bride?" (two-song mode); resolve() gives its catalog id
+  const [pick, setPick] = useState<{ title: string; resolve: () => Promise<string | null> } | null>(null);
   // search the whole music library from inside the moment
   const [q, setQ] = useState('');
-  const [found, setFound] = useState<Track[] | null>(null);
+  const [found, setFound] = useState<MomentSearchResult | null>(null);
   const [searching, setSearching] = useState(false);
   const seq = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,7 +41,7 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
       const r = await searchLibraryTracks(term);
       if (n !== seq.current) return;
       setSearching(false);
-      setFound(r.ok ? r.data : []);
+      setFound(r.ok ? r.data : { library: [], spotify: [], apple: [] });
     }, 300);
   };
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
@@ -49,7 +50,7 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
         split: !!selection.split, second_track_id: selection.second_track_id ?? null, second_custom_song: selection.second_custom_song ?? null }
     : { status: 'not_started', primary_track_id: null, backup_track_id: null, custom_song: null, shortlist: [], split: false, second_track_id: null, second_custom_song: null };
   const split = !!moment.allows_split && !!state.split;
-  const all = new Map<string, Track>([...known, ...suggestions.map((s) => s.track), ...(found ?? [])].map((t) => [t.id, t]));
+  const all = new Map<string, Track>([...known, ...suggestions.map((s) => s.track), ...(found?.library ?? [])].map((t) => [t.id, t]));
   const errMsg = (code: string) => (m.errors as Record<string, string>)[code] ?? m.common.error;
 
   const save = (patch: Record<string, unknown>) => start(async () => {
@@ -57,6 +58,34 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
     if (!r.ok) return toast(errMsg(r.error), 'error');
     toast(m.common.saved); router.refresh();
   });
+
+  // choosing a song: one-song mode saves it at once; two-song mode asks "groom or bride?" first
+  const choose = (title: string, resolve: () => Promise<string | null>) => {
+    if (split) { setPick({ title, resolve }); return; }
+    start(async () => {
+      const id = await resolve();
+      if (!id) return;
+      const r = await saveSelection(moment.id, { primary_track_id: id });
+      if (!r.ok) return toast(errMsg(r.error), 'error');
+      toast(m.common.saved); router.refresh();
+    });
+  };
+  const assign = (field: 'primary_track_id' | 'second_track_id') => {
+    const p = pick; if (!p) return;
+    setPick(null);
+    start(async () => {
+      const id = await p.resolve();
+      if (!id) return;
+      const r = await saveSelection(moment.id, { [field]: id });
+      if (!r.ok) return toast(errMsg(r.error), 'error');
+      toast(m.common.saved); router.refresh();
+    });
+  };
+  const external = (source: 'spotify' | 'apple', h: { id: string; title: string; artists: string; artworkUrl: string | null }) => async () => {
+    const r = await ensureExternalTrack(source, h.id, { title: h.title, artists: h.artists, artworkUrl: h.artworkUrl });
+    if (!r.ok) { toast(errMsg(r.error), 'error'); return null; }
+    return r.data.trackId;
+  };
 
   const visible = moment.has_language_collections ? suggestions.filter((s) => s.collection === collection || s.collection === null) : suggestions;
   const shortlist = state.shortlist.map((id) => all.get(id)).filter(Boolean) as Track[];
@@ -86,71 +115,56 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
     );
   };
 
-  // a song row: the full title and artist are always readable. In two-song mode (groom / bride)
-  // tapping the song opens the choice; otherwise one "choose" button. Glass breaking has no "+".
-  const showShortlist = moment.slug !== 'breaking-the-glass';
+  // a song row: the full title and artist are always readable; one "choose" button
+  // (two-song mode: it asks groom or bride). The shortlist "+" only in one-song mode, never for glass breaking.
+  const showShortlist = !split && moment.slug !== 'breaking-the-glass';
   const row = (t: Track, key: string) => {
     const r = restrictionFor(t, ctx.restrictions as Restriction[]);
     const blocked = r?.kind === 'never_play' && r.strength === 'absolute';
     const inShort = state.shortlist.includes(t.id);
-    const forGroom = state.primary_track_id === t.id;
-    const forBride = state.second_track_id === t.id;
-    const open = split && openRow === key;
-    const textBlock = (
-      <>
-        <span className="block font-bold break-words leading-snug" dir="auto">{t.title}</span>
-        <span className="block text-sm text-paper-dim break-words leading-snug" dir="auto">{t.artist?.name}</span>
-      </>
-    );
+    const forGroom = split && state.primary_track_id === t.id;
+    const forBride = split && state.second_track_id === t.id;
+    const chosenOne = !split && state.primary_track_id === t.id;
     return (
-      <li key={key} className="py-3 border-b border-line/50 last:border-0">
-        <div className="flex items-center gap-3">
-          <Cover seed={t.id} label={t.title} src={t.artwork_url} size={44} />
-          <div className="min-w-0 flex-1">
-            {split ? (
-              <button type="button" disabled={blocked} onClick={() => setOpenRow(open ? null : key)} aria-expanded={open} className="w-full text-start">
-                {textBlock}
-              </button>
-            ) : textBlock}
-            {(blocked || (split && (forGroom || forBride)) || (!split && state.primary_track_id === t.id)) && (
-              <span className="flex flex-wrap gap-1.5 mt-1">
-                {blocked && <Badge tone="danger"><IconBan size={12} />{m.discover.neverBlocked}</Badge>}
-                {split && forGroom && <Badge tone="gold"><IconCheck size={12} />{m.moments.forGroom}</Badge>}
-                {split && forBride && <Badge tone="gold"><IconCheck size={12} />{m.moments.forBride}</Badge>}
-              </span>
-            )}
-          </div>
-          <TrackPlay track={t} />
-          {!split && (() => {
-            const on = state.primary_track_id === t.id;
-            return (
-              <Button size="sm" variant={on ? 'gold' : 'secondary'} disabled={busy || blocked || on} onClick={() => save({ primary_track_id: t.id })} className="shrink-0">
-                {on ? <IconCheck size={14} /> : null}{on ? m.moments.chosen : m.moments.choose}
-              </Button>
-            );
-          })()}
-          {showShortlist && (
-            <button type="button" disabled={busy || blocked} onClick={() => save(inShort ? { removeShortlist: t.id } : { addShortlist: t.id })}
-              aria-pressed={inShort} aria-label={`${inShort ? m.moments.removeShortlist : m.moments.addShortlist}: ${t.title}`}
-              className={cx('size-9 shrink-0 grid place-items-center rounded-full border', inShort ? 'bg-paper text-ink border-paper' : 'border-line hover:border-paper-dim')}>
-              {inShort ? <IconCheck size={16} /> : <IconPlus size={16} />}
-            </button>
+      <li key={key} className="py-3 border-b border-line/50 last:border-0 flex items-center gap-3">
+        <Cover seed={t.id} label={t.title} src={t.artwork_url} size={44} />
+        <div className="min-w-0 flex-1">
+          <p className="font-bold break-words leading-snug" dir="auto">{t.title}</p>
+          <p className="text-sm text-paper-dim break-words leading-snug" dir="auto">{t.artist?.name}</p>
+          {(blocked || forGroom || forBride) && (
+            <span className="flex flex-wrap gap-1.5 mt-1">
+              {blocked && <Badge tone="danger"><IconBan size={12} />{m.discover.neverBlocked}</Badge>}
+              {forGroom && <Badge tone="gold"><IconCheck size={12} />{m.moments.forGroom}</Badge>}
+              {forBride && <Badge tone="gold"><IconCheck size={12} />{m.moments.forBride}</Badge>}
+            </span>
           )}
         </div>
-        {open && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 ps-14">
-            <span className="text-sm text-paper-dim">{m.moments.pickFor}</span>
-            {([['primary_track_id', m.moments.forGroom, forGroom], ['second_track_id', m.moments.forBride, forBride]] as const).map(([field, lbl, on]) => (
-              <Button key={field} size="sm" variant={on ? 'gold' : 'secondary'} disabled={busy || on}
-                onClick={() => { save({ [field]: t.id }); setOpenRow(null); }}>
-                {on ? <IconCheck size={14} /> : null}{lbl}
-              </Button>
-            ))}
-          </div>
+        <TrackPlay track={t} />
+        <Button size="sm" variant={chosenOne ? 'gold' : 'secondary'} disabled={busy || blocked || chosenOne} className="shrink-0"
+          onClick={() => choose(t.title, async () => t.id)}>
+          {chosenOne ? <IconCheck size={14} /> : null}{chosenOne ? m.moments.chosen : m.moments.choose}
+        </Button>
+        {showShortlist && (
+          <button type="button" disabled={busy || blocked} onClick={() => save(inShort ? { removeShortlist: t.id } : { addShortlist: t.id })}
+            aria-pressed={inShort} aria-label={`${inShort ? m.moments.removeShortlist : m.moments.addShortlist}: ${t.title}`}
+            className={cx('size-9 shrink-0 grid place-items-center rounded-full border', inShort ? 'bg-paper text-ink border-paper' : 'border-line hover:border-paper-dim')}>
+            {inShort ? <IconCheck size={16} /> : <IconPlus size={16} />}
+          </button>
         )}
       </li>
     );
   };
+  // a song from Spotify / Apple search (not in the library yet): choosing it adds it to the catalog
+  const extRow = (source: 'spotify' | 'apple', h: { id: string; title: string; artists: string; artworkUrl: string | null }) => (
+    <li key={`${source}-${h.id}`} className="py-3 border-b border-line/50 last:border-0 flex items-center gap-3">
+      <Cover seed={h.id} label={h.title} src={h.artworkUrl} size={44} />
+      <div className="min-w-0 flex-1">
+        <p className="font-bold break-words leading-snug" dir="auto">{h.title}</p>
+        <p className="text-sm text-paper-dim break-words leading-snug" dir="auto">{h.artists}</p>
+      </div>
+      <Button size="sm" variant="secondary" disabled={busy} className="shrink-0" onClick={() => choose(h.title, external(source, h))}>{m.moments.choose}</Button>
+    </li>
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -189,7 +203,17 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
         {q.trim().length >= 2 && (
           <div className="mt-3" aria-live="polite">
             {searching && !found ? <p className="text-paper-dim text-sm">{m.moments.searching}</p>
-              : found && found.length ? <ul className="card px-4">{found.map((t) => row(t, `f-${t.id}`))}</ul>
+              : found && (found.library.length || found.spotify.length || found.apple.length) ? (
+                <div className="flex flex-col gap-4">
+                  {found.library.length > 0 && <ul className="card px-4">{found.library.map((t) => row(t, `f-${t.id}`))}</ul>}
+                  {(found.spotify.length > 0 || found.apple.length > 0) && (
+                    <div>
+                      <p className="label mb-2">{found.spotify.length ? m.discover.fromSpotify : m.discover.fromApple}</p>
+                      <ul className="card px-4">{found.spotify.map((h) => extRow('spotify', h))}{found.apple.map((h) => extRow('apple', h))}</ul>
+                    </div>
+                  )}
+                </div>
+              )
               : found ? <p className="text-paper-dim text-sm">{m.moments.searchEmpty}</p> : null}
           </div>
         )}
@@ -208,6 +232,14 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
         {visible.length ? <ul className="card px-4">{visible.map((s) => row(s.track, `c-${s.track.id}`))}</ul> : <p className="text-paper-dim">{m.discover.noResults}</p>}
         <Link href={`/discover?moment=${moment.id}`} className="mt-4 inline-flex items-center gap-2 font-bold text-sm text-paper-dim hover:text-paper"><IconDiscover size={16} />{m.discover.title}</Link>
       </section>
+
+      <Sheet open={!!pick} onClose={() => setPick(null)} title={m.moments.pickFor}>
+        <p className="font-bold mb-4 break-words" dir="auto">{pick?.title}</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="gold" disabled={busy} onClick={() => assign('primary_track_id')}>{m.moments.forGroom}</Button>
+          <Button variant="gold" disabled={busy} onClick={() => assign('second_track_id')}>{m.moments.forBride}</Button>
+        </div>
+      </Sheet>
     </div>
   );
 }
