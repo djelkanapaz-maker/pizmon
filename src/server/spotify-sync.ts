@@ -106,5 +106,19 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
     const { error } = await db.from('playlist_tracks').insert(part);
     if (error) throw error;
   }
+  // 5. catalog songs still without a cover get the one this playlist carries
+  const artFor = new Map<string, string>();
+  for (const t of pl.tracks) {
+    const row = trackId.get(t.id);
+    if (row && t.artworkUrl && !artFor.has(row)) artFor.set(row, t.artworkUrl);
+  }
+  for (const part of chunk([...artFor.keys()])) {
+    const { data, error } = await db.from('music_tracks').select('id').in('id', part).is('artwork_url', null);
+    if (error) throw error;
+    for (const r of data ?? []) {
+      const { error: e4 } = await db.from('music_tracks').update({ artwork_url: artFor.get(r.id as string)! }).eq('id', r.id as string).is('artwork_url', null);
+      if (e4) throw e4;
+    }
+  }
   return { playlistId: playlistId!, title: pl.name, tracks: rows.length, truncated: pl.truncated };
 }
