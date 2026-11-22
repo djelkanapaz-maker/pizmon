@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useI18n } from '@/i18n/client';
+import { fmt } from '@/i18n/format';
 import type { SelectionState } from '@/core/moments';
 import { restrictionFor, type Restriction } from '@/core/restrictions';
 import { ensureExternalTrack, saveSelection, searchLibraryTracks, type MomentSearchResult } from '@/server/actions/couple';
@@ -21,6 +22,8 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
   const toast = useToast();
   const [busy, start] = useTransition();
   const [collection, setCollection] = useState<'he' | 'intl'>('he');
+  // the suggestion lists are whole playlists (hundreds of songs): shown 30 at a time
+  const [limit, setLimit] = useState(30);
   const [notes, setNotes] = useState(selection?.notes ?? '');
   // a song waiting for "groom or bride?" (two-song mode); resolve() gives its catalog id
   const [pick, setPick] = useState<{ title: string; resolve: () => Promise<string | null> } | null>(null);
@@ -224,12 +227,13 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
           <h2 className="display-m">{m.moments.curated}</h2>
           {moment.has_language_collections && (
             <div className="flex gap-2" role="group">
-              <Chip selected={collection === 'he'} onClick={() => setCollection('he')}>{m.moments.he}</Chip>
-              <Chip selected={collection === 'intl'} onClick={() => setCollection('intl')}>{m.moments.intl}</Chip>
+              <Chip selected={collection === 'he'} onClick={() => { setCollection('he'); setLimit(30); }}>{m.moments.he}</Chip>
+              <Chip selected={collection === 'intl'} onClick={() => { setCollection('intl'); setLimit(30); }}>{m.moments.intl}</Chip>
             </div>
           )}
         </div>
-        {visible.length ? <ul className="card px-4">{visible.map((s) => row(s.track, `c-${s.track.id}`))}</ul> : <p className="text-paper-dim">{m.discover.noResults}</p>}
+        {visible.length ? <ul className="card px-4">{visible.slice(0, limit).map((s) => row(s.track, `c-${s.track.id}`))}</ul> : <p className="text-paper-dim">{m.discover.noResults}</p>}
+        {visible.length > limit && <Button variant="secondary" className="mt-3 w-full" onClick={() => setLimit((n) => n + 30)}>{fmt(m.moments.showMore, { count: visible.length - limit })}</Button>}
         <Link href={`/discover?moment=${moment.id}`} className="mt-4 inline-flex items-center gap-2 font-bold text-sm text-paper-dim hover:text-paper"><IconDiscover size={16} />{m.discover.title}</Link>
       </section>
 

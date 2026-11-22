@@ -107,7 +107,7 @@ export const he: Messages = {
     chooseOne: 'בחרו פלייליסט', added: 'נוסף ל־{name}', tracks: '{count} שירים', editorial: 'נבחר',
   },
   moments: {
-    choose: 'בחירה', chosen: 'נבחר', yourSong: 'השיר שבחרתם', modeOne: 'שיר אחד לשנינו', modeTwo: 'שני שירים: לחתן ולכלה', groomSong: 'שיר לחתן', brideSong: 'שיר לכלה', forGroom: 'לחתן', forBride: 'לכלה', pickFor: 'למי השיר הזה?', groom: 'חתן', bride: 'כלה', typeSong: 'כתבו כאן את השיר שבחרתם: שם השיר והאמן, או קישור', modeLabel: 'איך תרצו להיכנס?',
+    choose: 'בחירה', chosen: 'נבחר', yourSong: 'השיר שבחרתם', modeOne: 'שיר אחד לשנינו', modeTwo: 'שני שירים: לחתן ולכלה', groomSong: 'שיר לחתן', brideSong: 'שיר לכלה', forGroom: 'לחתן', forBride: 'לכלה', pickFor: 'למי השיר הזה?', showMore: 'הצג עוד ({count} שירים נוספים)', groom: 'חתן', bride: 'כלה', typeSong: 'כתבו כאן את השיר שבחרתם: שם השיר והאמן, או קישור', modeLabel: 'איך תרצו להיכנס?',
     title: 'הרגעים המיוחדים', sub: 'בחרו את השירים לרגעים החשובים.', primary: 'השיר הראשי', backup: 'שיר גיבוי',
     custom: 'שיר שלא בקטלוג', customHint: 'שם השיר והאמן', notes: 'הערות לדיג׳יי',
     confirm: 'אישור הבחירה', confirmedAt: 'אושר {time}', change: 'החלפת שיר', shortlist: 'רשימה קצרה',
