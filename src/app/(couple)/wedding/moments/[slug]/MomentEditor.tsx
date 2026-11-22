@@ -1,13 +1,13 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useI18n } from '@/i18n/client';
 import type { SelectionState } from '@/core/moments';
 import { restrictionFor, type Restriction } from '@/core/restrictions';
-import { saveSelection } from '@/server/actions/couple';
+import { saveSelection, searchLibraryTracks } from '@/server/actions/couple';
 import { useToast } from '@/components/overlay';
-import { Badge, Button, Chip, Cover, Field, Textarea, cx } from '@/components/ui';
+import { Badge, Button, Chip, Cover, Field, Input, Textarea, cx } from '@/components/ui';
 import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconCheck, IconDiscover, IconPlus, IconX, IconBan } from '@/components/icons';
 import type { TrackContext } from '@/components/music/TrackList';
@@ -22,12 +22,33 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
   const [busy, start] = useTransition();
   const [collection, setCollection] = useState<'he' | 'intl'>('he');
   const [notes, setNotes] = useState(selection?.notes ?? '');
+  // search the whole music library from inside the moment
+  const [q, setQ] = useState('');
+  const [found, setFound] = useState<Track[] | null>(null);
+  const [searching, setSearching] = useState(false);
+  const seq = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onSearch = (v: string) => {
+    setQ(v);
+    if (timer.current) clearTimeout(timer.current);
+    const term = v.trim();
+    const n = ++seq.current;
+    if (term.length < 2) { setFound(null); setSearching(false); return; }
+    setSearching(true);
+    timer.current = setTimeout(async () => {
+      const r = await searchLibraryTracks(term);
+      if (n !== seq.current) return;
+      setSearching(false);
+      setFound(r.ok ? r.data : []);
+    }, 300);
+  };
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const state: SelectionState = selection
     ? { status: selection.status, primary_track_id: selection.primary_track_id, backup_track_id: selection.backup_track_id, custom_song: selection.custom_song, shortlist: selection.shortlist,
         split: !!selection.split, second_track_id: selection.second_track_id ?? null, second_custom_song: selection.second_custom_song ?? null }
     : { status: 'not_started', primary_track_id: null, backup_track_id: null, custom_song: null, shortlist: [], split: false, second_track_id: null, second_custom_song: null };
   const split = !!moment.allows_split && !!state.split;
-  const all = new Map<string, Track>([...known, ...suggestions.map((s) => s.track)].map((t) => [t.id, t]));
+  const all = new Map<string, Track>([...known, ...suggestions.map((s) => s.track), ...(found ?? [])].map((t) => [t.id, t]));
   const errMsg = (code: string) => (m.errors as Record<string, string>)[code] ?? m.common.error;
 
   const save = (patch: Record<string, unknown>) => start(async () => {
@@ -122,6 +143,22 @@ export function MomentEditor({ moment, selection, suggestions, known, ctx }: {
           <ul className="card px-4">{shortlist.map(row)}</ul>
         </section>
       )}
+
+      <section className="gutter">
+        <h2 className="display-m mb-3">{m.moments.searchTitle}</h2>
+        <label className="relative block">
+          <span className="sr-only">{m.moments.searchTitle}</span>
+          <IconDiscover size={18} className="absolute top-1/2 -translate-y-1/2 start-4 text-paper-dim pointer-events-none" />
+          <Input type="search" value={q} onChange={(e) => onSearch(e.target.value)} placeholder={m.moments.searchPlaceholder} className="ps-11" enterKeyHint="search" />
+        </label>
+        {q.trim().length >= 2 && (
+          <div className="mt-3" aria-live="polite">
+            {searching && !found ? <p className="text-paper-dim text-sm">{m.moments.searching}</p>
+              : found && found.length ? <ul className="card px-4">{found.map(row)}</ul>
+              : found ? <p className="text-paper-dim text-sm">{m.moments.searchEmpty}</p> : null}
+          </div>
+        )}
+      </section>
 
       <section className="gutter">
         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">

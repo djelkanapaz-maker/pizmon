@@ -109,7 +109,7 @@ export const en = {
     title: 'Special moments', sub: 'Pick the songs for the moments that matter.', primary: 'Main song', backup: 'Backup song',
     custom: 'Song not in the catalog', customHint: 'Song name and artist', notes: 'Notes for your DJ',
     confirm: 'Confirm this choice', confirmedAt: 'Confirmed {time}', change: 'Change song', shortlist: 'Shortlist',
-    addShortlist: 'Shortlist', removeShortlist: 'Remove from shortlist', curated: 'Suggestions', he: 'Hebrew / Israeli', intl: 'International',
+    addShortlist: 'Shortlist', removeShortlist: 'Remove from shortlist', curated: 'Suggestions', he: 'Hebrew', intl: 'International', searchTitle: 'Search the music library', searchPlaceholder: 'Search a song or artist', searching: 'Searching…', searchEmpty: 'Not in the library. You can type it in the box above.',
     setPrimary: 'Set as main', setBackup: 'Set as backup', required: 'Required', optional: 'Optional',
     confirmedCount: '{done} of {total} chosen', changeWarning: 'This choice was confirmed. Changing it will notify your DJ.',
     status: { not_started: 'No song yet', browsing: 'Browsing', shortlisted: 'Shortlisted', awaiting_confirmation: 'Chosen', confirmed: 'Chosen', change_requested: 'Chosen' },

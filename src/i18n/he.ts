@@ -111,7 +111,7 @@ export const he: Messages = {
     title: 'הרגעים המיוחדים', sub: 'בחרו את השירים לרגעים החשובים.', primary: 'השיר הראשי', backup: 'שיר גיבוי',
     custom: 'שיר שלא בקטלוג', customHint: 'שם השיר והאמן', notes: 'הערות לדיג׳יי',
     confirm: 'אישור הבחירה', confirmedAt: 'אושר {time}', change: 'החלפת שיר', shortlist: 'רשימה קצרה',
-    addShortlist: 'לרשימה הקצרה', removeShortlist: 'הסרה מהרשימה', curated: 'הצעות', he: 'עברי / ישראלי', intl: 'בינלאומי',
+    addShortlist: 'לרשימה הקצרה', removeShortlist: 'הסרה מהרשימה', curated: 'הצעות', he: 'עברי', intl: 'לועזי', searchTitle: 'חיפוש במאגר המוזיקה', searchPlaceholder: 'חפשו שיר או אמן', searching: 'מחפשים…', searchEmpty: 'לא מצאנו את השיר במאגר. אפשר לכתוב אותו בתיבה למעלה.',
     setPrimary: 'כשיר ראשי', setBackup: 'כגיבוי', required: 'חובה', optional: 'לא חובה',
     confirmedCount: '{done} מתוך {total} נבחרו', changeWarning: 'הבחירה הזו אושרה. שינוי ישלח התראה לדיג׳יי.',
     status: { not_started: 'טרם נבחר שיר', browsing: 'מחפשים', shortlisted: 'ברשימה קצרה', awaiting_confirmation: 'נבחר', confirmed: 'נבחר', change_requested: 'נבחר' },

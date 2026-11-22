@@ -11,6 +11,7 @@ import { getAppleTrack } from '@/server/apple';
 import { fetchSpotifyPlaylist, getSpotifyTrack } from '@/server/spotify';
 import { parsePlaylistIds } from '@/core/spotify';
 import type { QuestionnaireDefinition } from '@/core/questionnaire/types';
+import { TRACK_SELECT, type Track } from '@/server/queries';
 
 const uuid = z.guid();
 
@@ -452,6 +453,21 @@ export async function searchCatalog(query: string, type: 'track' | 'artist'): Pr
     .or([`title.ilike.%${q}%`, ...(ids.length ? [`artist_id.in.(${ids.join(',')})`] : [])].join(',')).order('title').limit(12);
   if (error) return fail(errorCode(error));
   return ok((data ?? []).map((t) => ({ id: t.id as string, label: t.title as string, sub: (t.artist as unknown as { name: string } | null)?.name })));
+}
+
+/** Full track rows from the music library for a couple's text search (the special-moment search box). */
+export async function searchLibraryTracks(query: string): Promise<ActionResult<Track[]>> {
+  const c = await coupleCtx(); if (!c) return fail('forbidden');
+  const q = (query ?? '').replace(/[,()*%\\]/g, ' ').trim().slice(0, 80);
+  if (q.length < 2) return ok([]);
+  const { data: arts } = await c.db.from('artists').select('id').eq('company_id', c.s.company.id).ilike('name', `%${q}%`).limit(50);
+  const ids = (arts ?? []).map((a) => a.id);
+  const { data, error } = await c.db.from('music_tracks').select(TRACK_SELECT)
+    .eq('company_id', c.s.company.id).eq('status', 'published').or(`added_by_event.is.null,added_by_event.eq.${c.s.eventId}`)
+    .or([`title.ilike.%${q}%`, ...(ids.length ? [`artist_id.in.(${ids.join(',')})`] : [])].join(','))
+    .order('title').limit(40);
+  if (error) return fail(errorCode(error));
+  return ok((data ?? []) as unknown as Track[]);
 }
 
 // ───────────── self-signup couples ─────────────
