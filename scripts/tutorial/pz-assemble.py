@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """Builds the Pizmon couples tutorial: frames (out/pz-frames) + one narration clip per part.
-Usage: pz-assemble.py <voice-dir> <out.mp4>   (voice files: any name ending in -<part>.wav)"""
+Usage: pz-assemble.py <voice-dir> <out.mp4> [music.mp3]   (voice files: any name ending in <part>.wav)"""
 import glob, json, re, subprocess, sys
 
 voice_dir, out = sys.argv[1], sys.argv[2]
+music = sys.argv[3] if len(sys.argv) > 3 else 'public/demo-audio/golden-hour.mp3'
 FR = 'scripts/tutorial/out/pz-frames'
 index = json.load(open(f'{FR}/index.json'))
 import os
 os.makedirs('scripts/tutorial/out/pz-voice', exist_ok=True)
 voices = {}
 for f in glob.glob(f'{voice_dir}/*.wav'):
-    n = int(re.search(r'-(\d+)\.wav$', f).group(1))
+    n = int(re.search(r'(\d+)\.wav$', f).group(1))
     dst = f'scripts/tutorial/out/pz-voice/{n:02d}.wav'
     # clean + loudness-normalize each clip once, as plain 48 kHz stereo
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', f, '-af', 'highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=9,aresample=48000',
                     '-ac', '2', '-ar', '48000', dst], check=True)
     voices[n] = dst
+# the music bed sits at a fixed loudness (about -26 LUFS before ducking), however loud the track is mastered
+def lufs(f):
+    o = subprocess.run(['ffmpeg', '-hide_banner', '-t', '120', '-i', f, '-af', 'ebur128', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    return float(re.findall(r'I:\s+(-?[\d.]+) LUFS', o)[-1])
+BED_GAIN = 10 ** ((-26.0 - lufs(music)) / 20)
 dur = lambda f: float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]))
 
 T = 0.5                 # crossfade
@@ -46,7 +52,7 @@ for i, (f, s) in enumerate(segs):
 nv = len(segs)
 for f, _ in voice_at:
     cmd += ['-i', f]
-cmd += ['-stream_loop', '-1', '-i', 'public/demo-audio/golden-hour.mp3']
+cmd += ['-stream_loop', '-1', '-i', music]
 
 g = []
 for i in range(nv):
@@ -65,7 +71,7 @@ for k, (_, start) in enumerate(voice_at):
     vo.append(f'[n{k}]')
 g.append(f'{"".join(vo)}amix=inputs={len(vo)}:duration=longest:normalize=0,apad,atrim=0:{total:.3f},asplit=2[voice][sc]')
 m = nv + len(voice_at)
-g.append(f'[{m}:a]asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,volume=0.55,atrim=0:{total:.3f},afade=t=in:d=1.5,afade=t=out:st={total - 3.5:.3f}:d=3.5[bed]')
+g.append(f'[{m}:a]asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,volume={BED_GAIN:.4f},atrim=0:{total:.3f},afade=t=in:d=1.5,afade=t=out:st={total - 3.5:.3f}:d=3.5[bed]')
 g.append('[bed][sc]sidechaincompress=threshold=0.02:ratio=9:attack=60:release=700:makeup=1[ducked]')
 g.append('[voice][ducked]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.79[aout]')
 

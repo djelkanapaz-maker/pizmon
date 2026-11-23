@@ -44,7 +44,7 @@ test.use({ actionTimeout: 10_000, navigationTimeout: 30_000 });
 
 test('pizmon couple tutorial capture', async ({ browser }) => {
   const admin = await adminClient();
-  await sql(readFileSync('scripts/tutorial/demo-playlists.sql', 'utf8')).catch((e) => failures.push('playlists sql: ' + e.message));
+  await sql(readFileSync('scripts/tutorial/demo-library.sql', 'utf8')).catch((e) => failures.push('library sql: ' + e.message));
   const [elkana] = await sql<{ id: string; user_id: string | null }>(`select id, user_id from public.djs where company_id = $1 and display_name = 'Elkana Paz'`, [COMPANY_ID]);
   let djClient;
   if (!elkana.user_id) {
@@ -110,132 +110,114 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     await c.waitForURL('**/home'); await settle(c);
   });
 
-  // 05 home
+  // 04 home + a glimpse of the questionnaire
   await step('home', async () => {
     if (!c.url().includes('/home')) { await c.goto('/home'); await settle(c); }
     const dlg = c.getByRole('dialog');
-    if (await dlg.isVisible({ timeout: 6000 }).catch(() => false)) {
-      await snap(c, 'p12-popup', dlg);
-      await dlg.getByRole('button', { name: 'אחר כך' }).click();
-    }
+    if (await dlg.isVisible({ timeout: 6000 }).catch(() => false)) await dlg.getByRole('button', { name: 'אחר כך' }).click();
     const later = c.getByRole('button', { name: 'אחר כך' });
     if (await later.first().isVisible().catch(() => false)) { await later.first().click(); await c.waitForTimeout(500); }
     await c.evaluate(() => window.scrollTo(0, 0));
     await snap(c, 'p05-home', c.getByText('הצעד הבא'));
-    await snap(c, 'p05-progress', c.getByText('התקדמות התכנון'));
-  });
-
-  // 06 discover
-  await step('discover', async () => {
-    await c.goto('/discover'); await settle(c);
-    await snap(c, 'p06-library', c.getByRole('search').or(c.locator('input[type=search], input[name=q]')).first());
-    await c.mouse.wheel(0, 700); await c.waitForTimeout(400);
-    await snap(c, 'p06-shelves');
-    await c.goto('/discover?q=' + encodeURIComponent('עומר אדם')); await settle(c);
-    await snap(c, 'p06-search', c.locator('input[type=search], input[name=q]').first());
-    const firstTrack = c.locator('ul li button[aria-haspopup=dialog]').first();
-    await firstTrack.click(); await settle(c);
-    await snap(c, 'p06-track', c.getByRole('dialog').getByRole('button', { name: /שמירה|לרגע מיוחד/ }).first());
-    await c.keyboard.press('Escape');
-  });
-
-  // 07 playlist
-  await step('playlist', async () => {
-    await c.goto('/discover'); await settle(c);
-    await c.getByRole('link', { name: /Hupa songs|כניסה לחופה/ }).first().click(); await settle(c);
-    const plus = c.getByRole('button', { name: /הוספה לפלייליסט שלנו:/ });
-    await snap(c, 'p07-collection', plus.first());
-    for (let i = 0; i < 3; i++) { await plus.nth(0).click(); await c.waitForTimeout(700); }
-    await snap(c, 'p07-added', c.getByRole('button', { name: /בפלייליסט שלנו:/ }).first());
-    await c.goto('/wedding/playlists'); await settle(c);
-    await snap(c, 'p07-ours', c.getByText('הפלייליסט שלנו').first());
-    await c.getByRole('button', { name: 'העלאת הפלייליסט שלנו' }).first().click();
-    await c.locator('#pl-link').fill('https://open.spotify.com/playlist/37i9dQZF1DX4wta20PHgwo');
-    await snap(c, 'p07-import', c.locator('#pl-link'));
-    await c.keyboard.press('Escape');
-  });
-
-  // 08 moments
-  await step('moments', async () => {
-    await c.goto('/wedding/moments'); await settle(c);
-    await snap(c, 'p08-moments', c.getByRole('link', { name: /שיר כניסה לחופה/ }).first());
-    await c.getByRole('link', { name: /שיר כניסה לחופה/ }).first().click(); await settle(c);
-    await c.getByRole('button', { name: 'שני שירים: לחתן ולכלה' }).click();
-    await c.getByLabel('שיר לחתן').fill('Perfect - Ed Sheeran');
-    await c.getByLabel('שיר לכלה').fill('ממעמקים - עידן רייכל');
-    await c.getByLabel('שיר לכלה').blur(); await settle(c); await c.waitForTimeout(800);
-    await snap(c, 'p08-chuppah', c.getByLabel('שיר לכלה'));
-    await c.goto('/wedding/moments/breaking-the-glass'); await settle(c);
-    await snap(c, 'p08-glass', c.getByRole('button', { name: 'עברי / ישראלי' }));
-  });
-
-  // 09 questionnaire
-  await step('questionnaire', async () => {
-    await c.goto('/wedding/questionnaire'); await settle(c);
-    await snap(c, 'p09-questionnaire', c.locator('ol li').first());
     await c.goto('/wedding/questionnaire/personality'); await settle(c);
     for (const g of ['האוס', 'דיסקו ופאנק', 'פופ ישראלי', 'מזרחית וים תיכונית']) await c.getByRole('button', { name: g, exact: true }).first().click().catch(() => undefined);
     await snap(c, 'p09-genres', c.getByRole('button', { name: 'האוס', exact: true }).first());
-    await c.mouse.wheel(0, 900); await c.waitForTimeout(500);
-    await snap(c, 'p09-energy', c.getByText('נשמר אוטומטית').first());
+    await c.goto('/home'); await settle(c);
+    await c.mouse.wheel(0, 650); await c.waitForTimeout(500);
+    await snap(c, 'p05-progress', c.getByText('התקדמות התכנון'));
   });
 
-  // 10 must / never
-  await step('restrictions', async () => {
-    await c.goto('/wedding/restrictions'); await settle(c);
-    await c.locator('#col-never_play').locator('..').locator('..').getByRole('button', { name: 'הוספה' }).click();
-    const sheet = c.getByRole('dialog');
-    await sheet.getByRole('button', { name: 'אמן' }).click();
-    await sheet.locator('input[role=combobox]').fill('ABBA');
-    await sheet.getByRole('option', { name: /ABBA/ }).click();
-    await sheet.locator('#reason').fill('לא בחתונה שלנו');
-    await snap(c, 'p10-never', sheet.getByText('מוחלט').first());
-    await sheet.locator('button[type=submit]').click(); await settle(c);
+  // 05-07 special moments: suggestions (Hebrew / international), search inside the moment, groom / bride
+  await step('moments', async () => {
+    await c.goto('/wedding/moments'); await settle(c);
+    await snap(c, 'p08-moments', c.getByRole('link', { name: /שיר כניסה לחופה/ }).first());
+    await c.goto('/wedding/moments/chuppah-entrance'); await settle(c);
+    await c.getByRole('button', { name: 'עברי', exact: true }).scrollIntoViewIfNeeded(); await c.mouse.wheel(0, 250); await c.waitForTimeout(500);
+    await snap(c, 'p06-suggest', c.getByRole('button', { name: 'עברי', exact: true }));
+    await c.getByRole('button', { name: 'לועזי', exact: true }).click(); await c.waitForTimeout(500);
+    await snap(c, 'p06-intl', c.getByRole('button', { name: 'לועזי', exact: true }));
+    await c.getByRole('button', { name: 'עברי', exact: true }).click(); await c.waitForTimeout(300);
+    const box = c.getByPlaceholder('חפשו שיר או אמן');
+    await box.fill('עידן רייכל'); await c.waitForTimeout(2500); await settle(c);
+    await snap(c, 'p06-search', box);
+    await box.fill(''); await c.waitForTimeout(400);
     await c.evaluate(() => window.scrollTo(0, 0));
-    await snap(c, 'p10-list', c.locator('#col-never_play'));
+    await c.getByRole('radio', { name: 'שני שירים: לחתן ולכלה' }).or(c.getByRole('button', { name: 'שני שירים: לחתן ולכלה' })).first().click(); await settle(c); await c.waitForTimeout(800);
+    await snap(c, 'p07-mode', c.getByText('שיר לחתן').first());
+    await c.getByRole('button', { name: 'בחירה', exact: true }).first().click();
+    const sheet = c.getByRole('dialog');
+    await sheet.waitFor();
+    await snap(c, 'p07-sheet', sheet);
+    await sheet.getByRole('button', { name: 'לחתן' }).click(); await settle(c); await c.waitForTimeout(1500);
+    await c.getByRole('button', { name: 'בחירה', exact: true }).nth(1).click();
+    await c.getByRole('dialog').getByRole('button', { name: 'לכלה' }).click(); await settle(c); await c.waitForTimeout(1500);
+    await c.evaluate(() => window.scrollTo(0, 0));
+    await snap(c, 'p07-chosen', c.getByText('שיר לכלה').first());
   });
 
-  // 11 recommendation from the DJ (inserted as Elkana)
+  // 08 library sections, 09 adding from a collection, 10 search
+  await step('library', async () => {
+    await c.goto('/discover'); await settle(c);
+    await snap(c, 'p08-library', c.getByRole('heading', { name: 'רעיונות לשירי חופה' }));
+    await c.getByRole('heading', { name: 'קבלת פנים ואווירה' }).scrollIntoViewIfNeeded();
+    await c.mouse.wheel(0, 120); await c.waitForTimeout(400);
+    await snap(c, 'p08-reception', c.getByRole('heading', { name: 'קבלת פנים ואווירה' }));
+    await c.getByRole('link', { name: /קבלת פנים ישראלי/ }).first().click(); await settle(c);
+    const plus = c.getByRole('button', { name: /הוספה לפלייליסט שלנו:/ });
+    await snap(c, 'p09-collection', plus.first());
+    for (let i = 0; i < 3; i++) { await plus.nth(0).click(); await c.waitForTimeout(800); }
+    await snap(c, 'p09-added', c.getByRole('button', { name: /בפלייליסט שלנו:/ }).first());
+    await c.goto('/discover'); await settle(c);
+    await c.getByRole('link', { name: /Top Dancefloor Hits/ }).first().click(); await settle(c);
+    for (let i = 0; i < 4; i++) { await c.getByRole('button', { name: /הוספה לפלייליסט שלנו:/ }).nth(0).click(); await c.waitForTimeout(800); }
+    await c.goto('/discover?q=' + encodeURIComponent('עידן רייכל')); await settle(c);
+    await snap(c, 'p10-search', c.locator('input[type=search], input[name=q]').first());
+  });
+
+  // 11 the playlist by stage of the night, 12 import from Spotify
+  await step('playlist', async () => {
+    await c.goto('/wedding/playlists'); await settle(c);
+    await snap(c, 'p11-stages', c.getByRole('heading', { name: 'שירי חופה' }));
+    await c.getByRole('heading', { name: 'המסיבה' }).scrollIntoViewIfNeeded(); await c.waitForTimeout(400);
+    await snap(c, 'p11-party', c.getByRole('heading', { name: 'המסיבה' }));
+    await c.evaluate(() => window.scrollTo(0, 0));
+    await c.getByRole('button', { name: 'העלאת הפלייליסט שלנו' }).first().click();
+    await c.locator('#pl-link').fill('https://open.spotify.com/playlist/37i9dQZF1DX4wta20PHgwo');
+    await snap(c, 'p12-import', c.locator('#pl-link'));
+    await c.keyboard.press('Escape');
+  });
+
+  // 13 recommendation from the DJ (inserted as Elkana) + meeting
   await step('recommendation', async () => {
     const [t] = await sql<{ id: string }>(`select id from public.music_tracks where title ilike '%September%' limit 1`);
     const [dj] = await sql<{ user_id: string }>(`select user_id from public.djs where id = $1`, [elkana.id]);
-    if (t) await sql(`insert into public.dj_recommendations (event_id, dj_id, track_id, message, created_by) values ($1, $2, $3, 'מושלם לפתיחת הרחבה!', $4)`, [eventId, elkana.id, t.id, dj.user_id]);
+    if (t) await sql(`insert into public.dj_recommendations (event_id, dj_id, track_id, message, created_by) values ($1, $2, $3, 'מושלם לקבלת הפנים!', $4)`, [eventId, elkana.id, t.id, dj.user_id]);
     await c.goto('/wedding/recommendations'); await settle(c);
     await snap(c, 'p11-recs', c.getByRole('button', { name: 'אהבנו' }).first());
   });
-
-  // 12 meeting
   await step('meeting', async () => {
     await c.goto('/wedding/meeting'); await settle(c);
     const freeDay = c.locator('[role=grid] button:not([disabled])').first();
-    // late in the month there may be no free day left: go to the next month
     if (!(await freeDay.isVisible({ timeout: 4000 }).catch(() => false))) {
       await c.getByRole('button', { name: 'החודש הבא' }).click().catch(() => undefined);
       await settle(c);
     }
-    await freeDay.waitFor({ timeout: 8000 }).catch(async (e) => { await c.screenshot({ path: 'scripts/tutorial/out/meeting-debug.png' }); throw e; });
+    await freeDay.waitFor({ timeout: 8000 });
     await snap(c, 'p12-calendar', freeDay);
     await freeDay.click();
     await c.getByRole('button', { name: /^1[0-9]:00$/ }).first().click();
     await c.getByRole('radio', { name: /בזום/ }).click();
-    await snap(c, 'p12-details', c.getByRole('button', { name: 'קביעת הפגישה' }));
     await c.getByRole('button', { name: 'קביעת הפגישה' }).click(); await settle(c);
     await snap(c, 'p12-booked', c.getByText('הפגישה נקבעה').first());
   });
 
-  // 13 brief
+  // 14 brief (with the playlist by stage)
   await step('brief', async () => {
     await c.goto('/wedding/brief'); await settle(c);
     await snap(c, 'p13-brief', c.getByText('האישיות המוזיקלית').first());
+    await c.getByRole('heading', { name: 'הפלייליסט שלנו' }).scrollIntoViewIfNeeded(); await c.waitForTimeout(400);
+    await snap(c, 'p13-playlist', c.getByRole('heading', { name: 'הפלייליסט שלנו' }));
     await snap(c, 'p13-send', c.getByRole('button', { name: 'שליחת התקציר לדיג׳יי' }));
-  });
-
-  // 14 notifications + radio
-  await step('notifications', async () => {
-    await c.goto('/notifications'); await settle(c);
-    await snap(c, 'p14-notifications');
-    await c.goto('/radio'); await settle(c);
-    await snap(c, 'p14-radio', c.getByRole('heading', { name: 'רדיו' }));
   });
 
   // 15 closing
@@ -243,9 +225,8 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     await c.goto('/home'); await settle(c); await c.waitForTimeout(2500);
     const later = c.getByRole('button', { name: 'אחר כך' });
     if (await later.first().isVisible().catch(() => false)) { await later.first().click(); await c.waitForTimeout(800); }
+    await c.evaluate(() => window.scrollTo(0, 0));
     await snap(c, 'p15-home', c.getByText('הצעד הבא'));
-    await c.mouse.wheel(0, 650); await c.waitForTimeout(600);
-    await snap(c, 'p15-home-scroll', c.getByText('התקדמות התכנון'));
   });
 
   writeFileSync('scripts/tutorial/out/pz-shots.json', JSON.stringify(shots, null, 1));
