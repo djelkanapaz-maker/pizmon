@@ -8,6 +8,7 @@ import { daysUntil } from '@/core/progress';
 import { loadBrief } from '@/server/brief';
 import { getActiveAssignment, getEvent, getGenres, getMoments, getRestrictions, getSelections, getTracksByIds, describeRestriction, trackLabel, TRACK_SELECT, type Track } from '@/server/queries';
 import { BriefView } from '@/components/BriefView';
+import { groupBySection } from '@/core/playlist-sections';
 import { Badge, ButtonA, Cover, DemoBadge, EmptyState, cx } from '@/components/ui';
 import { STATUS_TONE } from '@/components/music/status';
 import { IconBan, IconDownload, IconStar } from '@/components/icons';
@@ -221,9 +222,9 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
   }
 
   async function PlaylistsTab() {
-    const { data } = await db.from('playlists').select(`id, title, purpose, updated_at, playlist_tracks(id, position, status, note, track:music_tracks(${TRACK_SELECT}))`)
+    const { data } = await db.from('playlists').select(`id, title, purpose, updated_at, is_main, playlist_tracks(id, position, status, note, section, track:music_tracks(${TRACK_SELECT}))`)
       .eq('event_id', eventId).eq('kind', 'couple').order('created_at');
-    const lists = (data ?? []) as unknown as { id: string; title: string; purpose: string | null; updated_at: string; playlist_tracks: { id: string; position: number; status: string; note: string | null; track: Track | null }[] }[];
+    const lists = (data ?? []) as unknown as { id: string; title: string; purpose: string | null; updated_at: string; is_main: boolean; playlist_tracks: { id: string; position: number; status: string; note: string | null; section: string | null; track: Track | null }[] }[];
     if (!lists.length) return <EmptyState title={m.dj.noPlaylists} body={m.playlists.notFinal} />;
     return (
       <div className="flex flex-col gap-4">
@@ -234,14 +235,19 @@ export async function CoupleWorkspace({ eventId, companyId, tab, basePath, viewe
               <h2 className="display text-lg" dir="auto">{pl.title}</h2>
               <span className="text-xs text-paper-dim">{pl.purpose ? (m.playlists.purposes as Record<string, string>)[pl.purpose] : ''} · {relativeTime(pl.updated_at, locale)}</span>
             </div>
-            <ol className="flex flex-col divide-y divide-line">
-              {pl.playlist_tracks.sort((a, b) => a.position - b.position).map((pt) => pt.track && (
-                <li key={pt.id} className="py-2 flex items-center gap-3">
-                  <Cover seed={pt.track.id} label={pt.track.title} src={pt.track.artwork_url} size={36} />
-                  <span className="flex-1 min-w-0"><span className="block font-bold text-sm truncate" dir="auto">{pt.track.title}</span><span className="block text-xs text-paper-dim truncate" dir="auto">{pt.track.artist?.name}{pt.note ? ` — ${pt.note}` : ''}</span></span>
-                </li>
-              ))}
-            </ol>
+            {(pl.is_main ? groupBySection(pl.playlist_tracks.sort((a, b) => a.position - b.position)) : [{ section: null, items: pl.playlist_tracks.sort((a, b) => a.position - b.position) }]).map((g) => (
+              <div key={g.section ?? 'all'} className="mt-2">
+                {g.section && <p className="label mt-3 mb-1">{m.playlists.sections[g.section]} · {g.items.length}</p>}
+                <ol className="flex flex-col divide-y divide-line">
+                  {g.items.map((pt) => pt.track && (
+                    <li key={pt.id} className="py-2 flex items-center gap-3">
+                      <Cover seed={pt.track.id} label={pt.track.title} src={pt.track.artwork_url} size={36} />
+                      <span className="flex-1 min-w-0"><span className="block font-bold text-sm truncate" dir="auto">{pt.track.title}</span><span className="block text-xs text-paper-dim truncate" dir="auto">{pt.track.artist?.name}{pt.note ? ` — ${pt.note}` : ''}</span></span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
           </section>
         ))}
       </div>

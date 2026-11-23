@@ -8,6 +8,7 @@ import { Badge, Button, Cover, ErrorNote, Field, Input, Select } from '@/compone
 import { TrackPlay } from '@/components/music/TrackPlay';
 import { IconArrowDown, IconArrowUp, IconTrash } from '@/components/icons';
 import type { Track } from '@/server/queries';
+import { PLAYLIST_SECTIONS, sectionOf, type PlaylistSection } from '@/core/playlist-sections';
 
 const PURPOSES = ['reception', 'ceremony', 'dancefloor', 'late_night', 'family', 'inspiration', 'other'] as const;
 
@@ -40,26 +41,44 @@ export function NewPlaylistButton() {
   );
 }
 
-type Item = { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track };
+type Item = { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; section?: string | null; track: Track };
 
 export function PlaylistEditor({ playlist, items, isMain = false }: { playlist: { id: string; title: string; purpose: string | null; shared_with_dj: boolean }; items: Item[]; isMain?: boolean }) {
   const { m } = useI18n();
   const router = useRouter();
   const toast = useToast();
   const [busy, start] = useTransition();
-  const [order, setOrder] = useState(items.map((i) => i.id));
+  const [sections, setSections] = useState(() => new Map(items.map((i) => [i.id, sectionOf(i.section)])));
+  // the main playlist is shown by stage of the night; within a stage, in the couple's order
+  const grouped = (ids: string[]) => (isMain ? PLAYLIST_SECTIONS.flatMap((sec) => ids.filter((id) => sections.get(id) === sec)) : ids);
+  const [order, setOrder] = useState(() => grouped(items.map((i) => i.id)));
   const byId = new Map(items.map((i) => [i.id, i]));
   const run = (fn: () => Promise<{ ok: boolean }>, after?: () => void) => start(async () => {
     const r = await fn();
     if (!r.ok) { toast(m.common.error, 'error'); setOrder(items.map((i) => i.id)); return; }
     after?.(); router.refresh();
   });
+  // moves stay inside the song's own stage
+  const neighbour = (idx: number, dir: -1 | 1) => {
+    const j = idx + dir;
+    return j >= 0 && j < order.length && (!isMain || sections.get(order[j]) === sections.get(order[idx])) ? j : -1;
+  };
   const move = (idx: number, dir: -1 | 1) => {
-    const next = [...order]; const j = idx + dir;
-    if (j < 0 || j >= next.length) return;
+    const j = neighbour(idx, dir); if (j < 0) return;
+    const next = [...order];
     [next[idx], next[j]] = [next[j], next[idx]];
     setOrder(next);
     run(() => reorderPlaylist(playlist.id, next));
+  };
+  const moveToSection = (id: string, sec: PlaylistSection) => {
+    const nextSections = new Map(sections); nextSections.set(id, sec);
+    setSections(nextSections);
+    const next = PLAYLIST_SECTIONS.flatMap((x) => order.filter((o) => nextSections.get(o) === x));
+    setOrder(next);
+    run(async () => {
+      const r = await updatePlaylistTrack(id, { section: sec });
+      return r.ok ? reorderPlaylist(playlist.id, next) : r;
+    });
   };
 
   return (
@@ -81,21 +100,37 @@ export function PlaylistEditor({ playlist, items, isMain = false }: { playlist: 
         <ol className="gutter flex flex-col gap-2">
           {order.map((id, idx) => {
             const it = byId.get(id); if (!it) return null;
+            const sec = sections.get(id) ?? 'party';
+            const startsSection = isMain && (idx === 0 || sections.get(order[idx - 1]) !== sec);
+            const count = order.filter((o) => sections.get(o) === sec).length;
             return (
-              <li key={id} className="card p-3 flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="w-6 text-center text-sm text-paper-dim tabular">{idx + 1}</span>
-                  <Cover seed={it.track.id} label={it.track.title} src={it.track.artwork_url} size={44} />
-                  <div className="flex-1 min-w-0"><p className="font-bold truncate" dir="auto">{it.track.title}</p><p className="text-sm text-paper-dim truncate" dir="auto">{it.track.artist?.name}</p></div>
-                  <TrackPlay track={it.track} />
-                  <div className="flex flex-col">
-                    <button type="button" aria-label={m.playlists.moveUp} disabled={busy || idx === 0} onClick={() => move(idx, -1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowUp size={14} /></button>
-                    <button type="button" aria-label={m.playlists.moveDown} disabled={busy || idx === order.length - 1} onClick={() => move(idx, 1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowDown size={14} /></button>
+              <li key={id} className="flex flex-col gap-2">
+                {startsSection && (
+                  <h2 className={`display-m flex items-baseline gap-2 ${idx === 0 ? '' : 'mt-6'}`}>
+                    {m.playlists.sections[sec]}<span className="text-sm font-normal text-paper-dim tabular">{count}</span>
+                  </h2>
+                )}
+                <div className="card p-3 flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 text-center text-sm text-paper-dim tabular">{idx + 1}</span>
+                    <Cover seed={it.track.id} label={it.track.title} src={it.track.artwork_url} size={44} />
+                    <div className="flex-1 min-w-0"><p className="font-bold break-words leading-snug" dir="auto">{it.track.title}</p><p className="text-sm text-paper-dim break-words leading-snug" dir="auto">{it.track.artist?.name}</p></div>
+                    <TrackPlay track={it.track} />
+                    <div className="flex flex-col">
+                      <button type="button" aria-label={m.playlists.moveUp} disabled={busy || neighbour(idx, -1) < 0} onClick={() => move(idx, -1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowUp size={14} /></button>
+                      <button type="button" aria-label={m.playlists.moveDown} disabled={busy || neighbour(idx, 1) < 0} onClick={() => move(idx, 1)} className="size-7 grid place-items-center rounded hover:bg-ink-3 disabled:opacity-30"><IconArrowDown size={14} /></button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap ps-9">
-                  <NoteInline itemId={it.id} note={it.note} />
-                  <button type="button" disabled={busy} onClick={() => run(() => removePlaylistTrack(it.id))} aria-label={`${m.common.remove}: ${it.track.title}`} className="ms-auto size-8 grid place-items-center rounded-full hover:bg-ink-3 text-paper-dim"><IconTrash size={16} /></button>
+                  <div className="flex items-center gap-2 flex-wrap ps-9">
+                    <NoteInline itemId={it.id} note={it.note} />
+                    {isMain && (
+                      <Select aria-label={`${m.playlists.moveTo}: ${it.track.title}`} value={sec} disabled={busy} className="!h-8 !w-auto text-xs"
+                        onChange={(e) => moveToSection(id, e.target.value as PlaylistSection)}>
+                        {PLAYLIST_SECTIONS.map((x) => <option key={x} value={x}>{m.playlists.sections[x]}</option>)}
+                      </Select>
+                    )}
+                    <button type="button" disabled={busy} onClick={() => run(() => removePlaylistTrack(it.id))} aria-label={`${m.common.remove}: ${it.track.title}`} className="ms-auto size-8 grid place-items-center rounded-full hover:bg-ink-3 text-paper-dim"><IconTrash size={16} /></button>
+                  </div>
                 </div>
               </li>
             );

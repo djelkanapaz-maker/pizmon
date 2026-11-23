@@ -16,12 +16,12 @@ export async function loadBriefDoc(eventId: string, companyId: string, locale: '
     getEvent(eventId),
     getActiveAssignment(eventId),
     db.from('dj_meetings').select('starts_at, mode, location').eq('event_id', eventId).eq('status', 'booked').maybeSingle(),
-    db.from('playlists').select(`playlist_tracks(position, status, note, track:music_tracks(${TRACK_SELECT}))`)
+    db.from('playlists').select(`playlist_tracks(position, status, note, section, track:music_tracks(${TRACK_SELECT}))`)
       .eq('event_id', eventId).eq('kind', 'couple').eq('is_main', true).maybeSingle(),
   ]);
   if (!data || !event) return null;
   const b = data.brief;
-  type Item = { position: number; status: string | null; note: string | null; track: Track | null };
+  type Item = { position: number; status: string | null; note: string | null; section: string | null; track: Track | null };
   const items = ((main?.playlist_tracks ?? []) as unknown as Item[]).filter((x) => x.track).sort((x, y) => x.position - y.position);
   const he = locale === 'he';
   const where = [event.venue_name, event.venue_city].filter(Boolean).join(he ? ', ' : ', ');
@@ -49,7 +49,7 @@ export async function loadBriefDoc(eventId: string, companyId: string, locale: '
     mustPlay: b.mustPlay.map((x) => (x.reason ? `${x.label} (${x.reason})` : x.label)),
     neverAbsolute: b.neverPlayAbsolute.map((x) => (x.reason ? `${x.label} (${x.reason})` : x.label)),
     neverPreference: b.neverPlayPreference.map((x) => (x.reason ? `${x.label} (${x.reason})` : x.label)),
-    playlist: items.map((x) => ({ title: x.track!.title, artist: x.track!.artist?.name ?? '', status: x.status, note: x.note })),
+    playlist: items.map((x) => ({ title: x.track!.title, artist: x.track!.artist?.name ?? '', status: x.status, note: x.note, section: x.section })),
     playlistTotal: items.length,
     familyNotes: b.familyNotes ?? (event.cultural_notes?.trim() || null),
     djNotes: b.djNotes,

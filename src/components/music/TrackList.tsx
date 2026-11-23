@@ -22,7 +22,8 @@ export type TrackContext = {
   readOnly?: boolean;
 };
 
-export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: Track[]; ctx: TrackContext; compare?: boolean; emptyText?: string }) {
+/** section: which part of the couple's playlist songs added from here land in (default: the party). */
+export function TrackList({ tracks, ctx, compare = true, emptyText, section }: { tracks: Track[]; ctx: TrackContext; compare?: boolean; emptyText?: string; section?: 'ceremony' | 'reception' | 'party' }) {
   const { m, locale } = useI18n();
   const [rejected, setRejected] = useState(() => new Set(ctx.rejected));
   const [ours, setOurs] = useState(() => new Set(ctx.ours ?? []));
@@ -42,7 +43,7 @@ export function TrackList({ tracks, ctx, compare = true, emptyText }: { tracks: 
 
   const toggleOurs = (t: Track) => start(async () => {
     const add = !ours.has(t.id);
-    const r = await toggleOurPlaylist(t.id, add, m.playlists.ours);
+    const r = await toggleOurPlaylist(t.id, add, m.playlists.ours, section);
     if (!r.ok) return toast(errMsg(r.error), 'error');
     setOurs((s) => { const n = new Set(s); if (add) n.add(t.id); else n.delete(t.id); return n; });
     toast(add ? m.playlists.addedOurs : m.playlists.removedOurs);

@@ -2,6 +2,7 @@ import { lt, type Locale } from './i18n-text';
 import type { Answers, QuestionnaireDefinition, Question } from './questionnaire/types';
 import { splitRestrictions, type Restriction } from './restrictions';
 import type { SelectionStatus } from './moments';
+import { groupBySection, type PlaylistSection } from './playlist-sections';
 
 export type BriefInput = {
   definition: QuestionnaireDefinition;
@@ -11,6 +12,8 @@ export type BriefInput = {
   moments: { id: string; slug: string; name_he: string; name_en: string; is_required: boolean }[];
   selections: { moment_id: string; status: SelectionStatus; song: string | null; backup: string | null }[];
   describe: (r: Restriction) => string;      // human label for a restriction target
+  /** the couple's main playlist, in its order (song label + stage of the night) */
+  playlist?: { section: string | null; song: string }[];
 };
 
 export type Brief = {
@@ -35,6 +38,8 @@ export type Brief = {
   familyNotes: string | null;
   djNotes: string | null;
   unresolved: string[];
+  /** the couple's playlist by stage of the night: chuppah, reception, party */
+  playlist: { section: PlaylistSection; songs: string[] }[];
 };
 
 function q<T extends Question['type']>(def: QuestionnaireDefinition, id: string, type: T) {
@@ -108,5 +113,6 @@ export function buildBrief(input: BriefInput, locale: Locale): Brief {
     familyNotes: typeof answers.family_notes === 'string' && answers.family_notes.trim() ? answers.family_notes : null,
     djNotes: typeof answers.dj_notes === 'string' && answers.dj_notes.trim() ? answers.dj_notes : null,
     unresolved,
+    playlist: groupBySection(input.playlist ?? []).map((g) => ({ section: g.section, songs: g.items.map((x) => x.song) })),
   };
 }

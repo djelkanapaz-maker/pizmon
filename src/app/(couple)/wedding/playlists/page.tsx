@@ -16,17 +16,17 @@ export default async function PlaylistsPage() {
   const db = await supabaseServer();
   const [{ data }, { data: link }, { data: sugs }] = await Promise.all([
     db.from('playlists')
-      .select(`id, title, purpose, shared_with_dj, is_main, playlist_tracks(id, position, status, note, track:music_tracks(${TRACK_SELECT}))`)
+      .select(`id, title, purpose, shared_with_dj, is_main, playlist_tracks(id, position, status, note, section, track:music_tracks(${TRACK_SELECT}))`)
       .eq('event_id', s.eventId).eq('kind', 'couple').order('created_at'),
     db.from('share_links').select('token').eq('event_id', s.eventId).is('revoked_at', null).maybeSingle(),
     db.from('friend_suggestions').select('id, friend_name, message, spotify_track_id, title, artists, artwork_url, created_at')
       .eq('event_id', s.eventId).eq('status', 'new').order('created_at', { ascending: false }).limit(100),
   ]);
-  type Row = { id: string; title: string; purpose: string | null; shared_with_dj: boolean; is_main: boolean; playlist_tracks: { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track | null }[] };
+  type Row = { id: string; title: string; purpose: string | null; shared_with_dj: boolean; is_main: boolean; playlist_tracks: { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; section: string | null; track: Track | null }[] };
   const lists = (data ?? []) as unknown as Row[];
   const main = lists.find((p) => p.is_main);
   const others = lists.filter((p) => !p.is_main);
-  const items = (main?.playlist_tracks ?? []).filter((x) => x.track).sort((a, b) => a.position - b.position) as { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; track: Track }[];
+  const items = (main?.playlist_tracks ?? []).filter((x) => x.track).sort((a, b) => a.position - b.position) as { id: string; position: number; status: 'tentative' | 'confirmed' | 'backup'; note: string | null; section: string | null; track: Track }[];
   return (
     <div>
       <PageHeader back={{ href: '/wedding', label: m.wedding.title }} title={m.playlists.ours} sub={m.playlists.oursSub}

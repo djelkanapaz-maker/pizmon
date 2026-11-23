@@ -96,6 +96,11 @@ export async function setTrackPreference(trackId: string, pref: 'save' | 'unsave
 
 // ───────────── playlists ─────────────
 const PURPOSES = ['reception', 'ceremony', 'dancefloor', 'late_night', 'family', 'inspiration', 'other'] as const;
+/** The stages the couple's playlist is split into (see the playlist_sections migration). */
+const SECTIONS = ['ceremony', 'reception', 'party'] as const;
+type PlaylistSection = (typeof SECTIONS)[number];
+/** Special moments whose choices also land in the playlist, and under which section. */
+const MOMENT_SECTION: Record<string, PlaylistSection> = { 'chuppah-entrance': 'ceremony', 'breaking-the-glass': 'ceremony' };
 
 export async function createPlaylist(input: unknown): Promise<ActionResult<{ id: string }>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
@@ -212,15 +217,16 @@ export async function importSpotifyPlaylistToOurs(text: string, title = 'הפל�
 }
 
 /** Add a track to (or remove it from) the couple's main playlist. */
-export async function toggleOurPlaylist(trackId: string, add: boolean, title = 'הפלייליסט שלנו'): Promise<ActionResult<{ playlistId: string }>> {
+export async function toggleOurPlaylist(trackId: string, add: boolean, title = 'הפלייליסט שלנו', section?: PlaylistSection): Promise<ActionResult<{ playlistId: string }>> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
   if (!uuid.safeParse(trackId).success) return fail('validation');
+  if (section !== undefined && !SECTIONS.includes(section)) return fail('validation');
   let playlistId: string;
   try { playlistId = await mainPlaylistId(c, String(title).trim().slice(0, 120) || 'הפלייליסט שלנו'); } catch (e) { return fail(errorCode(e as { message?: string })); }
   if (add) {
     const { data: last } = await c.db.from('playlist_tracks').select('position').eq('playlist_id', playlistId).order('position', { ascending: false }).limit(1).maybeSingle();
     const { error } = await c.db.from('playlist_tracks').upsert(
-      { playlist_id: playlistId, track_id: trackId, position: (last?.position ?? -1) + 1, added_by: c.s.userId },
+      { playlist_id: playlistId, track_id: trackId, position: (last?.position ?? -1) + 1, added_by: c.s.userId, section: section ?? 'party' },
       { onConflict: 'playlist_id,track_id', ignoreDuplicates: true });
     if (error) return fail(errorCode(error));
   } else {
@@ -245,7 +251,7 @@ export async function addToPlaylist(playlistId: string, trackId: string): Promis
 
 export async function updatePlaylistTrack(id: string, input: unknown): Promise<ActionResult> {
   const c = await coupleCtx(); if (!c) return fail('forbidden');
-  const p = z.object({ status: z.enum(['tentative', 'confirmed', 'backup']).optional(), note: z.string().trim().max(500).nullable().optional() }).safeParse(input);
+  const p = z.object({ status: z.enum(['tentative', 'confirmed', 'backup']).optional(), note: z.string().trim().max(500).nullable().optional(), section: z.enum(SECTIONS).optional() }).safeParse(input);
   if (!p.success || !uuid.safeParse(id).success) return fail('validation');
   const { data, error } = await c.db.from('playlist_tracks').update(p.data).eq('id', id).select('playlist_id').single();
   if (error) return fail(errorCode(error));
@@ -312,8 +318,40 @@ export async function saveSelection(momentId: string, input: unknown): Promise<A
     ? await c.db.from('moment_selections').update(row).eq('id', cur.id)
     : await c.db.from('moment_selections').insert({ ...row, event_id: c.s.eventId, moment_id: momentId });
   if (error) return fail(errorCode(error));
+  await syncMomentToPlaylist(c, momentId, [next.primary_track_id, next.split ? next.second_track_id : null]);
   revalidatePath('/wedding', 'layout'); revalidatePath('/home');
   return ok({ status });
+}
+
+/**
+ * A chuppah / glass-breaking choice also sits in the couple's playlist under "שירי חופה".
+ * Songs a moment put there leave again when the choice changes; songs the couple added themselves stay.
+ * Best effort: the choice itself is already saved.
+ */
+async function syncMomentToPlaylist(c: NonNullable<Awaited<ReturnType<typeof coupleCtx>>>, momentId: string, chosen: (string | null)[]) {
+  try {
+    const { data: mo } = await c.db.from('wedding_moments').select('slug').eq('id', momentId).maybeSingle();
+    const section = mo ? MOMENT_SECTION[mo.slug as string] : undefined;
+    if (!section) return;
+    const ids = [...new Set(chosen.filter((x): x is string => !!x))];
+    const playlistId = await mainPlaylistId(c, 'הפלייליסט שלנו');
+    const { data: rows } = await c.db.from('playlist_tracks').select('id, track_id, source_moment_id').eq('playlist_id', playlistId);
+    const stale = (rows ?? []).filter((r) => r.source_moment_id === momentId && !ids.includes(r.track_id as string)).map((r) => r.id as string);
+    if (stale.length) await c.db.from('playlist_tracks').delete().in('id', stale);
+    const have = new Set((rows ?? []).map((r) => r.track_id as string));
+    const add = ids.filter((id) => !have.has(id));
+    if (!add.length) return;
+    const { data: last } = await c.db.from('playlist_tracks').select('position').eq('playlist_id', playlistId).order('position', { ascending: false }).limit(1).maybeSingle();
+    let pos = (last?.position ?? -1) + 1;
+    for (const track_id of add) {
+      await c.db.from('playlist_tracks').upsert(
+        { playlist_id: playlistId, track_id, position: pos++, added_by: c.s.userId, section, source_moment_id: momentId },
+        { onConflict: 'playlist_id,track_id', ignoreDuplicates: true });
+    }
+    revalidatePath('/wedding/playlists');
+  } catch (e) {
+    console.error('moment → playlist sync', e);
+  }
 }
 
 // ───────────── restrictions ─────────────

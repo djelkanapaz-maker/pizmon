@@ -1,12 +1,16 @@
 import 'server-only';
 import { buildBrief } from '@/core/brief';
 import { songText } from '@/core/moments';
-import { describeRestriction, getGenres, getMoments, getQuestionnaire, getRestrictions, getSelections, getTracksByIds, trackLabel } from './queries';
+import { supabaseServer } from '@/lib/supabase/server';
+import { describeRestriction, getGenres, getMoments, getQuestionnaire, getRestrictions, getSelections, getTracksByIds, trackLabel, TRACK_SELECT, type Track } from './queries';
 
 /** Assembles the structured brief for an event (RLS decides who may read it). */
 export async function loadBrief(eventId: string, companyId: string, locale: 'he' | 'en') {
-  const [q, restrictions, genres, moments, selections] = await Promise.all([
+  const db = await supabaseServer();
+  const [q, restrictions, genres, moments, selections, { data: main }] = await Promise.all([
     getQuestionnaire(eventId, companyId), getRestrictions(eventId), getGenres(companyId), getMoments(companyId), getSelections(eventId),
+    db.from('playlists').select(`playlist_tracks(position, section, track:music_tracks(${TRACK_SELECT}))`)
+      .eq('event_id', eventId).eq('kind', 'couple').eq('is_main', true).maybeSingle(),
   ]);
   if (!q) return null;
   const tracks = await getTracksByIds(selections.flatMap((s) => [s.primary_track_id ?? '', s.backup_track_id ?? '', s.second_track_id ?? '']));
@@ -20,6 +24,8 @@ export async function loadBrief(eventId: string, companyId: string, locale: 'he'
     moments,
     selections: selections.map((s) => ({ moment_id: s.moment_id, status: s.status, song: songText(s, label, names), backup: label(s.backup_track_id) })),
     describe: (r) => describeRestriction(r as Parameters<typeof describeRestriction>[0], locale),
+    playlist: ((main?.playlist_tracks ?? []) as unknown as { position: number; section: string | null; track: Track | null }[])
+      .filter((x) => x.track).sort((a, b) => a.position - b.position).map((x) => ({ section: x.section, song: trackLabel(x.track!) ?? x.track!.title })),
   }, locale);
   return { brief, response: q.response, version: q.version, definition: q.definition };
 }

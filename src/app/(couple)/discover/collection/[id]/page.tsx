@@ -13,7 +13,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
   const s = await requireCouple();
   const { m } = await getI18n();
   const db = await supabaseServer();
-  const { data: pl } = await db.from('playlists').select(`id, title, description, kind, artwork_url, dj:djs(display_name), playlist_tracks(position, track:music_tracks(${TRACK_SELECT}))`)
+  const { data: pl } = await db.from('playlists').select(`id, title, description, kind, purpose, artwork_url, dj:djs(display_name), playlist_tracks(position, track:music_tracks(${TRACK_SELECT}))`)
     .eq('id', id).in('kind', ['editorial', 'dj']).maybeSingle();
   if (!pl) notFound();
   const ctx = await getTrackContext(s.eventId, s.company.id);
@@ -27,7 +27,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
         <Cover seed={pl.id} label={pl.title} src={pl.artwork_url} size={96} />
         <Badge>{fmt(m.playlists.tracks, { count: tracks.length })}</Badge>
       </div>
-      <TrackList tracks={tracks} ctx={ctx} />
+      <TrackList tracks={tracks} ctx={ctx} section={pl.purpose === 'ceremony' ? 'ceremony' : pl.purpose === 'reception' ? 'reception' : 'party'} />
     </div>
   );
 }

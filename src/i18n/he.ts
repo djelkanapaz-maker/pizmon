@@ -99,7 +99,7 @@ export const he: Messages = {
     },
     ours: 'הפלייליסט שלנו', addOurs: 'הוספה לפלייליסט שלנו', inOurs: 'בפלייליסט שלנו', addedOurs: 'נוסף לפלייליסט שלנו', removedOurs: 'הוסר מהפלייליסט שלנו', others: 'פלייליסטים נוספים', emptyOurs: 'עוד לא בחרתם שירים. היכנסו למאגר המוזיקה ולחצו + ליד שיר כדי להוסיף אותו לכאן.', oursSub: 'כל השירים שבחרתם מכל הפלייליסטים, במקום אחד. הדיג׳יי שלכם רואה את הרשימה הזאת.',
     title: 'פלייליסטים', mine: 'הפלייליסטים שלנו', create: 'פלייליסט חדש', name: 'שם', purpose: 'מטרה', notes: 'הערות',
-    purposes: { reception: 'קבלת פנים', ceremony: 'חופה', dancefloor: 'רחבה', late_night: 'סוף הלילה', family: 'משפחה', inspiration: 'השראה', other: 'אחר' },
+    purposes: { reception: 'קבלת פנים', ceremony: 'חופה', dancefloor: 'רחבה', late_night: 'סוף הלילה', family: 'משפחה', inspiration: 'השראה', other: 'אחר' }, sections: { ceremony: 'שירי חופה', reception: 'קבלת פנים', party: 'המסיבה' }, moveTo: 'העברה לשלב',
     empty: 'אין עדיין פלייליסטים. צרו אחד והוסיפו שירים מ״מאגר המוזיקה״.', emptyTracks: 'הפלייליסט ריק. הוסיפו שירים מ״מאגר המוזיקה״.',
     shared: 'משותף עם הדיג׳יי', notShared: 'פרטי', share: 'שיתוף עם הדיג׳יי', unshare: 'הפיכה לפרטי',
     tentative: 'אולי', confirmed: 'מאושר', backup: 'גיבוי', moveUp: 'למעלה', moveDown: 'למטה',

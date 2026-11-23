@@ -106,6 +106,22 @@ export function BriefView({ brief, m, compact }: { brief: Brief; m: Messages; co
         </ul>
       </section>
 
+      {brief.playlist.length > 0 && (
+        <section className="card p-4 md:p-5">
+          <h3 className="display text-lg mb-3">{m.playlists.ours}</h3>
+          <div className="flex flex-col gap-4">
+            {brief.playlist.map((g) => (
+              <div key={g.section}>
+                <p className="label mb-1.5">{m.playlists.sections[g.section]} · {g.songs.length}</p>
+                <ol className="flex flex-col divide-y divide-line">
+                  {g.songs.map((song, i) => <li key={i} className="py-1.5 text-sm" dir="auto">{song}</li>)}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {(brief.familyNotes || brief.djNotes || brief.dislikedSpecific) && (
         <div className="grid md:grid-cols-2 gap-4">
           {brief.familyNotes && <section className="card p-4"><h3 className="label mb-2">{b.family}</h3><p className="whitespace-pre-wrap" dir="auto">{brief.familyNotes}</p></section>}

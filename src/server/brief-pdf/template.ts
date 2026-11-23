@@ -2,6 +2,7 @@
  * One-page, Paskol-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
  * inlined), printed to PDF by headless Chromium. Pure function: no server or DB access here.
  */
+import { groupBySection } from '@/core/playlist-sections';
 
 export type BriefDoc = {
   locale: 'he' | 'en';
@@ -26,7 +27,7 @@ export type BriefDoc = {
   mustPlay: string[];
   neverAbsolute: string[];
   neverPreference: string[];
-  playlist: { title: string; artist: string; status: string | null; note: string | null }[];
+  playlist: { title: string; artist: string; status: string | null; note: string | null; section?: string | null }[];
   playlistTotal: number;
   familyNotes: string | null;
   djNotes: string | null;
@@ -39,6 +40,7 @@ const T = {
     title: 'התקציר המוזיקלי', moments: 'הרגעים המיוחדים', taste: 'הטעם המוזיקלי', love: 'סגנונות שאנחנו אוהבים',
     less: 'פחות מתאים לנו', lessSpecific: 'אמנים / שירים שפחות נרצה', artists: 'אמנים אהובים', vibe: 'אווירה', eras: 'תקופות',
     languages: 'שפות', traditions: 'מסורות', israeli: 'מוזיקה ישראלית', must: 'חובה לנגן', never: 'לעולם לא', neverPref: 'עדיף שלא',
+    sections: { ceremony: 'שירי חופה', reception: 'קבלת פנים', party: 'המסיבה' } as Record<string, string>,
     playlist: 'הפלייליסט שלנו', more: 'ועוד {n} שירים באפליקציה', notes: 'הערות ל-DJ', family: 'על המשפחה והקהל',
     guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'פסקול · הרגעים שלכם. המוזיקה שלנו. · אלקנה פז',
     draft: 'טיוטה — עוד לא נשלח ל-DJ', sent: 'נשלח ל-DJ',
@@ -48,6 +50,7 @@ const T = {
     title: 'Music brief', moments: 'Special moments', taste: 'Musical taste', love: 'Styles we love',
     less: 'Not for us', lessSpecific: 'Artists / songs we’d rather skip', artists: 'Favorite artists', vibe: 'Vibe', eras: 'Eras',
     languages: 'Languages', traditions: 'Traditions', israeli: 'Israeli music', must: 'Must play', never: 'Never play', neverPref: 'Rather not',
+    sections: { ceremony: 'Chuppah songs', reception: 'Reception', party: 'The party' } as Record<string, string>,
     playlist: 'Our playlist', more: '+{n} more songs in the app', notes: 'Notes for the DJ', family: 'About our family & crowd',
     guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Paskol · Your moments. Our music. · Elkana Paz',
     draft: 'Draft — not yet sent to the DJ', sent: 'Sent to the DJ',
@@ -77,10 +80,22 @@ export function renderBriefHtml(d: BriefDoc, a: BriefAssets): string {
       <td><div class="song">${m.song ? `<bdi>${esc(m.song)}</bdi>` : `<span class="muted">${t.empty}</span>`}</div>${m.backup ? `<div class="backup">${t.backup}: <bdi>${esc(m.backup)}</bdi></div>` : ''}</td>
     </tr>`).join('');
 
-  const shown = d.playlist.slice(0, PLAYLIST_MAX);
-  const playlist = shown.length ? `
-    <ol class="pl">${shown.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi></li>`).join('')}</ol>
-    ${d.playlistTotal > shown.length ? `<p class="muted small">${t.more.replace('{n}', String(d.playlistTotal - shown.length))}</p>` : ''}` : `<p class="muted">${t.empty}</p>`;
+  // by stage of the night; the one-page limit is shared fairly: small stages show in full, big ones share the rest
+  const groups = groupBySection(d.playlist);
+  const total = d.playlist.length;
+  const caps = new Map<string, number>();
+  let room = PLAYLIST_MAX;
+  [...groups].sort((x, y) => x.items.length - y.items.length).forEach((g, i, all) => {
+    const cap = Math.min(g.items.length, Math.floor(room / (all.length - i)));
+    caps.set(g.section, cap); room -= cap;
+  });
+  let shownCount = 0;
+  const playlist = total ? groups.map((g) => {
+    const shown = g.items.slice(0, caps.get(g.section) ?? 0);
+    shownCount += shown.length;
+    return `<h4 class="plh">${esc(t.sections[g.section])} <span class="muted">· ${g.items.length}</span></h4>
+    <ol class="pl">${shown.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi></li>`).join('')}</ol>`;
+  }).join('') + (d.playlistTotal > shownCount ? `<p class="muted small">${t.more.replace('{n}', String(d.playlistTotal - shownCount))}</p>` : '') : `<p class="muted">${t.empty}</p>`;
 
   const facts = [d.date, d.venue, d.guests ? `${d.guests} ${t.guests}` : '', d.djName ? `${t.dj}: ${d.djName}` : '', d.meeting ? `${t.meeting}: ${d.meeting}` : ''].filter(Boolean);
   const fonts = a.fonts.map((f) => `@font-face{font-family:'${f.family}';font-weight:${f.weight};src:url(data:font/woff2;base64,${f.base64}) format('woff2')}`).join('');
@@ -123,6 +138,7 @@ ul.plain li::before { content: '–'; position: absolute; ${start}: 0; color: #5
 .frame.never { border-width: .5mm }
 p.text { white-space: pre-wrap; }
 .meter { display: flex; align-items: center; gap: 2.5mm } .meter .bar { flex: 1; height: 1.6mm; border: .2mm solid #111 } .meter .bar i { display: block; height: 100%; background: #111 }
+h4.plh { font-size: 8pt; font-weight: 700; margin: 1.6mm 0 .6mm } h4.plh:first-child { margin-top: 0 }
 ol.pl { list-style: none; columns: 2; column-gap: 5mm; counter-reset: s }
 ol.pl li { break-inside: avoid; padding: .55mm 0; padding-${start}: 5mm; position: relative; counter-increment: s; border-bottom: .15mm solid #e2e2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 ol.pl li::before { content: counter(s); position: absolute; ${start}: 0; font-size: 6.6pt; color: #888; top: .9mm }
