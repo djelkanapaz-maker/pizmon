@@ -15,7 +15,7 @@ export async function syncSpotifyPlaylist(db: SupabaseClient, companyId: string,
     const { error } = await db.from('playlists').update(syncFields).eq('id', playlistId);
     if (error) throw error;
   } else {
-    const purpose = /חופה|hupa|chupp?ah/i.test(pl.name) ? 'ceremony' : null;
+    const purpose = /חופה|hupa|chupp?ah/i.test(pl.name) ? 'ceremony' : /קבלת פנים|reception/i.test(pl.name) ? 'reception' : null;
     const { data, error } = await db.from('playlists').insert({
       ...syncFields, company_id: companyId, kind: 'editorial', title: pl.name, description: pl.description, purpose,
       status: 'published', spotify_playlist_id: pl.id, created_by: userId,

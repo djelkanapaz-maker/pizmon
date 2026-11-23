@@ -137,7 +137,8 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         <>
           {[
             { key: 'ceremony', title: m.discover.chuppahIdeas, items: (collections ?? []).filter((p) => p.purpose === 'ceremony') },
-            { key: 'all', title: m.discover.collections, items: (collections ?? []).filter((p) => p.purpose !== 'ceremony') },
+            { key: 'reception', title: m.discover.receptionIdeas, items: (collections ?? []).filter((p) => p.purpose === 'reception') },
+            { key: 'all', title: m.discover.collections, items: (collections ?? []).filter((p) => p.purpose !== 'ceremony' && p.purpose !== 'reception') },
           ].filter((g) => g.items.length > 0).map((g) => (
             <section key={g.key} className="mt-8">
               <SectionHeader title={g.title} />
