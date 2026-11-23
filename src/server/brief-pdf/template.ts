@@ -1,6 +1,7 @@
 /**
- * One-page, Paskol-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
- * inlined), printed to PDF by headless Chromium. Pure function: no server or DB access here.
+ * Paskol-branded music brief (black & white, print-friendly) as a self-contained HTML document (fonts and logo
+ * inlined), printed to PDF by headless Chromium. Page 1 is the overview; when the couple chose more songs than fit
+ * there, the rest of the playlist continues on as many extra pages as it needs. Pure function: no server or DB access here.
  */
 import { groupBySection } from '@/core/playlist-sections';
 
@@ -41,7 +42,7 @@ const T = {
     less: 'פחות מתאים לנו', lessSpecific: 'אמנים / שירים שפחות נרצה', artists: 'אמנים אהובים', vibe: 'אווירה', eras: 'תקופות',
     languages: 'שפות', traditions: 'מסורות', israeli: 'מוזיקה ישראלית', must: 'חובה לנגן', never: 'לעולם לא', neverPref: 'עדיף שלא',
     sections: { ceremony: 'שירי חופה', reception: 'קבלת פנים', party: 'המסיבה' } as Record<string, string>,
-    playlist: 'הפלייליסט שלנו', more: 'ועוד {n} שירים באפליקציה', notes: 'הערות ל-DJ', family: 'על המשפחה והקהל',
+    playlist: 'הפלייליסט שלנו', more: 'ועוד {n} שירים בעמודים הבאים', cont: 'המשך', notes: 'הערות ל-DJ', family: 'על המשפחה והקהל',
     guests: 'אורחים', dj: 'DJ', meeting: 'פגישת תיאום', empty: '—', backup: 'גיבוי', footer: 'פסקול · הרגעים שלכם. המוזיקה שלנו. · אלקנה פז',
     draft: 'טיוטה — עוד לא נשלח ל-DJ', sent: 'נשלח ל-DJ',
     status: { confirmed: 'מאושר', awaiting_confirmation: 'ממתין לאישור', browsing: 'בבחירה', shortlisted: 'ברשימה קצרה', change_requested: 'בקשת שינוי', not_started: 'טרם נבחר', approved: 'מאושר', maybe: 'אולי', backup: 'גיבוי' } as Record<string, string>,
@@ -51,7 +52,7 @@ const T = {
     less: 'Not for us', lessSpecific: 'Artists / songs we’d rather skip', artists: 'Favorite artists', vibe: 'Vibe', eras: 'Eras',
     languages: 'Languages', traditions: 'Traditions', israeli: 'Israeli music', must: 'Must play', never: 'Never play', neverPref: 'Rather not',
     sections: { ceremony: 'Chuppah songs', reception: 'Reception', party: 'The party' } as Record<string, string>,
-    playlist: 'Our playlist', more: '+{n} more songs in the app', notes: 'Notes for the DJ', family: 'About our family & crowd',
+    playlist: 'Our playlist', more: '+{n} more songs on the next pages', cont: 'continued', notes: 'Notes for the DJ', family: 'About our family & crowd',
     guests: 'guests', dj: 'DJ', meeting: 'Planning meeting', empty: '—', backup: 'Backup', footer: 'Paskol · Your moments. Our music. · Elkana Paz',
     draft: 'Draft — not yet sent to the DJ', sent: 'Sent to the DJ',
     status: { confirmed: 'Confirmed', awaiting_confirmation: 'Awaiting OK', browsing: 'Choosing', shortlisted: 'Shortlisted', change_requested: 'Change requested', not_started: 'Not chosen', approved: 'Approved', maybe: 'Maybe', backup: 'Backup' } as Record<string, string>,
@@ -90,19 +91,30 @@ export function renderBriefHtml(d: BriefDoc, a: BriefAssets): string {
     caps.set(g.section, cap); room -= cap;
   });
   let shownCount = 0;
+  const songs = (xs: typeof d.playlist) => xs.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi></li>`).join('');
   const playlist = total ? groups.map((g) => {
     const shown = g.items.slice(0, caps.get(g.section) ?? 0);
     shownCount += shown.length;
     return `<h4 class="plh">${esc(t.sections[g.section])} <span class="muted">· ${g.items.length}</span></h4>
-    <ol class="pl">${shown.map((p) => `<li><bdi class="pt">${esc(p.title)}</bdi> <bdi class="pa">${esc(p.artist)}</bdi></li>`).join('')}</ol>`;
-  }).join('') + (d.playlistTotal > shownCount ? `<p class="muted small">${t.more.replace('{n}', String(d.playlistTotal - shownCount))}</p>` : '') : `<p class="muted">${t.empty}</p>`;
+    <ol class="pl">${songs(shown)}</ol>`;
+  }).join('') + (total > shownCount ? `<p class="muted small">${t.more.replace('{n}', String(total - shownCount))}</p>` : '') : `<p class="muted">${t.empty}</p>`;
+  // the songs that didn't fit on page 1 continue on extra pages, numbering on from where page 1 stopped
+  const rest = groups.map((g) => ({ g, from: caps.get(g.section) ?? 0 })).filter(({ g, from }) => g.items.length > from);
+  const more = rest.length ? `<section id="more">
+  <div class="mhead"><span class="kicker">${esc(t.title)} · ${esc(d.couple)}</span><span class="logo">${logo}</span></div>
+  <h2>${esc(t.playlist)} <span class="muted">· ${t.cont}</span></h2>
+  ${rest.map(({ g, from }) => `<h4 class="plh">${esc(t.sections[g.section])} <span class="muted">· ${g.items.length}</span></h4>
+  <ol class="pl wide" style="counter-reset:s ${from}">${songs(g.items.slice(from))}</ol>`).join('')}
+  <footer><span class="brand"><svg viewBox="0 0 60.2 60.2"><path d="${STAR}" fill="#111" fill-rule="evenodd"/></svg>${t.footer}</span><span>${esc(d.generatedAt)}</span></footer>
+</section>` : '';
 
   const facts = [d.date, d.venue, d.guests ? `${d.guests} ${t.guests}` : '', d.djName ? `${t.dj}: ${d.djName}` : '', d.meeting ? `${t.meeting}: ${d.meeting}` : ''].filter(Boolean);
   const fonts = a.fonts.map((f) => `@font-face{font-family:'${f.family}';font-weight:${f.weight};src:url(data:font/woff2;base64,${f.base64}) format('woff2')}`).join('');
 
   return `<!doctype html><html lang="${d.locale}" dir="${rtl ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${esc(t.title)} · ${esc(d.couple)}</title>
 <style>${fonts}
-@page { size: A4; margin: 0 }
+@page { size: A4; margin: 12mm 0 10mm }
+@page :first { margin: 0 }
 * { box-sizing: border-box; margin: 0; padding: 0 }
 html, body { width: 210mm; background: #fff }
 body { font-family: Heebo, Arial, sans-serif; color: #111; font-size: 8.7pt; line-height: 1.38 }
@@ -144,6 +156,14 @@ ol.pl li { break-inside: avoid; padding: .55mm 0; padding-${start}: 5mm; positio
 ol.pl li::before { content: counter(s); position: absolute; ${start}: 0; font-size: 6.6pt; color: #888; top: .9mm }
 ol.pl .pt { font-weight: 700; font-size: 7.8pt } ol.pl .pa { font-size: 7.2pt; color: #555 }
 footer { border-top: .25mm solid #111; padding-top: 2.6mm; display: flex; justify-content: space-between; align-items: center; color: #666; font-size: 7pt }
+#more { break-before: page; padding: 0 14mm }
+#more .mhead { display: flex; justify-content: space-between; align-items: center; padding-bottom: 3mm; border-bottom: .6mm solid #111 }
+#more .mhead .logo svg, #more .mhead .logo img { height: 10mm; width: auto; display: block }
+#more .kicker { font-size: 9pt; font-weight: 500; color: #555 }
+#more h2 { font-weight: 900; font-size: 15pt; margin: 5mm 0 3mm }
+#more h4.plh { font-size: 9pt; margin: 4mm 0 1.2mm; break-after: avoid }
+ol.pl.wide { columns: 3 }
+#more footer { margin-top: 6mm }
 footer .brand { display: flex; align-items: center; gap: 1.8mm } footer svg { width: 3.6mm; height: 3.6mm }
 </style></head><body><div id="page">
 <header>
@@ -175,7 +195,7 @@ footer .brand { display: flex; align-items: center; gap: 1.8mm } footer svg { wi
   </div>
 </main>
 <footer><span class="brand"><svg viewBox="0 0 60.2 60.2"><path d="${STAR}" fill="#111" fill-rule="evenodd"/></svg>${t.footer}</span><span>${esc(d.generatedAt)}</span></footer>
-</div></body></html>`;
+</div>${more}</body></html>`;
 }
 
 /**
