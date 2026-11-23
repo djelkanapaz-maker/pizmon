@@ -1,0 +1,26 @@
+name: Tutorial artwork (temporary)
+# Downloads the Spotify covers used by the couples tutorial capture into this branch only.
+on:
+  push:
+    branches: [tutorial-art]
+    paths: ['.tutorial-art/hashes.txt']
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download covers
+        run: |
+          mkdir -p .tutorial-art/img
+          while read -r h; do
+            [ -z "$h" ] && continue
+            [ -f ".tutorial-art/img/$h.jpg" ] && continue
+            curl -sSfL --retry 3 -o ".tutorial-art/img/$h.jpg" "https://i.scdn.co/image/$h" || echo "miss $h"
+          done < .tutorial-art/hashes.txt
+          ls .tutorial-art/img | wc -l
+      - name: Commit
+        run: |
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add .tutorial-art/img && git commit -m "tutorial covers" && git push || echo "nothing to commit"
