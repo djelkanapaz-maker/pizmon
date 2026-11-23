@@ -123,6 +123,13 @@ const cachedSearch = unstable_cache(async (q: string, total: number) => {
 export async function searchSpotifyCached(q: string, total = 30): Promise<SpotifySearchHit[]> {
   const key = q.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase().slice(0, 100);
   if (key.length < 2) return [];
+  // tutorial capture on the local stack only (no internet there): canned results from a fixture file
+  const fixture = process.env.DEMO_SPOTIFY_FIXTURE;
+  if (fixture && (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').startsWith('http://127.0.0.1')) {
+    const { readFile } = await import('node:fs/promises');
+    const all = JSON.parse(await readFile(fixture, 'utf8')) as Record<string, SpotifySearchHit[]>;
+    return (all[key] ?? []).slice(0, total);
+  }
   if (spotifyBlocked()) throw new Error('spotify_quota');
   return cachedSearch(key, total);
 }

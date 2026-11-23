@@ -7,6 +7,7 @@ voice_dir, out = sys.argv[1], sys.argv[2]
 music = sys.argv[3] if len(sys.argv) > 3 else 'public/demo-audio/golden-hour.mp3'
 FR = 'scripts/tutorial/out/pz-frames'
 index = json.load(open(f'{FR}/index.json'))
+PLAN = json.load(open('scripts/tutorial/pz-plan.json'))
 import os
 os.makedirs('scripts/tutorial/out/pz-voice', exist_ok=True)
 voices = {}
@@ -37,10 +38,18 @@ for p in parts:
     d = dur(voices[p])
     block = LEAD + d + TAIL
     voice_at.append((voices[p], t + LEAD))
-    # first frame of a part gets a bit more time (title is being read)
-    w = [1.25] + [1.0] * (len(frames) - 1)
-    for f, wi in zip(frames, w):
-        segs.append((f, block * wi / sum(w)))
+    cues = PLAN['parts'][p - 1].get('cues')
+    if cues and len(cues) == len(frames):
+        # each screen appears at the word it belongs to (seconds into the recording)
+        starts = [0.0] + [max(0.0, LEAD + c - 0.3) for c in cues[1:]]  # the crossfade lands on the word
+        ends = starts[1:] + [block]
+        for f, a0, a1 in zip(frames, starts, ends):
+            segs.append((f, a1 - a0))
+    else:
+        # first frame of a part gets a bit more time (title is being read)
+        w = [1.25] + [1.0] * (len(frames) - 1)
+        for f, wi in zip(frames, w):
+            segs.append((f, block * wi / sum(w)))
     t += block
 segs.append(('outro', OUTRO))
 total = sum(s for _, s in segs)
