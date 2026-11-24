@@ -183,6 +183,10 @@ export const he: Messages = {
   },
   player: {
     tapSpotify: 'באייפון: לחצו ▶ בנגן כדי להתחיל', nowPlaying: 'מתנגן עכשיו', loading: 'טוען…', error: 'ההשמעה נכשלה', volume: 'עוצמה', close: 'עצירה', play: 'ניגון', pause: 'השהיה' },
+  skin: {
+    title: 'מראה האפליקציה', light: 'בהיר', dark: 'כהה', lightHint: 'שנהב חם, כמו תמיד', darkHint: 'שחור, טקסט לבן וכפתורים סגולים',
+    askTitle: 'איך תרצו שהאפליקציה תיראה?', askBody: 'אפשר לשנות את זה בכל רגע בפרופיל.', profileHint: 'נשמר בחשבון שלכם ועובר איתכם לכל מכשיר.',
+  },
   profile: {
     deleteTitle: 'מחיקת החשבון', deleteHint: 'אפשר לבקש למחוק את החשבון ואת המידע שלכם. ה-DJ יטפל בבקשה ויעדכן אתכם במייל.', deleteCta: 'בקשה למחיקת החשבון', deleteConfirm: 'לשלוח בקשה למחיקת החשבון?', deleteRequested: 'הבקשה נשלחה. ה-DJ יטפל בה ויעדכן אתכם במייל.', privacy: 'מדיניות פרטיות',
     title: 'פרופיל', account: 'חשבון', name: 'השם שלכם', languageHint: 'עברית מימין לשמאל; English משמאל לימין.',

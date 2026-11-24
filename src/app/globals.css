@@ -136,3 +136,63 @@ html[data-splash='done'] .splash { display: none; }
   .splash { animation: splash-out 300ms ease-in 500ms forwards; }
   .splash-lines path, .splash-wave i, .splash-word, .splash-logo, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
 }
+
+/* ── Dark skin "Noir Violet" (chosen per user; <html data-skin="dark">) ──
+   Black surfaces, white text, raised violet pills. Plain (unlayered) rules so they sit above the utilities;
+   !important where a utility or an inline style would otherwise win. */
+:root[data-skin='dark'] {
+  --color-ink: #000;
+  --color-ink-2: #121214;
+  --color-ink-3: #1b1a21;
+  --color-line: #2b2934;
+  --color-paper: #fff;
+  --color-paper-dim: #a9a5bb;
+  --color-ember: #6b56ad;
+  --color-ember-deep: #4a3a82;
+  --color-champagne: #6b56ad;
+  --color-taupe: #8c86a6;
+  --color-crimson: #8f7bd6;
+  --color-crimson-deep: #b3a4ee;
+  --color-gold: #b9a9f5;
+  --shadow-hard: 0 14px 34px -14px rgb(0 0 0 / .9);
+  --shadow-hard-paper: 0 14px 34px -14px rgb(0 0 0 / .9);
+  --violet-3d: linear-gradient(180deg, #8f79dc 0%, #6a54ad 48%, #4f3c8a 100%);
+  --violet-3d-soft: linear-gradient(180deg, #34295a 0%, #251d42 100%);
+  --bevel: inset 0 1px 0 rgb(255 255 255 / .38), inset 0 -2px 0 rgb(0 0 0 / .35), 0 8px 18px -8px rgb(122 96 220 / .75);
+  --bevel-soft: inset 0 1px 0 rgb(255 255 255 / .16), inset 0 -2px 0 rgb(0 0 0 / .45), 0 6px 14px -8px rgb(0 0 0 / .9);
+  color-scheme: dark;
+}
+[data-skin='dark'], [data-skin='dark'] body { background: #000; color: #fff; }
+[data-skin='dark'] .brand-frame { background: #0b0b0e; box-shadow: inset 0 -1px 0 #24222c; }
+/* the logo is drawn dark: turned light, the gold horn shifted to violet */
+[data-skin='dark'] img[src*="paskol-logo"], [data-skin='dark'] img[src*="paskol-icon"] { filter: invert(1) hue-rotate(200deg) saturate(1.4); }
+[data-skin='dark'] .card, [data-skin='dark'] .bg-ink-2 { background: linear-gradient(180deg, #17161c, #111114) !important; border-color: #2b2934 !important; }
+/* primary actions and selected states: raised violet, white text */
+[data-skin='dark'] :is(.bg-ember, .bg-paper, .bg-gold, .bg-champagne) {
+  background: var(--violet-3d) !important; color: #fff !important; box-shadow: var(--bevel) !important; border-color: transparent !important;
+}
+[data-skin='dark'] :is(.bg-ember, .bg-paper, .bg-gold) * { color: #fff !important; }
+[data-skin='dark'] :is(.bg-ember, .bg-paper):hover { filter: brightness(1.08); }
+/* every other pill and round button: a softer violet emboss */
+[data-skin='dark'] :is(button, a, label, [role=tab], [role=radio], [role=checkbox], span).rounded-full:not(.bg-ember, .bg-paper, .bg-gold, .bg-champagne, :has(img)) {
+  background: var(--violet-3d-soft) !important; box-shadow: var(--bevel-soft) !important; border-color: #3d3363 !important; color: #fff !important;
+}
+[data-skin='dark'] :is(input, textarea, select) { background-color: #141318 !important; color: #fff !important; border-color: #2f2c3a !important; }
+[data-skin='dark'] :is(input, textarea)::placeholder { color: #7a7690 !important; }
+[data-skin='dark'] .poster-shadow { text-shadow: -4px 4px 0 #5a46a0; }
+/* generated covers (no artwork): violet on black */
+[data-skin='dark'] div[aria-hidden][style*="background"]:has(> span.display) {
+  background: radial-gradient(120% 90% at 30% 15%, #4a3a85 0%, #1d1734 55%, #0b0912 100%) !important;
+  color: #d9cffb !important; box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 10px 24px -12px rgb(122 96 220 / .6);
+}
+[data-skin='dark'] div[aria-hidden][style*="background"]:has(> span.display) > div { border-color: #b9a9f5 !important; background: #b9a9f5 !important; }
+[data-skin='dark'] div[aria-hidden][style*="background"]:has(> span.display) > div.rounded-full { background: transparent !important; }
+/* bottom menu: no frame, light grey icons, the current one bright white */
+[data-skin='dark'] nav[aria-label="Main"].fixed { background: linear-gradient(to top, #000 70%, rgb(0 0 0 / .85)); border-top: 0; }
+[data-skin='dark'] nav[aria-label="Main"].fixed a { color: #a7a7a7; }
+[data-skin='dark'] nav[aria-label="Main"].fixed a.text-paper { color: #fff; }
+[data-skin='dark'] nav[aria-label="Main"].fixed a span.rounded-full { background: none !important; box-shadow: none !important; border: 0 !important; color: inherit !important; }
+[data-skin='dark'] nav[aria-label="Main"].fixed a.text-paper svg { stroke-width: 2.6; filter: drop-shadow(0 0 6px rgb(255 255 255 / .35)); }
+[data-skin='dark'] .splash { background: #000; }
+[data-skin='dark'] .splash-lines path { stroke: #6b56ad; }
+[data-skin='dark'] .splash-lines path:nth-child(3n) { stroke: #fff; }

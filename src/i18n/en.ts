@@ -181,6 +181,10 @@ export const en = {
   },
   player: {
     tapSpotify: 'On iPhone: tap ▶ in the player to start', nowPlaying: 'Now playing', loading: 'Loading…', error: 'Playback failed', volume: 'Volume', close: 'Stop', play: 'Play', pause: 'Pause' },
+  skin: {
+    title: 'App look', light: 'Light', dark: 'Dark', lightHint: 'Warm ivory, the classic look', darkHint: 'Black, white text, violet buttons',
+    askTitle: 'How would you like the app to look?', askBody: 'You can change this any time in your profile.', profileHint: 'Saved to your account, so it follows you to every device.',
+  },
   profile: {
     deleteTitle: 'Delete account', deleteHint: 'You can ask us to delete your account and your data. Your DJ will handle it and confirm by email.', deleteCta: 'Request account deletion', deleteConfirm: 'Send an account deletion request?', deleteRequested: 'Request sent. Your DJ will handle it and confirm by email.', privacy: 'Privacy policy',
     title: 'Profile', account: 'Account', name: 'Your name', languageHint: 'Hebrew is right-to-left; English left-to-right.',

@@ -6,6 +6,7 @@ import { Button, PageHeader } from '@/components/ui';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ProfileName } from './ProfileName';
 import { AccountDeletion } from '@/components/AccountDeletion';
+import { SkinPicker } from '@/components/SkinPicker';
 
 export default async function ProfilePage() {
   const s = await requireCouple();
@@ -23,6 +24,11 @@ export default async function ProfilePage() {
           <p className="label">{m.common.language}</p>
           <LocaleSwitch />
           <p className="text-sm text-paper-dim">{m.profile.languageHint}</p>
+        </section>
+        <section className="card p-5 flex flex-col gap-3">
+          <p className="label">{m.skin.title}</p>
+          <SkinPicker value={s.skin ?? 'light'} />
+          <p className="text-sm text-paper-dim">{m.skin.profileHint}</p>
         </section>
         <section className="card p-5 flex flex-col gap-2">
           <p className="label">{m.profile.install}</p>

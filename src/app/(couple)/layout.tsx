@@ -7,6 +7,7 @@ import { getI18n } from '@/i18n/server';
 import { AppNav, TopBell } from '@/components/AppNav';
 import { MiniPlayer } from '@/components/audio/MiniPlayer';
 import { BrandMark } from '@/components/brand';
+import { SkinSync } from '@/components/SkinPicker';
 
 export default async function CoupleLayout({ children }: { children: ReactNode }) {
   const s = await requireCouple();
@@ -37,6 +38,7 @@ export default async function CoupleLayout({ children }: { children: ReactNode }
       </main>
       <MiniPlayer />
       <NativeBridge />
+      <SkinSync skin={s.skin} />
     </>
   );
 }

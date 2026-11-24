@@ -7,6 +7,10 @@ import { AudioProvider } from '@/components/audio/AudioProvider';
 import { SpotifyPlayerProvider } from '@/components/audio/SpotifyPlayer';
 import { ToastProvider } from '@/components/overlay';
 import { Splash, SPLASH_SCRIPT } from '@/components/Splash';
+import { cookies } from 'next/headers';
+import { isSkin, SKIN_COOKIE, SKIN_THEME_COLOR } from '@/core/skin';
+
+const skinOf = async () => { const v = (await cookies()).get(SKIN_COOKIE)?.value; return isSkin(v) ? v : 'light'; };
 
 const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
 
@@ -20,17 +24,15 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
 };
 
-export const viewport: Viewport = {
-  themeColor: '#f8f4ed',
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-};
+export async function generateViewport(): Promise<Viewport> {
+  return { themeColor: SKIN_THEME_COLOR[await skinOf()], width: 'device-width', initialScale: 1, viewportFit: 'cover' };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { locale, dir, m } = await getI18n();
+  const skin = await skinOf();
   return (
-    <html lang={locale} dir={dir} data-player="off">
+    <html lang={locale} dir={dir} data-player="off" data-skin={skin}>
       <body className="min-h-dvh">
         {/* before the splash is parsed: skip it if it already played in this session */}
         <script dangerouslySetInnerHTML={{ __html: SPLASH_SCRIPT }} />

@@ -12,11 +12,15 @@ import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { IconCheck, IconLock } from '@/components/icons';
 import type { Assignment, Dj, WeddingEvent } from '@/server/queries';
 import { DjBio, DjLinks, DjLogo } from '@/components/DjProfile';
+import { SkinPicker } from '@/components/SkinPicker';
+import type { Skin } from '@/core/skin';
 
 type Step = 'welcome' | 'dj' | 'details';
 type Mix = { id: string; title: string; kind: string; media_url: string; creator_dj_id: string; is_demo: boolean };
 
-export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, policy, brand, selfService = false }: {
+export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, policy, brand, selfService = false, skin = null }: {
+  /** the skin on the account (null = not chosen yet) */
+  skin?: Skin | null;
   initialStep: Step; event: WeddingEvent; assignment: Assignment | null; djs: Dj[]; mixes: Mix[]; policy: 'company_assigned' | 'couple_selects'; brand: string;
   /** signed up on their own: no DJ step */
   selfService?: boolean;
@@ -55,7 +59,12 @@ export function OnboardingFlow({ initialStep, event, assignment, djs, mixes, pol
             <FlowLines className="pointer-events-none absolute -z-10 inset-x-0 top-40 h-56 w-full opacity-80" />
             <p className="label mb-4 text-ember">{m.onboarding.welcomeKicker}</p>
             <h1 className="display-xl poster-shadow mb-6">{m.onboarding.welcomeTitle}</h1>
-            <p className="text-lg text-paper-dim max-w-prose mb-10">{m.onboarding.welcomeBody}</p>
+            <p className="text-lg text-paper-dim max-w-prose mb-8">{m.onboarding.welcomeBody}</p>
+            <div className="max-w-md mb-10">
+              <p className="label mb-3">{m.skin.askTitle}</p>
+              <SkinPicker value={skin} />
+              <p className="text-xs text-paper-dim mt-2">{m.skin.askBody}</p>
+            </div>
             <Button size="lg" onClick={() => go(selfService ? 'details' : 'dj')} disabled={busy}>{m.onboarding.start}</Button>
           </section>
         )}

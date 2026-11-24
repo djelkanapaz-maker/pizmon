@@ -16,6 +16,8 @@ export type SessionContext = {
   email: string;
   fullName: string | null;
   locale: 'he' | 'en';
+  /** null = not chosen yet */
+  skin: 'light' | 'dark' | null;
   role: Role | null;
   company: Company | null;
   eventId: string | null;   // couples
@@ -31,7 +33,7 @@ export const getSession = cache(async (): Promise<SessionContext | null> => {
   if (!uid) return null;
   // all lookups at once instead of one after another
   const [{ data: profile }, { data: members }, { data: couple }, { data: dj }] = await Promise.all([
-    db.from('profiles').select('full_name, locale').eq('id', uid).maybeSingle(),
+    db.from('profiles').select('full_name, locale, skin').eq('id', uid).maybeSingle(),
     db.from('company_members').select('role, company:companies(*)').eq('user_id', uid).order('created_at'),
     db.from('couple_members').select('event_id').eq('user_id', uid).order('created_at').limit(1).maybeSingle(),
     db.from('djs').select('id').eq('user_id', uid).maybeSingle(),
@@ -44,6 +46,7 @@ export const getSession = cache(async (): Promise<SessionContext | null> => {
     email: typeof auth.claims.email === 'string' ? auth.claims.email : '',
     fullName: profile?.full_name ?? null,
     locale: profile?.locale === 'en' ? 'en' : 'he',
+    skin: profile?.skin === 'dark' || profile?.skin === 'light' ? profile.skin : null,
     role: member?.role ?? null,
     company: member?.company ?? null,
     eventId,

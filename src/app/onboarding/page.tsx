@@ -29,6 +29,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
       policy={s.company.assignment_policy}
       brand={s.company.brand_name}
       selfService={event.signup_source === 'self' && !assignment}
+      skin={s.skin}
     />
   );
 }
