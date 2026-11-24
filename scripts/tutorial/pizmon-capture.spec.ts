@@ -4,7 +4,8 @@ import { test, expect, type Page, type Locator } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { adminClient, activate, COMPANY_ID, fn, sql, token, TEST_PASSWORD } from '../../tests/helpers/stack';
 
-const OUT = 'scripts/tutorial/out/pz-shots';
+const OUT = process.env.SHOTS_OUT ?? 'scripts/tutorial/out/pz-shots';
+const THEME = process.env.THEME_CSS ? readFileSync(process.env.THEME_CSS, 'utf8') : '';
 mkdirSync(OUT, { recursive: true });
 type Shot = { id: string; file: string; kind: 'mobile' | 'desktop'; box?: { x: number; y: number; w: number; h: number }; vw: number; vh: number };
 const shots: Shot[] = [];
@@ -82,6 +83,11 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
     if (f && existsSync(f)) return r.fulfill({ status: 200, contentType: 'image/jpeg', body: readFileSync(f) });
     return r.fulfill({ status: 200, contentType: 'image/svg+xml', body: art(r.request().url()) });
   });
+  // design studies: an extra stylesheet on every page (THEME_CSS=path)
+  if (THEME) await ctx.addInitScript((css) => {
+    const add = () => { const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  }, THEME);
   const c = await ctx.newPage();
 
   // 01 opening (public landing) / 02 free sign-up + activation
@@ -278,6 +284,6 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
 
   const added = shots.find((x) => x.id === 'p09-added');
   if (added) shots.push({ ...added, id: 'p09-play', box: { x: 75, y: 328, w: 38, h: 38 } });
-  writeFileSync('scripts/tutorial/out/pz-shots.json', JSON.stringify(shots, null, 1));
-  writeFileSync('scripts/tutorial/out/pz-failures.txt', failures.join('\n'));
+  writeFileSync(`${OUT}.json`, JSON.stringify(shots, null, 1));
+  writeFileSync(`${OUT}-failures.txt`, failures.join('\n'));
 });
