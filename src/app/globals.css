@@ -108,33 +108,31 @@ body {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* ── Opening splash (components/Splash.tsx): flow lines draw across the ivory, a sound wave
-      rises, the פסקול logo and tagline settle in, then everything lifts away ── */
+/* ── Opening splash (components/Splash.tsx): the פסקול logo settles in, the record inside it spins (~2.5 s),
+      the tagline appears, then it all lifts away ── */
 .splash {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; cursor: pointer;
   background: radial-gradient(circle at 50% 46%, #fbf8f3 0%, #f8f4ed 55%, #efe7da 100%);
-  animation: splash-out 450ms ease-in 2600ms forwards;
+  animation: splash-out 450ms ease-in 3200ms forwards;
 }
 html[data-splash='done'] .splash { display: none; }
-.splash > * { grid-area: 1 / 1; }
-.splash-lines { position: absolute; left: 50%; top: 66%; width: 120vmax; height: auto; translate: -50% -50%; opacity: .9; }
-.splash-lines path { fill: none; stroke: #b89f7c; stroke-width: 1; stroke-dasharray: 1600; stroke-dashoffset: 1600; animation: splash-draw 1900ms cubic-bezier(.45, .05, .2, 1) forwards; }
-.splash-lines path:nth-child(2n) { stroke: #a89886; animation-delay: 120ms; }
-.splash-lines path:nth-child(3n) { stroke: #1f1f1f; stroke-opacity: .35; animation-delay: 220ms; }
-.splash-center { display: flex; flex-direction: column; align-items: center; gap: 22px; }
-.splash-wave { display: flex; align-items: center; gap: 7px; height: 64px; }
-.splash-wave i { display: block; width: 1.5px; border-radius: 2px; background: #8f7756; transform: scaleY(0); animation: splash-bar 900ms cubic-bezier(.2, .8, .2, 1) forwards; }
-.splash-logo { width: min(68vw, 300px); height: auto; opacity: 0; transform: scale(.94) rotate(-6deg); filter: blur(6px); animation: splash-logo 1000ms cubic-bezier(.2, .8, .2, 1) 450ms forwards; }
+.splash-center { display: flex; flex-direction: column; align-items: center; gap: 26px; translate: 0 -14px; }
+.splash-logo { position: relative; width: min(68vw, 300px); aspect-ratio: 900 / 831; opacity: 0; transform: scale(.94); filter: blur(6px); animation: splash-logo 900ms cubic-bezier(.2, .8, .2, 1) 150ms forwards; }
+/* a soft champagne glow behind the logo, so it sits in the background instead of on it */
+.splash-logo::before { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(closest-side, rgb(215 195 166 / .22), transparent); }
+.splash-layers { position: absolute; inset: 0; }
+.splash-layers img { position: absolute; display: block; }
+/* the record's place in the 900×831 logo (scripts/brand/logo-layers.py → layers.json: centre 419,467, size 694) */
+.splash-record { left: 8.016%; top: 14.48%; width: 77.11%; height: auto; animation: splash-spin 2600ms cubic-bezier(.35, 0, .2, 1) 250ms both; }
+.splash-top { inset: 0; width: 100%; height: 100%; }
+.splash-tag { font-size: 13px; font-weight: 500; letter-spacing: .32em; color: #6f6457; opacity: 0; animation: splash-tag 900ms ease-out 1000ms forwards; }
 @keyframes splash-logo { to { opacity: 1; transform: none; filter: blur(0); } }
-.splash-word { font-family: var(--font-display); font-weight: 900; font-size: clamp(64px, 19vw, 128px); line-height: .95; color: #1f1f1f; letter-spacing: 0; text-shadow: -4px 4px 0 #d7c3a6; opacity: 0; filter: blur(6px); animation: splash-word 900ms ease-out 700ms forwards; }
-.splash-tag { font-size: 13px; letter-spacing: .32em; color: #6f6457; opacity: 0; animation: splash-word 900ms ease-out 1100ms forwards; }
-@keyframes splash-draw { to { stroke-dashoffset: 0; } }
-@keyframes splash-bar { to { transform: scaleY(1); } }
-@keyframes splash-word { to { opacity: 1; filter: blur(0); } }
-@keyframes splash-out { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-12px); visibility: hidden; } }
+@keyframes splash-spin { from { transform: rotate(0); } to { transform: rotate(600deg); } }
+@keyframes splash-tag { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes splash-out { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: scale(1.04); visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
-  .splash { animation: splash-out 300ms ease-in 500ms forwards; }
-  .splash-lines path, .splash-wave i, .splash-word, .splash-logo, .splash-tag { animation: none; stroke-dashoffset: 0; transform: none; opacity: 1; filter: none; }
+  .splash { animation: splash-out 300ms ease-in 600ms forwards; }
+  .splash-logo, .splash-record, .splash-tag { animation: none; transform: none; opacity: 1; filter: none; }
 }
 
 /* ── Dark skin "Noir Violet" (chosen per user; <html data-skin="dark">) ──
@@ -195,6 +193,6 @@ html[data-splash='done'] .splash { display: none; }
 [data-skin='dark'] nav[aria-label="Main"].fixed a.text-paper { color: #fff; }
 [data-skin='dark'] nav[aria-label="Main"].fixed a span.rounded-full { background: none !important; box-shadow: none !important; border: 0 !important; color: inherit !important; }
 [data-skin='dark'] nav[aria-label="Main"].fixed a.text-paper svg { stroke-width: 2.6; filter: drop-shadow(0 0 6px rgb(255 255 255 / .35)); }
-[data-skin='dark'] .splash { background: #000; }
-[data-skin='dark'] .splash-lines path { stroke: #6b56ad; }
-[data-skin='dark'] .splash-lines path:nth-child(3n) { stroke: #fff; }
+[data-skin='dark'] .splash { background: radial-gradient(circle at 50% 44%, #15131b 0%, #050506 52%, #000 100%); }
+[data-skin='dark'] .splash-logo::before { background: radial-gradient(closest-side, rgb(215 195 166 / .16), transparent); }
+[data-skin='dark'] .splash-tag { color: #f4f1ec; }

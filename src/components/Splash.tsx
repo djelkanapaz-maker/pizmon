@@ -1,12 +1,15 @@
 'use client';
 /**
- * Opening animation, once per app launch (per browser session): flow lines draw across the ivory,
- * the פסקול logo with its tagline settles in, then it lifts away.
+ * Opening animation, once per app launch (per browser session): the פסקול logo settles in, the record inside it
+ * spins for about two and a half seconds, the tagline appears, then it all lifts away. Light-toned logo in the dark skin.
  * The app renders underneath the whole time, so nothing waits on the animation.
  * A tiny inline script (SPLASH_SCRIPT, run before paint) hides it on later navigations/reloads.
  */
 import { useEffect, useState } from 'react';
-import { FLOW_LINES, LOGO, LOGO_LIGHT, TAGLINE_HE, WORDMARK } from './pizmon-mark';
+import { TAGLINE_HE, WORDMARK } from './pizmon-mark';
+
+/** The logo in two layers: the record (spins) under the wordmark and horn. Made by scripts/brand/logo-layers.py. */
+const LAYERS = { record: '/brand/opening/record.webp', top: '/brand/opening/top.webp', recordLight: '/brand/opening/record-light.webp', topLight: '/brand/opening/top-light.webp' };
 
 export const SPLASH_KEY = 'pizmon-splash';
 export const SPLASH_SCRIPT = `try{if(sessionStorage.getItem('${SPLASH_KEY}'))document.documentElement.dataset.splash='done'}catch(e){}`;
@@ -18,21 +21,20 @@ export function Splash() {
     if (document.documentElement.dataset.splash === 'done') return;
     try { sessionStorage.setItem(SPLASH_KEY, '1'); } catch { /* private mode: show every time */ }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const t = setTimeout(() => { document.documentElement.dataset.splash = 'done'; setGone(true); }, reduce ? 700 : 3000);
+    const t = setTimeout(() => { document.documentElement.dataset.splash = 'done'; setGone(true); }, reduce ? 800 : 3700);
     return () => clearTimeout(t);
   }, []);
   if (gone) return null;
   const skip = () => { document.documentElement.dataset.splash = 'done'; setGone(true); };
   return (
     <div className="splash" aria-hidden="true" onClick={skip}>
-      <svg className="splash-lines" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice">
-        {FLOW_LINES.map((d, i) => <path key={i} d={d} />)}
-      </svg>
       <div className="splash-center">
-        {/* eslint-disable-next-line @next/next/no-img-element -- brand asset, shown before hydration */}
-        <img className="splash-logo logo-for-light" src={LOGO.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
-        {/* eslint-disable-next-line @next/next/no-img-element -- the light-toned logo for the dark skin */}
-        <img className="splash-logo logo-for-dark" src={LOGO_LIGHT.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
+        <div className="splash-logo" role="img" aria-label={WORDMARK}>
+          {/* eslint-disable @next/next/no-img-element -- brand layers, shown before hydration */}
+          <span className="splash-layers logo-for-light"><img className="splash-record" src={LAYERS.record} alt="" /><img className="splash-top" src={LAYERS.top} alt="" /></span>
+          <span className="splash-layers logo-for-dark"><img className="splash-record" src={LAYERS.recordLight} alt="" /><img className="splash-top" src={LAYERS.topLight} alt="" /></span>
+          {/* eslint-enable @next/next/no-img-element */}
+        </div>
         <div className="splash-tag" dir="rtl">{TAGLINE_HE}</div>
       </div>
     </div>
