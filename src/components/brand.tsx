@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FLOW_LINES, LOGO, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE } from './pizmon-mark';
+import { FLOW_LINES, LOGO, LOGO_LIGHT, PE_PATH, PE_STROKE, TAGLINE_HE, WAVE } from './pizmon-mark';
 
 export const BRAND = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'פסקול';
 
@@ -9,7 +9,9 @@ export function BrandMark({ name = BRAND, href = '/', tagline = false, size = 26
   return (
     <Link href={href} className="inline-flex items-center gap-3 leading-none text-paper" aria-label={name} dir="rtl">
       {/* eslint-disable-next-line @next/next/no-img-element -- small static brand asset */}
-      <img src={h > 80 ? LOGO.src : LOGO.small} alt={name} width={Math.round(h * LOGO.ratio)} height={h} className="shrink-0" style={{ height: h, width: 'auto' }} />
+      <img src={h > 80 ? LOGO.src : LOGO.small} alt={name} width={Math.round(h * LOGO.ratio)} height={h} className="shrink-0 logo-for-light" style={{ height: h, width: 'auto' }} />
+      {/* eslint-disable-next-line @next/next/no-img-element -- the light-toned logo, shown only in the dark skin */}
+      <img src={h > 80 ? LOGO_LIGHT.src : LOGO_LIGHT.small} alt={name} width={Math.round(h * LOGO.ratio)} height={h} className="shrink-0 logo-for-dark" loading="lazy" style={{ height: h, width: 'auto' }} />
       {tagline && <span className="text-[11px] font-bold tracking-[0.02em] text-paper-dim max-w-[9rem] leading-snug">{TAGLINE_HE}</span>}
     </Link>
   );

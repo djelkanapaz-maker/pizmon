@@ -5,6 +5,8 @@ export const WORDMARK = 'פסקול';
 export const BRAND_LATIN = 'Paskol';
 /** The logo (record + horn + פסקול), transparent background. */
 export const LOGO = { src: '/brand/paskol-logo.webp', small: '/brand/paskol-logo-sm.webp', png: '/brand/paskol-logo.png', ratio: 999 / 922 };
+/** The same logo in light tones (white wordmark, silver record, champagne horn), for the dark skin. */
+export const LOGO_LIGHT = { src: '/brand/paskol-logo-light.webp', small: '/brand/paskol-logo-light-sm.webp' };
 export const TAGLINE_HE = 'הרגעים שלכם. המוזיקה שלנו.';
 export const TAGLINE_EN = 'Your moments. Our music.';
 

@@ -6,7 +6,7 @@
  * A tiny inline script (SPLASH_SCRIPT, run before paint) hides it on later navigations/reloads.
  */
 import { useEffect, useState } from 'react';
-import { FLOW_LINES, LOGO, TAGLINE_HE, WORDMARK } from './pizmon-mark';
+import { FLOW_LINES, LOGO, LOGO_LIGHT, TAGLINE_HE, WORDMARK } from './pizmon-mark';
 
 export const SPLASH_KEY = 'pizmon-splash';
 export const SPLASH_SCRIPT = `try{if(sessionStorage.getItem('${SPLASH_KEY}'))document.documentElement.dataset.splash='done'}catch(e){}`;
@@ -30,7 +30,9 @@ export function Splash() {
       </svg>
       <div className="splash-center">
         {/* eslint-disable-next-line @next/next/no-img-element -- brand asset, shown before hydration */}
-        <img className="splash-logo" src={LOGO.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
+        <img className="splash-logo logo-for-light" src={LOGO.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
+        {/* eslint-disable-next-line @next/next/no-img-element -- the light-toned logo for the dark skin */}
+        <img className="splash-logo logo-for-dark" src={LOGO_LIGHT.src} alt={WORDMARK} width={280} height={Math.round(280 / LOGO.ratio)} />
         <div className="splash-tag" dir="rtl">{TAGLINE_HE}</div>
       </div>
     </div>

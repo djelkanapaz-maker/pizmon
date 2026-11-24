@@ -164,8 +164,10 @@ html[data-splash='done'] .splash { display: none; }
 }
 [data-skin='dark'], [data-skin='dark'] body { background: #000; color: #fff; }
 [data-skin='dark'] .brand-frame { background: #0b0b0e; box-shadow: inset 0 -1px 0 #24222c; }
-/* the logo is drawn dark: turned light, the gold horn shifted to violet */
-[data-skin='dark'] img[src*="paskol-logo"], [data-skin='dark'] img[src*="paskol-icon"] { filter: invert(1) hue-rotate(200deg) saturate(1.4); }
+/* the logo: the light-toned version (white wordmark, silver record, champagne horn) in the dark skin */
+.logo-for-dark { display: none; }
+[data-skin='dark'] .logo-for-light { display: none; }
+[data-skin='dark'] .logo-for-dark { display: block; }
 [data-skin='dark'] .card, [data-skin='dark'] .bg-ink-2 { background: linear-gradient(180deg, #17161c, #111114) !important; border-color: #2b2934 !important; }
 /* primary actions and selected states: raised violet, white text */
 [data-skin='dark'] :is(.bg-ember, .bg-paper, .bg-gold, .bg-champagne) {
