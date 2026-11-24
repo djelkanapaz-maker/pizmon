@@ -6,6 +6,7 @@ import { adminClient, activate, COMPANY_ID, fn, sql, token, TEST_PASSWORD } from
 
 const OUT = process.env.SHOTS_OUT ?? 'scripts/tutorial/out/pz-shots';
 const THEME = process.env.THEME_CSS ? readFileSync(process.env.THEME_CSS, 'utf8') : '';
+const SKIN = process.env.SKIN === 'dark' || process.env.SKIN === 'light' ? process.env.SKIN : '';
 mkdirSync(OUT, { recursive: true });
 type Shot = { id: string; file: string; kind: 'mobile' | 'desktop'; box?: { x: number; y: number; w: number; h: number }; vw: number; vh: number };
 const shots: Shot[] = [];
@@ -116,6 +117,11 @@ test('pizmon couple tutorial capture', async ({ browser }) => {
 
   // 04 onboarding
   await step('onboarding', async () => {
+    // SKIN=dark|light: picks that look on the welcome step (saved on the account like a real couple's choice)
+    if (SKIN) {
+      await c.getByRole('radio', { name: SKIN === 'dark' ? /כהה/ : /בהיר/ }).click();
+      await c.waitForTimeout(1200);
+    }
     await snap(c, 'p04-welcome', c.getByRole('button', { name: 'מתחילים' }));
     await c.getByRole('button', { name: 'מתחילים' }).click(); await settle(c);
     await c.getByRole('heading', { level: 1 }).first().waitFor();
