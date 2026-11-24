@@ -1,0 +1,61 @@
+/* Design study only ("Grey & Electric"): Spotify-style grey layers, buttons in the Groove Operator blue-violet glow.
+   Injected by the capture script (THEME_CSS=…); the app itself is unchanged. */
+:root {
+  --color-ink: #121212 !important;
+  --color-ink-2: #181818 !important;
+  --color-ink-3: #2a2a2a !important;
+  --color-line: #2a2a2a !important;
+  --color-paper: #fff !important;
+  --color-paper-dim: #b3b3b3 !important;
+  --color-ember: #6f7dff !important;
+  --color-ember-deep: #4d5be0 !important;
+  --color-champagne: #6f7dff !important;
+  --color-taupe: #a7a7a7 !important;
+  --color-crimson: #8e9bff !important;
+  --color-crimson-deep: #a9b3ff !important;
+  --color-gold: #8e9bff !important;
+  --shadow-hard: 0 8px 24px rgb(0 0 0 / .5) !important;
+  color-scheme: dark;
+}
+html { background: #121212 !important; }
+body { background: linear-gradient(180deg, #2a2a2a 0, #121212 340px) no-repeat, #121212 !important; color: #fff; }
+.brand-frame { background: transparent !important; box-shadow: none !important; }
+img[src*="paskol-logo"], img[src*="paskol-icon"] { filter: invert(1) grayscale(1) brightness(1.15); }
+
+/* cards: flat, borderless, the Spotify surface steps */
+.card, .bg-ink-2 { background: #181818 !important; border-color: transparent !important; box-shadow: none !important; }
+.border-line, .border { border-color: #2a2a2a !important; }
+
+/* primary action: electric blue-violet with a soft glow (the Groove Operator cover tones) */
+.bg-ember, .bg-gold, .bg-champagne {
+  background: linear-gradient(180deg, #8592ff 0%, #6170f5 55%, #4b55d6 100%) !important; color: #fff !important; border-color: transparent !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 0 0 1px rgb(140 150 255 / .35), 0 8px 26px -6px rgb(98 112 255 / .65) !important;
+}
+.bg-ember *, .bg-gold *, .bg-champagne * { color: #fff !important; }
+/* selected chips: the light periwinkle of the "save" badge, dark ink */
+.bg-paper { background: #8e9bff !important; color: #0d1030 !important; border-color: transparent !important; box-shadow: 0 0 18px -4px rgb(142 155 255 / .7) !important; }
+.bg-paper * { color: #0d1030 !important; }
+
+/* other pills / chips / round buttons: navy glass with a thin blue rim, like the reference's tags */
+:is(button, a, label, [role=tab], [role=radio], [role=checkbox], span).rounded-full:not(.bg-ember):not(.bg-paper):not(.bg-gold):not(.bg-champagne):not(:has(img)) {
+  background: rgb(38 44 96 / .45) !important; border: 1px solid #3c4486 !important; box-shadow: inset 0 1px 0 rgb(255 255 255 / .06) !important; color: #e6e8ff !important;
+}
+
+/* bottom menu: plain black, white labels and icons */
+nav[aria-label="Main"] { background: #000 !important; border-top: 0 !important; backdrop-filter: none !important; }
+nav[aria-label="Main"] a, nav[aria-label="Main"] a.text-paper { color: #fff !important; }
+nav[aria-label="Main"] a span.rounded-full { background: none !important; box-shadow: none !important; border: 0 !important; color: inherit !important; }
+nav[aria-label="Main"] a.text-paper svg { stroke-width: 2.6; }
+
+/* inputs: Spotify's search field */
+input, textarea, select { background: #242424 !important; color: #fff !important; border-color: transparent !important; }
+input[type="search"], input[placeholder*="חפש"], input[placeholder*="שיר"] { border-radius: 999px !important; }
+input::placeholder, textarea::placeholder { color: #8a8a8a !important; }
+
+/* headlines: flat, bold, no poster shadow */
+.poster-shadow { text-shadow: none !important; }
+
+/* generated covers (no artwork): Spotify's dark placeholder */
+div[aria-hidden][style*="background"]:has(> span.display) { background: linear-gradient(135deg, #3a3a3a, #1c1c1c) !important; color: #b3b3b3 !important; }
+div[aria-hidden][style*="background"]:has(> span.display) > div { border-color: #6a6a6a !important; background: #6a6a6a !important; }
+div[aria-hidden][style*="background"]:has(> span.display) > div.rounded-full { background: transparent !important; }
