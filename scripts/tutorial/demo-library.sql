@@ -25,3 +25,22 @@ begin
     group by mt.id;
   end loop;
 end $do$;
+
+-- the collections' real covers (as in production)
+update public.playlists p set artwork_url = v.url
+from (values
+  ('כניסה לחופה ישראלית', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84558c2eea0aedd5d241418b57'),
+  ('כניסה לחופה לועזית', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a764bbf341c2a09ec31915cc'),
+  ('שבירת כוס ישראלית', 'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844921ff66620807ec871e3dbd'),
+  ('שבירת כוס לועזית', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8441fcce25a924f6e0a73f8d14'),
+  ('קבלת פנים ישראלי', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8407684394a400603fe2ae068d'),
+  ('קבלת פנים לועזי', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84ce8e78e1fb8f447fd7a785a2'),
+  ('Top Dancefloor Hits', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84eff5b7560bd5d1473f59d9b1'),
+  ('90''s & 2000''s', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8491244866516690466774eba6'),
+  ('להיטים ישראליים+ים תיכוני', 'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84d5729016ceb287226517eac1'),
+  ('Everything Latin', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8496df2740f077f1b731c02559'),
+  ('שבירת כוס — עברית ובינלאומית', 'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844921ff66620807ec871e3dbd'),
+  ('דיסקו לרחבה', 'https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84f0db73e6a231e29e6e7cc5f1'),
+  ('כניסה לחופה — הקלאסיקות', 'https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a764bbf341c2a09ec31915cc')
+) v(title, url)
+where p.title = v.title and p.artwork_url is null;
