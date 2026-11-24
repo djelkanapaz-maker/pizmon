@@ -117,13 +117,13 @@ body {
 }
 html[data-splash='done'] .splash { display: none; }
 .splash-center { display: flex; flex-direction: column; align-items: center; gap: 26px; translate: 0 -14px; }
-.splash-logo { position: relative; width: min(68vw, 300px); aspect-ratio: 900 / 831; opacity: 0; transform: scale(.94); filter: blur(6px); animation: splash-logo 900ms cubic-bezier(.2, .8, .2, 1) 150ms forwards; }
+.splash-logo { position: relative; width: min(68vw, 300px); aspect-ratio: 1004 / 927; opacity: 0; transform: scale(.94); filter: blur(6px); animation: splash-logo 900ms cubic-bezier(.2, .8, .2, 1) 150ms forwards; }
 /* a soft champagne glow behind the logo, so it sits in the background instead of on it */
 .splash-logo::before { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(closest-side, rgb(215 195 166 / .22), transparent); }
 .splash-layers { position: absolute; inset: 0; }
 .splash-layers img { position: absolute; display: block; }
-/* the record's place in the 900×831 logo (scripts/brand/logo-layers.py → layers.json: centre 419,467, size 694) */
-.splash-record { left: 8.016%; top: 14.48%; width: 77.11%; height: auto; animation: splash-spin 2600ms cubic-bezier(.35, 0, .2, 1) 250ms both; }
+/* the record's place in the 1004×927 logo (scripts/brand/logo-layers.py → layers.json: centre 468,521, size 772) */
+.splash-record { left: 8.125%; top: 14.599%; width: 76.89%; height: auto; animation: splash-spin 2600ms cubic-bezier(.35, 0, .2, 1) 250ms both; }
 .splash-top { inset: 0; width: 100%; height: 100%; }
 .splash-tag { font-size: 13px; font-weight: 500; letter-spacing: .32em; color: #6f6457; opacity: 0; animation: splash-tag 900ms ease-out 1000ms forwards; }
 @keyframes splash-logo { to { opacity: 1; transform: none; filter: blur(0); } }

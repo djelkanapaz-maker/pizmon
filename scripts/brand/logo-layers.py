@@ -21,26 +21,35 @@ a = np.asarray(Image.open(SRC).convert('RGBA')).astype(np.float32) / 255
 H, W = a.shape[:2]
 alpha = a[..., 3]
 solid = alpha > 0.5
+S = W / 900   # the probe points and the horn's neck below were drawn on the 900-wide logo
+sc = lambda *v: tuple(int(round(x * S)) for x in v)
 
 # ---- parts of the logo, by connected shape (they are drawn with transparent gaps between them) ----
 lab, n = nd.label(solid)
 sizes = nd.sum(solid, lab, range(1, n + 1))
 boxes = nd.find_objects(lab)
-def comp_at(x, y):
-    return lab[y, x]
-letters = [comp_at(x, y) for x, y in ((60, 450), (240, 450), (330, 450), (320, 600), (560, 420), (780, 450))]
+def comp_at(x, y, r=0):
+    # the component at (x, y), or the nearest one within r pixels
+    if lab[y, x] or not r: return lab[y, x]
+    win = lab[max(0, y - r):y + r + 1, max(0, x - r):x + r + 1]
+    yy, xx = np.nonzero(win)
+    if not len(yy): return 0
+    i = np.argmin((yy - min(r, y)) ** 2 + (xx - min(r, x)) ** 2)
+    return win[yy[i], xx[i]]
+letters = [comp_at(*sc(x, y)) for x, y in ((60, 450), (240, 450), (330, 450), (320, 600), (560, 420), (780, 450))]
 letters = [c for c in letters if c]
-swooshes = [comp_at(x, y) for x, y in ((150, 250), (700, 700))]
+# the two thin swooshes outside the record: the mid-sized shapes that are not letters
+swooshes = [i + 1 for i, s in enumerate(sizes) if 2000 * S * S < s < 9000 * S * S and (i + 1) not in letters]
 # make sure the probes hit the right shapes: the swooshes are thin arcs outside the record
 letters_mask = np.isin(lab, letters)
 swoosh_mask = np.isin(lab, [c for c in swooshes if c])
 
 # ---- the record: a circle fitted to the outer edge of its visible parts ----
-rec_comps = [i + 1 for i, s in enumerate(sizes) if s > 300 and (i + 1) not in letters and (i + 1) not in swooshes]
+rec_comps = [i + 1 for i, s in enumerate(sizes) if s > 300 * S * S and (i + 1) not in letters and (i + 1) not in swooshes]
 rec_any = np.isin(lab, rec_comps)
 edge = rec_any & ~nd.binary_erosion(rec_any, iterations=2)
 ys, xs = np.nonzero(edge)
-keep = (xs < 560) | (ys > 470)           # leave out the horn's outline
+keep = (xs < 560 * S) | (ys > 470 * S)           # leave out the horn's outline
 xs, ys = xs[keep].astype(np.float64), ys[keep].astype(np.float64)
 # outer edge only: the points farthest from a first-guess centre in each direction
 cx0, cy0 = xs.mean(), ys.mean()
@@ -53,14 +62,17 @@ px, py = np.array(px), np.array(py)
 A = np.c_[2 * px, 2 * py, np.ones_like(px)]
 sol, *_ = np.linalg.lstsq(A, px ** 2 + py ** 2, rcond=None)
 cx, cy = sol[0], sol[1]; R = float(np.sqrt(sol[2] + cx ** 2 + cy ** 2))
+# the full-quality logo has the same art as the 900-wide one; its fit there (419.14, 467.33, r 344.18) is cleaner than a
+# fit on the larger file, where the ivory outlines cut the record's rim into more pieces
+cx, cy, R = 419.14 * S, 467.33 * S, 344.18 * S
 yy, xx = np.mgrid[0:H, 0:W]
 rr = np.hypot(xx - cx, yy - cy)
 disk = rr <= R + 1.5
 
 # ---- the horn: everything of the record's shapes outside the disk, plus its neck inside it ----
 neck = np.zeros((H, W), np.uint8)
-cv2.fillPoly(neck, [np.array([(445, 322), (640, 168), (765, 0), (899, 0), (899, 430), (860, 414), (800, 378), (700, 353),
-                              (620, 351), (560, 358), (505, 386), (470, 352)], np.int32)], 1)
+cv2.fillPoly(neck, [np.array([sc(x, y) for x, y in ((445, 322), (640, 168), (765, 0), (899, 0), (899, 430), (860, 414), (800, 378), (700, 353),
+                              (620, 351), (560, 358), (505, 386), (470, 352))], np.int32)], 1)
 horn = rec_any & ((~disk) | (neck > 0))
 horn = nd.binary_closing(horn, iterations=2) & rec_any
 record_vis = rec_any & ~horn & disk
@@ -80,7 +92,7 @@ rad = np.arange(NR, dtype=np.float32)
 mapx = (cx + rad[:, None] * np.cos(theta)[None, :]).astype(np.float32)
 mapy = (cy + rad[:, None] * np.sin(theta)[None, :]).astype(np.float32)
 rgb = a[..., :3]
-valid = (record_vis & (alpha > 0.9) & ~nd.binary_dilation(horn, iterations=14) & ~nd.binary_dilation(letters_mask, iterations=4)).astype(np.float32)
+valid = (record_vis & (alpha > 0.9) & ~nd.binary_dilation(horn, iterations=round(14 * S)) & ~nd.binary_dilation(letters_mask, iterations=round(4 * S))).astype(np.float32)
 valid = nd.binary_erosion(valid > 0, iterations=2).astype(np.float32)   # stay clear of the anti-aliased edges
 pol = cv2.remap(rgb, mapx, mapy, cv2.INTER_LINEAR)
 pv = cv2.remap(valid, mapx, mapy, cv2.INTER_NEAREST) > 0.5
@@ -107,7 +119,7 @@ for r in range(first_ok): filled[r] = filled[first_ok].mean(0)
 # the centre label (under the letters; the original only shows bits of it): a clean gold label with a thin rim,
 # so nothing from the horn's neck spins with the record
 RL = int(R * 0.34)
-gold = a[int(cy) - 115:int(cy) - 95, int(cx) + 40:int(cx) + 80, :3].reshape(-1, 3)
+gold = a[int(cy - 115 * S):int(cy - 95 * S), int(cx + 40 * S):int(cx + 80 * S), :3].reshape(-1, 3)
 gold = gold[(gold.max(1) - gold.min(1)) > 0.15].mean(0) if ((gold.max(1) - gold.min(1)) > 0.15).any() else np.array([0.80, 0.66, 0.48])
 for r in range(min(RL + 6, NR)):
     if r >= RL:      # the dark rim between label and grooves
