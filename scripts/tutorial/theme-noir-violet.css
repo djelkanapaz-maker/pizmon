@@ -57,3 +57,10 @@ div[aria-hidden][style*="background"]:has(> span.display) {
 }
 div[aria-hidden][style*="background"]:has(> span.display) > div { border-color: #b9a9f5 !important; background: #b9a9f5 !important; }
 div[aria-hidden][style*="background"]:has(> span.display) > div.rounded-full { background: transparent !important; }
+
+/* bottom menu, Spotify style: no frame, light grey icons, the current one bright white */
+nav[aria-label="Main"] { background: linear-gradient(to top, #000 70%, rgb(0 0 0 / .85)) !important; border-top: 0 !important; }
+nav[aria-label="Main"] a { color: #a7a7a7 !important; }
+nav[aria-label="Main"] a.text-paper { color: #fff !important; }
+nav[aria-label="Main"] a span.rounded-full { background: none !important; box-shadow: none !important; border: 0 !important; color: inherit !important; }
+nav[aria-label="Main"] a.text-paper svg { stroke-width: 2.6; filter: drop-shadow(0 0 6px rgb(255 255 255 / .35)); }
