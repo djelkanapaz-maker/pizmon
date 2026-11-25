@@ -3,7 +3,7 @@ name: Tutorial artwork (temporary)
 on:
   push:
     branches: [tutorial-art]
-    paths: ['.tutorial-art/hashes.txt']
+    paths: ['.tutorial-art/hashes.txt', '.tutorial-art/badges.txt']
 permissions:
   contents: write
 jobs:
@@ -20,7 +20,15 @@ jobs:
             curl -sSfL --retry 3 -o ".tutorial-art/img/$h.jpg" "https://i.scdn.co/image/$h" || echo "miss $h"
           done < .tutorial-art/hashes.txt
           ls .tutorial-art/img | wc -l
+      - name: Download the official store badges
+        run: |
+          mkdir -p .tutorial-art/badges
+          while read -r name url; do
+            [ -z "$name" ] && continue
+            curl -sSfL --retry 3 -A "Mozilla/5.0" -o ".tutorial-art/badges/$name" "$url" || echo "miss $name"
+          done < .tutorial-art/badges.txt
+          ls -la .tutorial-art/badges
       - name: Commit
         run: |
           git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
-          git add .tutorial-art/img && git commit -m "tutorial covers" && git push || echo "nothing to commit"
+          git add .tutorial-art/img .tutorial-art/badges && git commit -m "tutorial covers" && git push || echo "nothing to commit"

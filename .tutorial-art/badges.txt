@@ -1,0 +1,4 @@
+app-store-he.svg https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/he-il
+app-store-en.svg https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/en-us
+google-play-he.png https://play.google.com/intl/en_us/badges/static/images/badges/iw_badge_web_generic.png
+google-play-en.png https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png
