@@ -8,6 +8,8 @@ import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ButtonLink } from '@/components/ui';
 
 const TITLE = 'פסקול · הפסקול של החתונה שלכם';
+// screens for "a look inside", in the order of m.landing.gallery (made from the capture spec's shots, light and dark)
+const GALLERY = ['home-light', 'library-dark', 'moments-light', 'choose-dark', 'stages-light', 'brief-dark'];
 const DESCRIPTION = 'בוחרים שיר לכל רגע, מסמנים מה לא לשמוע לעולם ומקבלים סיכום מוזיקלי לדיג׳יי. חינם לזוגות מתחתנים.';
 
 export const metadata: Metadata = {
@@ -49,6 +51,28 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
           <Link href="/login" className="text-sm font-bold underline underline-offset-4 text-paper-dim hover:text-paper">{L.signIn}</Link>
         </div>
         <p className="mt-4 text-sm text-paper-dim">{L.free}</p>
+      </section>
+
+      {/* a look inside: real screens, light and dark */}
+      <section className="relative py-14 max-w-6xl mx-auto" aria-labelledby="gallery-title">
+        <div className="gutter">
+          <h2 id="gallery-title" className="display-m">{L.galleryTitle}</h2>
+          <p className="mt-3 text-paper-dim">{L.gallerySub}</p>
+        </div>
+        <ul className="mt-8 flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-px-5 px-5 pb-4 [scrollbar-width:thin]" aria-describedby="gallery-hint">
+          {L.gallery.map((g, i) => (
+            <li key={g.t} className="snap-start shrink-0 w-[min(62vw,240px)]">
+              <div className="rounded-[34px] bg-[#1d1b19] p-[7px] shadow-[0_24px_50px_-24px_rgba(31,31,31,.55)]">
+                {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized screenshots in /public/landing */}
+                <img src={`/landing/${GALLERY[i]}.webp`} alt={`${g.t}: ${g.b}`} width={585} height={1266} loading={i < 2 ? 'eager' : 'lazy'} decoding="async"
+                  className="block w-full h-auto rounded-[28px]" />
+              </div>
+              <h3 className="mt-4 font-bold text-lg">{g.t}</h3>
+              <p className="mt-1 text-sm text-paper-dim leading-relaxed">{g.b}</p>
+            </li>
+          ))}
+        </ul>
+        <p id="gallery-hint" className="gutter mt-2 text-xs text-paper-dim">{L.galleryHint}</p>
       </section>
 
       {/* features */}

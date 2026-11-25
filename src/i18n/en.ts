@@ -269,6 +269,15 @@ export const en = {
     kicker: 'Free for engaged couples', title: 'Your wedding soundtrack. All in one place.',
     sub: 'Pick a song for every moment, mark what you never want to hear, and hand your DJ one clear music brief. Built from hundreds of real weddings, and free for every couple.',
     cta: 'Sign up free', signIn: 'Already signed up? Sign in', free: 'Free. No credit card.',
+    galleryTitle: 'A look inside', gallerySub: 'Real screens from the app. Light or dark, your choice.', galleryHint: 'Scroll sideways for more screens',
+    gallery: [
+      { t: 'Your home', b: 'Your next step and planning progress at a glance' },
+      { t: 'Music library', b: 'Ready-made collections for the ceremony, reception and dance floor' },
+      { t: 'A song for every moment', b: 'Walking down the aisle, breaking the glass, the first dance' },
+      { t: 'Listen and pick', b: 'Play with a tap, add to your playlist with plus' },
+      { t: 'Your playlist', b: 'Ordered by the parts of the evening, with notes for the DJ' },
+      { t: 'Summary for the DJ', b: 'Everything you chose goes to the DJ, and as a PDF' },
+    ],
     featuresTitle: 'What you get',
     features: [
       { t: 'A song for every moment', b: 'Walking down the aisle, breaking the glass, the first dance, the grand entrance. Listen, compare and choose together.' },
