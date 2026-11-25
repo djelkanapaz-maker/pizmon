@@ -7,6 +7,7 @@ import { BrandMark, FlowLines, SoundWave } from '@/components/brand';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ButtonLink } from '@/components/ui';
 import { LandingGallery } from '@/components/LandingGallery';
+import { StoreBadges } from '@/components/StoreBadges';
 import { cookies } from 'next/headers';
 import { SKIN_COOKIE, isSkin } from '@/core/skin';
 
@@ -78,6 +79,10 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
           <Link href="/login" className="text-sm font-bold underline underline-offset-4 text-paper-dim hover:text-paper">{L.signIn}</Link>
         </div>
         <p className="mt-4 text-sm text-paper-dim">{L.free}</p>
+        <div className="mt-8 flex flex-col gap-3">
+          <p className="text-sm font-bold">{L.getApp}</p>
+          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-end" />
+        </div>
       </section>
 
       {/* a look inside: real screens, light and dark */}
@@ -116,7 +121,10 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
             </li>
           ))}
         </ol>
-        <div className="mt-10"><ButtonLink href={signupHref} size="lg">{L.cta}</ButtonLink></div>
+        <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
+          <ButtonLink href={signupHref} size="lg">{L.cta}</ButtonLink>
+          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-end sm:justify-start" />
+        </div>
       </section>
 
       {/* about Elkana */}
