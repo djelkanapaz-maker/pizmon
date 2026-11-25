@@ -26,7 +26,9 @@ const layer = (n) => uri(`public/brand/opening/${n}.webp`, 'image/webp');
 
 const base = `${fonts}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:${W}px;height:${H}px;overflow:hidden;direction:rtl;font-family:Heebo,HeeboL,sans-serif}
+html,body{width:${W}px;height:${H}px;overflow:clip;direction:rtl;font-family:Heebo,HeeboL,sans-serif}
+/* clip, not hidden: nothing can scroll the page sideways (RTL overflow did, showing a white strip on the left) */
+html{background:#000;direction:ltr} body{direction:rtl}
 [data-a]{animation-fill-mode:both;animation-play-state:paused;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
 @keyframes up{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
 @keyframes slam{0%{opacity:0;transform:scale(1.35);filter:blur(10px)}100%{opacity:1;transform:none;filter:blur(0)}}
@@ -48,7 +50,7 @@ const A = (name, delay, dur = 0.6, extra = '', style = '') => `data-a ${extra ? 
 const skinCss = (dark) => dark
   ? `body{background:radial-gradient(1100px 1000px at 50% 70%,#2c2150 0%,#120f1c 50%,#000 100%);color:#fff}
      .h1{text-shadow:-6px 6px 0 #5a46a0}.sub{color:${C.mist}}.chip{color:${C.lilac};border-color:#3d3363;background:#16131f}`
-  : `body{background:radial-gradient(1100px 1000px at 50% 70%,#fffdf8 0%,${C.ivory} 55%,#ece2d2 100%);color:${C.charcoal}}
+  : `html{background:${C.ivory}} body{background:radial-gradient(1100px 1000px at 50% 70%,#fffdf8 0%,${C.ivory} 55%,#ece2d2 100%);color:${C.charcoal}}
      .h1{text-shadow:-6px 6px 0 ${C.champagne}}.sub{color:#5d5248}.chip{color:#8a7a68;border-color:#e0d4c2;background:#fff}`;
 
 // a phone with the screen; optional zoomed "callout" of a region of the same screen (in screenshot pixels, 1170 wide)
@@ -104,8 +106,8 @@ const feature = (dur, skin, id, t, s, box, subAt = 0.16) => {
   const dark = skin === 'dark', src = shot(skin, id);
   return { dur, html: `<style>${base}${skinCss(dark)}
     .stage{position:absolute;inset:0}
-    .h1{position:absolute;top:230px;right:90px;left:90px;font-size:118px}
-    .sub{position:absolute;top:375px;right:90px;left:90px;font-size:50px;font-weight:500}
+    .h1{position:absolute;top:230px;right:70px;left:70px;font-size:118px;text-align:center}
+    .sub{position:absolute;top:375px;right:70px;left:70px;font-size:50px;font-weight:500;text-align:center}
   </style><div ${A('push', 0, dur, 'stage', 'animation-timing-function:linear;')}>
   <div class="h h1 fit" ${A('slam', 0.02, 0.36)}>${t}</div>
   <div class="sub" ${A('up', subAt, 0.42)}>${s}</div>
@@ -114,7 +116,7 @@ const feature = (dur, skin, id, t, s, box, subAt = 0.16) => {
   </div>` };
 };
 const textCard = (dur, lines, sub) => ({ dur, html: `<style>${base}
-  body{background:${darkBg};color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 90px}
+  body{background:${darkBg};color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 90px}
   .l{font-size:170px;text-shadow:-8px 8px 0 #5a46a0}.l2{font-size:104px;margin-top:14px;line-height:1.05}
   .s{font-size:52px;color:${C.mist};margin-top:50px;font-weight:500}
 </style>${lines}${sub ? `<div class="s" ${A('up', sub[1], 0.45)}>${sub[0]}</div>` : ''}` });
@@ -137,7 +139,7 @@ scenes.push(feature(3.0, 'light', 'p09-collection', 'פלייליסטים שבנ
 
 // 13. Experience (… משש מאות חתונות שניגנתי)
 scenes.push({ dur: 3.5, html: `<style>${base}
-  body{background:#0a0909;color:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 90px}
+  body{background:#0a0909;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 90px}
   .k{font-size:56px;color:${C.taupe};font-weight:700;margin-bottom:40px}
   .n{font-size:300px;color:${C.champagne};line-height:.9}
   .u{font-size:96px;margin-top:10px}
@@ -148,20 +150,19 @@ scenes.push({ dur: 3.5, html: `<style>${base}
 <div class="h u" ${A('up', 1.9, 0.45)}>חתונות שניגנתי</div>
 <div class="s" ${A('up', 2.6, 0.45)}>17 שנה מאחורי העמדה · אלקנה פז</div>` });
 
-// 14. Available now
+// 14. Available now: the official App Store and Google Play badges (public/badges, as supplied by Apple and Google)
 scenes.push({ dur: 3.43, html: `<style>${base}
   body{background:${darkBg};color:#fff}
-  .t{position:absolute;top:220px;right:90px;left:90px;font-size:140px;text-shadow:-7px 7px 0 #5a46a0}
-  .s{position:absolute;top:400px;right:90px;left:90px;font-size:60px;color:${C.mist};font-weight:500}
-  .st{position:absolute;right:90px;display:flex;align-items:center;gap:22px;direction:ltr;padding:22px 40px;border-radius:28px;background:#fff;color:#111;font-family:HeeboL;font-weight:700;font-size:54px;box-shadow:0 24px 60px -16px rgba(0,0,0,.8)}
-  .st small{display:block;font-size:26px;font-weight:500;color:#666;line-height:1}
-  .st1{top:560px}.st2{top:730px}
+  .t{position:absolute;top:220px;right:70px;left:70px;font-size:140px;text-align:center;text-shadow:-7px 7px 0 #5a46a0}
+  .s{position:absolute;top:400px;right:70px;left:70px;font-size:60px;color:${C.mist};font-weight:500;text-align:center}
+  .st{position:absolute;left:50%;translate:-50% 0;height:132px;width:auto;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.7))}
+  .st1{top:540px}.st2{top:700px}
 </style>
 <div class="h t" ${A('slam', 0.08, 0.4)}>זמינה עכשיו</div>
 <div class="s" ${A('up', 0.7, 0.45)}>להורדה בחינם</div>
-<div ${A('up', 1.55, 0.45, 'st st1')}><span><small>Download on the</small>App Store</span></div>
-<div ${A('up', 2.15, 0.45, 'st st2')}><span><small>Get it on</small>Google Play</span></div>
-${phone(shot('dark', 'p05-home'), true, { top: 980, right: 380 })}` });
+<img ${A('up', 1.55, 0.45, 'st st1')} src="${uri('public/badges/app-store.svg', 'image/svg+xml')}" alt="">
+<img ${A('up', 2.15, 0.45, 'st st2')} src="${uri('public/badges/google-play.png')}" alt="">
+${phone(shot('dark', 'p05-home'), true, { top: 980, right: Math.round((W - PW - 2 * BZ) / 2) })}` });
 
 // 15. Light or dark (music only): the same home screen, wiped from light to dark on the downbeat
 scenes.push({ dur: 3.0, html: `<style>${base}
@@ -217,6 +218,12 @@ const seek = (t) => page.evaluate((ms) => document.getAnimations().forEach((a) =
 const fit = () => page.evaluate(async () => {
   await document.fonts.ready;
   for (const el of document.querySelectorAll('.fit')) { el.style.whiteSpace = 'nowrap'; let f = parseFloat(getComputedStyle(el).fontSize); while (el.scrollWidth > el.clientWidth && f > 50) { f -= 2; el.style.fontSize = f + 'px'; } }
+  // everything inside one fixed, clipped frame: content that pops in from beyond the left edge (RTL) can't shift the
+  // page, which showed as a light strip down the left side at the start of some scenes
+  const frame = document.createElement('div');
+  frame.style.cssText = 'position:fixed;inset:0;overflow:clip;contain:paint;box-sizing:border-box;display:inherit;flex-direction:inherit;justify-content:inherit;align-items:inherit;text-align:inherit;padding:inherit;gap:inherit';
+  for (const n of [...document.body.childNodes]) if (!(n instanceof HTMLStyleElement)) frame.appendChild(n);
+  document.body.appendChild(frame);
 });
 const total = scenes.reduce((s, x) => s + x.dur, 0);
 console.log('total', total.toFixed(2), 's');
