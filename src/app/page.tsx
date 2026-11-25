@@ -8,6 +8,7 @@ import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ButtonLink } from '@/components/ui';
 import { LandingGallery } from '@/components/LandingGallery';
 import { StoreBadges } from '@/components/StoreBadges';
+import { LandingVideo } from '@/components/LandingVideo';
 import { cookies } from 'next/headers';
 import { SKIN_COOKIE, isSkin } from '@/core/skin';
 
@@ -69,7 +70,8 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
       </header>
 
       {/* hero */}
-      <section className="relative gutter pt-14 md:pt-24 pb-16 max-w-6xl mx-auto animate-rise">
+      <section className="relative gutter pt-14 md:pt-24 pb-16 max-w-6xl mx-auto animate-rise grid gap-12 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div>
         <SoundWave height={34} className="absolute end-5 top-6 text-taupe opacity-80" />
         <p className="label mb-4">{L.kicker}</p>
         <h1 className="display-xl poster-shadow max-w-3xl">{L.title}</h1>
@@ -83,6 +85,8 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
           <p className="text-sm font-bold">{L.getApp}</p>
           <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-end" />
         </div>
+        </div>
+        <LandingVideo label={L.videoLabel} cta={L.videoCta} />
       </section>
 
       {/* a look inside: real screens, light and dark */}

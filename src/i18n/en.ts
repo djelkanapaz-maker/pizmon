@@ -269,6 +269,7 @@ export const en = {
     kicker: 'Free for engaged couples', title: 'Your wedding soundtrack. All in one place.',
     sub: 'Pick a song for every moment, mark what you never want to hear, and hand your DJ one clear music brief. Built from hundreds of real weddings, and free for every couple.',
     cta: 'Sign up free', signIn: 'Already signed up? Sign in', free: 'Free. No credit card.',
+    videoLabel: 'Video: meet Paskol', videoCta: 'Watch the video',
     getApp: 'Get the app:', appStoreLabel: 'Paskol on the App Store', googlePlayLabel: 'Paskol on Google Play',
     galleryTitle: 'A look inside', gallerySub: 'Real screens from the app.', galleryHint: 'Scroll sideways for more screens', skinPick: 'Pick your Paskol shade',
     gallery: [
