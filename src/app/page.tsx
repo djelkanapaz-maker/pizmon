@@ -6,10 +6,35 @@ import { getI18n } from '@/i18n/server';
 import { BrandMark, FlowLines, SoundWave } from '@/components/brand';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ButtonLink } from '@/components/ui';
+import { LandingGallery } from '@/components/LandingGallery';
+import { cookies } from 'next/headers';
+import { SKIN_COOKIE, isSkin } from '@/core/skin';
 
 const TITLE = 'פסקול · הפסקול של החתונה שלכם';
 // screens for "a look inside", in the order of m.landing.gallery (made from the capture spec's shots, light and dark)
-const GALLERY = ['home-light', 'library-dark', 'moments-light', 'choose-dark', 'stages-light', 'brief-dark'];
+const GALLERY = ['home', 'library', 'moments', 'choose', 'stages', 'brief'];   // each in -light and -dark
+// one screen per "What you get" card (m.landing.features), from scripts/tutorial/landing-capture.spec.ts;
+// the app screens come in both skins and follow the page's look, the brief is the PDF itself (never: 585×585)
+const FEATURE_SHOTS = ['feat-moment', 'feat-hits', 'feat-never', 'feat-brief'];
+const FeatureShot = ({ img, alt }: { img: string; alt: string }) => {
+  const pdf = img === 'feat-brief';
+  const frame = pdf ? 'rounded-[14px] bg-white p-0 shadow-[0_18px_40px_-20px_rgba(31,31,31,.5)] ring-1 ring-black/5' : 'rounded-t-[30px] bg-[#1d1b19] px-[6px] pt-[6px]';
+  const inner = pdf ? 'rounded-[14px]' : 'rounded-t-[24px]';
+  return (
+    <div className="mt-6 -mb-6 flex justify-center overflow-hidden">
+      <div className={`w-[min(78%,300px)] ${frame}`}>
+        {/* eslint-disable @next/next/no-img-element -- pre-sized screenshots in /public/landing */}
+        {pdf
+          ? <img src="/landing/feat-brief.webp" alt={alt} width={585} height={780} loading="lazy" decoding="async" className={`block w-full h-auto ${inner}`} />
+          : (['light', 'dark'] as const).map((s) => (
+            <img key={s} src={`/landing/${img}-${s}.webp`} alt={alt} width={585} height={img === 'feat-never' ? 585 : 780} loading="lazy" decoding="async"
+              className={`block w-full h-auto ${inner} logo-for-${s}`} />
+          ))}
+        {/* eslint-enable @next/next/no-img-element */}
+      </div>
+    </div>
+  );
+};
 const DESCRIPTION = 'בוחרים שיר לכל רגע, מסמנים מה לא לשמוע לעולם ומקבלים סיכום מוזיקלי לדיג׳יי. חינם לזוגות מתחתנים.';
 
 export const metadata: Metadata = {
@@ -26,6 +51,8 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
   const sp = await searchParams;
   const { m } = await getI18n();
   const L = m.landing;
+  const sk = (await cookies()).get(SKIN_COOKIE)?.value;
+  const skin = isSkin(sk) ? sk : 'light';
   // keep campaign tags (?ref=, ?utm_source=) on the way to sign-up
   const keep = new URLSearchParams(Object.entries(sp).filter(([k, v]) => ['ref', 'utm_source', 'utm_campaign'].includes(k) && v) as [string, string][]).toString();
   const signupHref = `/signup${keep ? `?${keep}` : ''}`;
@@ -59,20 +86,8 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
           <h2 id="gallery-title" className="display-m">{L.galleryTitle}</h2>
           <p className="mt-3 text-paper-dim">{L.gallerySub}</p>
         </div>
-        <ul className="mt-8 flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-px-5 px-5 pb-4 [scrollbar-width:thin]" aria-describedby="gallery-hint">
-          {L.gallery.map((g, i) => (
-            <li key={g.t} className="snap-start shrink-0 w-[min(62vw,240px)]">
-              <div className="rounded-[34px] bg-[#1d1b19] p-[7px] shadow-[0_24px_50px_-24px_rgba(31,31,31,.55)]">
-                {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized screenshots in /public/landing */}
-                <img src={`/landing/${GALLERY[i]}.webp`} alt={`${g.t}: ${g.b}`} width={585} height={1266} loading={i < 2 ? 'eager' : 'lazy'} decoding="async"
-                  className="block w-full h-auto rounded-[28px]" />
-              </div>
-              <h3 className="mt-4 font-bold text-lg">{g.t}</h3>
-              <p className="mt-1 text-sm text-paper-dim leading-relaxed">{g.b}</p>
-            </li>
-          ))}
-        </ul>
-        <p id="gallery-hint" className="gutter mt-2 text-xs text-paper-dim">{L.galleryHint}</p>
+        <LandingGallery initial={skin} items={L.gallery.map((g, i) => ({ ...g, img: GALLERY[i] }))}
+          labels={{ pick: L.skinPick, light: m.skin.light, dark: m.skin.dark, hint: L.galleryHint }} />
       </section>
 
       {/* features */}
@@ -80,10 +95,11 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
         <h2 className="display-m mb-8">{L.featuresTitle}</h2>
         <ul className="grid sm:grid-cols-2 gap-4">
           {L.features.map((f, i) => (
-            <li key={f.t} className="card p-6">
+            <li key={f.t} className="card p-6 flex flex-col">
               <p className="numeral text-[32px] leading-none text-champagne">{String(i + 1).padStart(2, '0')}</p>
               <h3 className="display-s mt-3">{f.t}</h3>
               <p className="mt-2 text-paper-dim leading-relaxed">{f.b}</p>
+              <FeatureShot img={FEATURE_SHOTS[i]} alt={f.t} />
             </li>
           ))}
         </ul>

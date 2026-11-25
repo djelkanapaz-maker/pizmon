@@ -9,7 +9,7 @@ import { IconCheck } from '@/components/icons';
 import { SKIN_COOKIE, SKIN_THEME_COLOR, type Skin } from '@/core/skin';
 
 /** Switches the page at once (no reload), then saves the choice on the device and the account. */
-function applySkin(skin: Skin) {
+export function applySkin(skin: Skin) {
   document.documentElement.dataset.skin = skin;
   document.cookie = `${SKIN_COOKIE}=${skin}; path=/; max-age=31536000; samesite=lax`;
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', SKIN_THEME_COLOR[skin]);
