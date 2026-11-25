@@ -31,5 +31,5 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     { href: '/admin/questionnaire', label: m.admin.questionnaire },
     { href: '/admin/settings', label: m.admin.settings },
   ];
-  return <StaffShell brand={s.company.brand_name} title={m.admin.title} items={items} email={s.email} notificationsHref="/admin/notifications">{children}</StaffShell>;
+  return <StaffShell brand={s.company.brand_name} title={m.admin.title} items={items} email={s.email} notificationsHref="/admin/notifications" skin={s.skin}>{children}</StaffShell>;
 }

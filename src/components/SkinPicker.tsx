@@ -90,3 +90,33 @@ export function SkinSync({ skin }: { skin: Skin | null }) {
     </Sheet>
   );
 }
+
+/**
+ * Compact light/dark switch for the admin and DJ desks. Keeps this device on the account's skin (a new browser)
+ * and never asks: staff keep the light look until they switch.
+ */
+export function SkinToggle({ skin }: { skin: Skin | null }) {
+  const { m } = useI18n();
+  const router = useRouter();
+  const [current, setCurrent] = useState<Skin>(skin ?? 'light');
+  const [pending, start] = useTransition();
+  useEffect(() => {
+    if (skin && document.documentElement.dataset.skin !== skin) applySkin(skin);
+  }, [skin]);
+  const choose = (s: Skin) => {
+    if (s === current) return;
+    setCurrent(s);
+    applySkin(s);
+    start(async () => { await setSkin(s); router.refresh(); });
+  };
+  return (
+    <div role="group" aria-label={m.skin.title} className={cx('inline-flex rounded-full border border-line p-1 gap-1', pending && 'opacity-60')}>
+      {(['light', 'dark'] as const).map((s) => (
+        <button key={s} type="button" onClick={() => choose(s)} aria-pressed={current === s}
+          className={cx('h-8 px-3 rounded-full text-xs font-bold transition-colors', current === s ? 'bg-paper text-ink' : 'text-paper-dim hover:text-paper')}>
+          {m.skin[s]}
+        </button>
+      ))}
+    </div>
+  );
+}

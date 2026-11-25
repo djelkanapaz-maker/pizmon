@@ -6,6 +6,8 @@ import { useI18n } from '@/i18n/client';
 import { signOut } from '@/server/actions/common';
 import { BrandMark } from './brand';
 import { LocaleSwitch } from './LocaleSwitch';
+import { SkinToggle } from './SkinPicker';
+import type { Skin } from '@/core/skin';
 import { MiniPlayer } from './audio/MiniPlayer';
 import { NativeBridge } from './native/NativeBridge';
 import { IconBell, IconList, IconX } from './icons';
@@ -14,7 +16,7 @@ import { cx } from './ui';
 export type StaffNavItem = { href: string; label: string; exact?: boolean };
 
 /** Information-dense shell for DJ and admin desks; collapses to a drawer on small screens. */
-export function StaffShell({ brand, title, items, email, unread = 0, notificationsHref, children }: { brand: string; title: string; items: StaffNavItem[]; email: string; unread?: number; notificationsHref: string; children: ReactNode }) {
+export function StaffShell({ brand, title, items, email, unread = 0, notificationsHref, skin = null, children }: { brand: string; title: string; items: StaffNavItem[]; email: string; unread?: number; notificationsHref: string; skin?: Skin | null; children: ReactNode }) {
   const path = usePathname();
   const { m } = useI18n();
   const [open, setOpen] = useState(false);
@@ -34,7 +36,7 @@ export function StaffShell({ brand, title, items, email, unread = 0, notificatio
       <Link href={notificationsHref} className="h-10 px-3 rounded-[10px] flex items-center gap-2 text-sm font-bold text-paper-dim hover:text-paper hover:bg-ink-3">
         <IconBell size={18} />{m.nav.notifications}{unread > 0 && <span className="ms-auto min-w-5 h-5 px-1.5 rounded-full bg-ember text-ink text-xs grid place-items-center">{unread}</span>}
       </Link>
-      <LocaleSwitch compact />
+      <div className="flex flex-wrap gap-2"><LocaleSwitch compact /><SkinToggle skin={skin} /></div>
       <p className="text-xs text-paper-dim truncate px-1" dir="ltr">{email}</p>
       <form action={signOut}><button className="text-sm font-bold text-paper-dim hover:text-paper px-1">{m.common.signOut}</button></form>
     </div>

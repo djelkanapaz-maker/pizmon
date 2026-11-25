@@ -13,5 +13,5 @@ export default async function DjLayout({ children }: { children: ReactNode }) {
     { href: '/dj', label: m.dj.couples, exact: true },
     { href: '/dj/profile', label: m.profile.title },
   ];
-  return <StaffShell brand={s.company.brand_name} title={m.dj.title} items={items} email={s.email} notificationsHref="/dj/notifications" unread={count ?? 0}>{children}</StaffShell>;
+  return <StaffShell brand={s.company.brand_name} title={m.dj.title} items={items} email={s.email} notificationsHref="/dj/notifications" unread={count ?? 0} skin={s.skin}>{children}</StaffShell>;
 }
