@@ -82,8 +82,8 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
         </div>
         <p className="mt-4 text-sm text-paper-dim">{L.free}</p>
         <div className="mt-8 flex flex-col gap-3">
-          <p className="text-sm font-bold">{L.getApp}</p>
-          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-end" />
+          <p className="text-sm font-bold text-center sm:text-start">{L.getApp}</p>
+          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-center sm:justify-end" />
         </div>
         </div>
         <LandingVideo label={L.videoLabel} cta={L.videoCta} />
@@ -127,7 +127,7 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
         </ol>
         <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
           <ButtonLink href={signupHref} size="lg">{L.cta}</ButtonLink>
-          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-end sm:justify-start" />
+          <StoreBadges labels={{ appStore: L.appStoreLabel, googlePlay: L.googlePlayLabel }} className="justify-center sm:justify-start" />
         </div>
       </section>
 
