@@ -95,7 +95,10 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
 
       <Button type="submit" size="lg" full disabled={busy || !hydrated}>{busy ? m.signup.submitting : m.signup.submit}</Button>
       <p className="text-xs text-paper-dim text-center">
-        <Link href="/privacy" className="underline underline-offset-4">{m.signup.terms}</Link>
+        {m.signup.terms.split(/(\{terms\}|\{privacy\})/).map((part, i) =>
+          part === '{terms}' ? <Link key={i} href="/terms" className="underline underline-offset-4">{m.signup.termsLink}</Link>
+          : part === '{privacy}' ? <Link key={i} href="/privacy" className="underline underline-offset-4">{m.signup.privacyLink}</Link>
+          : part)}
       </p>
     </form>
   );

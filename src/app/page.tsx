@@ -131,7 +131,11 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
 
       <footer className="relative gutter pt-10 pb-[max(28px,env(safe-area-inset-bottom))] max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-sm text-paper-dim">
         <span>{L.footer}</span>
-        <Link href="/privacy" className="underline underline-offset-4">{L.privacy}</Link>
+        <nav aria-label={L.terms} className="flex items-center gap-4">
+          <Link href="/terms" className="underline underline-offset-4">{L.terms}</Link>
+          <Link href="/privacy" className="underline underline-offset-4">{L.privacy}</Link>
+        </nav>
+        <p className="w-full text-xs">{L.rights.replace('{year}', String(new Date().getFullYear()))}</p>
       </footer>
       <FlowLines className="pointer-events-none absolute inset-x-0 bottom-0 h-[22vh] w-full -z-0 opacity-70" />
     </main>
