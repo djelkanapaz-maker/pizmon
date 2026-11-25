@@ -12,8 +12,8 @@ export function LandingVideo({ label, cta }: { label: string; cta: string }) {
         <video ref={ref} className="block w-full h-auto rounded-[30px] bg-black" width={720} height={1280}
           poster="/landing/paskol-reel-poster.webp" preload="none" playsInline controls={started} aria-label={label}
           onPlay={() => setStarted(true)}>
-          <source src="/landing/paskol-reel.webm" type="video/webm" />
-          <source src="/landing/paskol-reel.mp4" type="video/mp4" />
+          <source src="/landing/paskol-reel.webm?v=4" type="video/webm" />
+          <source src="/landing/paskol-reel.mp4?v=4" type="video/mp4" />
         </video>
       </div>
       {!started && (
