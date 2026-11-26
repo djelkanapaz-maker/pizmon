@@ -23,6 +23,7 @@ export const en = {
     passwordRule: 'At least 8 characters. Digits only is fine, e.g. your wedding date: 16112026.', passwordMismatch: 'Passwords don’t match.', passwordWeak: 'Use at least 8 characters.',
     linkInvalid: 'This link is invalid or has expired. Ask your DJ for a new one.',
     noAccess: 'Your account isn’t connected to a wedding yet. Please contact your DJ.',
+    pendingApproval: 'Your sign-up was received and is waiting for approval. We’ll let you know as soon as it’s approved.',
     rateLimited: 'Too many attempts. Wait a minute and try again.',
   },
   setup: {
@@ -294,13 +295,14 @@ export const en = {
     aboutCta: 'More about Elkana', footer: 'Paskol · Your moments. Our music.', privacy: 'Privacy', terms: 'Terms of use', rights: '© {year} Elkana Paz. All rights reserved.',
   },
   signup: {
-    title: 'Sign up free', sub: 'A few details and you’re in. It takes a minute.',
+    title: 'Sign up free', sub: 'A few details, a quick approval, and you’re in.',
     partnerOne: 'Your name', partnerTwo: 'Your partner’s name', email: 'Email', password: 'Password', phone: 'Phone',
     date: 'Wedding date', venue: 'Venue', city: 'City', guests: 'Guests (approx.)',
     noDate: 'We haven’t set a date yet', hasDjQ: 'Have you booked a DJ?', hasDjYes: 'Yes, we have', hasDjNo: 'Not yet', otherDj: 'Who is your DJ?',
     terms: 'By signing up you agree to the {terms} and the {privacy}.', termsLink: 'terms of use', privacyLink: 'privacy policy', submit: 'Create our account', submitting: 'Creating…',
     haveAccount: 'Already have an account?', signIn: 'Sign in',
     errors: { required: 'Please fill in all the fields marked with an asterisk.', email_exists: 'This email is already registered. Sign in instead.', rate_limited: 'Too many attempts. Please try again later.', has_dj: 'Tell us whether you’ve booked a DJ.', other_dj: 'Tell us who your DJ is.', phone: 'Check the phone number.', signup_closed: 'Sign-up is closed right now.' },
+    pendingTitle: 'Thanks, got it!', pendingBody: 'Your sign-up is waiting for a quick approval. As soon as it’s approved we’ll let you know, and you can sign in with the email and password you chose.', pendingHome: 'Back to the home page',
   },
   lead: {
     noDjTitle: 'Haven’t booked a DJ yet?', noDjBody: 'Elkana Paz, the DJ behind Paskol, would be happy to meet you and send you an offer for your wedding.',
@@ -309,11 +311,15 @@ export const en = {
   },
   leads: {
     title: 'Leads', sub: 'Couples who signed up on their own at paskol.app.', empty: 'No leads yet. Share the sign-up link in groups for engaged couples.',
-    filters: { open: 'Open', noDj: 'No DJ yet', call: 'Asked for a call', all: 'All' },
+    filters: { pending: 'Waiting for approval', open: 'Open', noDj: 'No DJ yet', call: 'Asked for a call', all: 'All' },
     status: { new: 'New', call_requested: 'Asked for a call', contacted: 'Contacted', booked: 'Booked', not_relevant: 'Not relevant' },
     hasDj: 'Has a DJ', noDj: 'No DJ yet', callRequested: 'Asked for a call {when}',
     call: 'Call', whatsapp: 'WhatsApp', note: 'Private note', saveNote: 'Save', source: 'Source: {source}', signedUp: 'Signed up {when}', guests: '{count} guests',
     waText: 'Hi {name}, this is Elkana Paz from Paskol. I saw you signed up ahead of your wedding{date}. Congratulations! I’d love to hear about it.',
+    pendingEmpty: 'No sign-ups waiting for approval.', pendingBadge: 'Waiting for approval', approve: 'Approve access', approving: 'Approving…', reject: 'Reject',
+    approved: 'Approved! The couple can sign in now.', approvedEmail: 'Approved! We emailed them that they can sign in.', approvedWa: 'Tell them on WhatsApp',
+    rejectConfirm: 'Reject the sign-up of {names}? The sign-up and its details are deleted for good.', rejected: 'Sign-up rejected and deleted',
+    waApproved: 'Hi {name}, this is Elkana Paz. Your Paskol sign-up is approved! Sign in with the email and password you chose: https://www.paskol.app/login',
     noDate: 'No date yet', selfBadge: 'Self sign-up', count: '{count} leads',
   },
   errors: {

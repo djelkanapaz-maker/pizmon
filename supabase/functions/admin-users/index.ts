@@ -17,6 +17,8 @@ const BOOTSTRAP_SECRET = Deno.env.get('BOOTSTRAP_SECRET');
 const SIGNUP_SECRET = Deno.env.get('SIGNUP_SECRET');
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const EMAIL_FROM = Deno.env.get('EMAIL_FROM');
+/** self sign-ups wait for an admin's approval before they can sign in (SELF_SIGNUP_APPROVAL=off turns it off) */
+const APPROVAL = (Deno.env.get('SELF_SIGNUP_APPROVAL') ?? 'on') !== 'off';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -246,6 +248,8 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
 
     const { data: created, error: uErr } = await admin.auth.admin.createUser({
       email: e, password, email_confirm: true, user_metadata: { full_name: p1, locale: b.locale === 'en' ? 'en' : 'he' },
+      // no sign-in until the admin approves the couple (approve_signup lifts this)
+      ...(APPROVAL ? { ban_duration: '876000h' } : {}),
     });
     if (uErr || !created.user) throw new HttpError(uErr?.status === 422 ? 409 : 500, uErr?.status === 422 ? 'email_exists' : 'signup_failed', uErr?.message);
     const userId = created.user.id;
@@ -256,7 +260,7 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
       venue_city: str(b.venue_city, 'venue_city', { max: 80 }), guest_count: guest,
       invite_email: e, created_by: userId, signup_source: 'self', phone,
       has_dj: b.has_dj, other_dj_name: b.has_dj ? str(b.other_dj_name, 'other_dj_name', { max: 120 }) : null,
-      contact_consent: b.contact_consent === true,
+      contact_consent: b.contact_consent === true, access_pending: APPROVAL,
     }).select('id').single();
     if (error) { await admin.auth.admin.deleteUser(userId); throw new HttpError(400, 'create_failed', error.message); }
     try {
@@ -275,11 +279,49 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
       type: 'couple_self_signup', entity_type: 'wedding_event', entity_id: ev.id, staff_only: true, payload: { has_dj: b.has_dj } });
     const { data: admins } = await admin.from('company_members').select('user_id').eq('company_id', company.id).eq('role', 'admin');
     const names = [p1, str(b.partner_two_name, 'partner_two_name', { max: 80 })].filter(Boolean).join(' & ');
+    const noDj = b.has_dj ? '' : ' · עוד לא סגרו DJ';
     await admin.from('notifications').insert((admins ?? []).map((a: { user_id: string }) => ({
-      user_id: a.user_id, company_id: company.id, event_id: ev.id, type: 'lead_new',
-      title_he: `ליד חדש: ${names}${b.has_dj ? '' : ' · עוד לא סגרו DJ'}`, title_en: `New lead: ${names}${b.has_dj ? '' : ' · no DJ yet'}`, link: '/admin/leads',
+      user_id: a.user_id, company_id: company.id, event_id: ev.id, type: APPROVAL ? 'signup_pending' : 'lead_new',
+      title_he: APPROVAL ? `הרשמה חדשה ממתינה לאישור: ${names}${noDj}` : `ליד חדש: ${names}${noDj}`,
+      title_en: APPROVAL ? `New sign-up waiting for approval: ${names}` : `New lead: ${names}${b.has_dj ? '' : ' · no DJ yet'}`,
+      link: APPROVAL ? '/admin/leads?f=pending' : '/admin/leads',
     })));
+    if (APPROVAL) {
+      const APP_URL = await appUrlFor(company.id);
+      // and an email to each admin, when email is configured
+      const esc = (v: unknown) => String(v ?? '').replace(/[<>&]/g, '');
+      const html = `<div dir="rtl" style="font-family:Arial,sans-serif"><p><b>הרשמה חדשה לפסקול ממתינה לאישור</b></p>
+        <p>${esc(names)}<br>טלפון: ${esc(phone)}<br>אימייל: ${esc(e)}<br>תאריך: ${esc(date ?? 'עוד לא נקבע')}${b.venue_name ? `<br>מקום: ${esc(b.venue_name)}` : ''}<br>דיג׳יי: ${b.has_dj ? esc(b.other_dj_name ?? 'יש') : 'עוד לא סגרו'}</p>
+        <p><a href="${APP_URL}/admin/leads?f=pending">לאישור או דחייה</a></p></div>`;
+      for (const a of admins ?? []) {
+        const { data: u } = await admin.auth.admin.getUserById((a as { user_id: string }).user_id);
+        if (u?.user?.email) await maybeEmail(u.user.email, `הרשמה חדשה ממתינה לאישור: ${names}`, html);
+      }
+    }
     return { event_id: ev.id };
+  },
+
+  /** Lets a self-signed-up couple in: lifts the sign-in block on their logins and tells them. */
+  async approve_signup(req, b) {
+    const eventId = uuid(b.event_id, 'event_id')!;
+    const { data: ev } = await admin.from('wedding_events').select('id, company_id, partner_one_name, invite_email, access_pending').eq('id', eventId).maybeSingle();
+    if (!ev) throw new HttpError(404, 'event_not_found');
+    const { user } = await requireAdmin(req, ev.company_id);
+    const { data: members } = await admin.from('couple_members').select('user_id').eq('event_id', eventId);
+    for (const mbr of members ?? []) {
+      const { error } = await admin.auth.admin.updateUserById(mbr.user_id as string, { ban_duration: 'none' });
+      if (error) throw new HttpError(500, 'approve_failed', error.message);
+    }
+    await admin.from('wedding_events').update({ access_pending: false }).eq('id', eventId);
+    await admin.from('activity_events').insert({ company_id: ev.company_id, event_id: eventId, actor_id: user.id,
+      type: 'couple_approved', entity_type: 'wedding_event', entity_id: eventId, staff_only: true, payload: {} });
+    const APP_URL = await appUrlFor(ev.company_id);
+    const name = String(ev.partner_one_name ?? '').replace(/[<>&]/g, '');
+    const email_result = ev.access_pending && ev.invite_email
+      ? await maybeEmail(ev.invite_email, 'ההרשמה שלכם לפסקול אושרה',
+        `<div dir="rtl" style="font-family:Arial,sans-serif"><p>היי ${name},</p><p>ההרשמה שלכם לפסקול אושרה, אפשר להתחבר עם האימייל והסיסמה שבחרתם:</p><p><a href="${APP_URL}/login">${APP_URL}/login</a></p><p>אלקנה פז</p></div>`)
+      : { sent: false, reason: 'not_needed' };
+    return { approved: eventId, email: email_result };
   },
 
   async add_partner(req, b) {

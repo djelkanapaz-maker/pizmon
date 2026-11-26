@@ -21,7 +21,7 @@ export function LoginForm({ next }: { next: string }) {
     });
     if (error) {
       setBusy(false);
-      setError(error.status === 429 ? m.auth.rateLimited : error.status && error.status >= 500 ? m.errors.network : m.auth.invalid);
+      setError(error.code === 'user_banned' ? m.auth.pendingApproval : error.status === 429 ? m.auth.rateLimited : error.status && error.status >= 500 ? m.errors.network : m.auth.invalid);
       return;
     }
     window.location.assign(next);

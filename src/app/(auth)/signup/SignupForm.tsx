@@ -15,6 +15,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
   const [busy, setBusy] = useState(false);
   const [hasDj, setHasDj] = useState<'yes' | 'no' | null>(null);
   const [noDate, setNoDate] = useState(false);
+  const [done, setDone] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -35,11 +36,21 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
         : msgs[r.error] ?? (m.errors as Record<string, string>)[r.error] ?? m.common.error);
       return;
     }
+    // sign-ups wait for Elkana's approval; if approval is off the couple is signed straight in
     const { error: signInError } = await supabaseBrowser().auth.signInWithPassword({ email: f.email.trim().toLowerCase(), password: f.password });
-    if (signInError) { window.location.assign('/login'); return; }
-    window.location.assign('/onboarding');
+    if (!signInError) { window.location.assign('/onboarding'); return; }
+    if (signInError.code === 'user_banned') { setDone(true); window.scrollTo({ top: 0 }); return; }
+    window.location.assign('/login');
   }
   const inv = (k: string) => (fields[k] ? true : undefined);
+
+  if (done) return (
+    <div className="card p-6 flex flex-col gap-3 text-center" role="status">
+      <h2 className="display text-2xl">{m.signup.pendingTitle}</h2>
+      <p className="leading-relaxed">{m.signup.pendingBody}</p>
+      <Link href="/" className="underline underline-offset-4 self-center">{m.signup.pendingHome}</Link>
+    </div>
+  );
 
   return (
     <form method="post" onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>

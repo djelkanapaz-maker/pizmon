@@ -179,3 +179,13 @@ export async function adminUpdateLead(eventId: string, status: (typeof LEAD_STAT
   revalidatePath('/admin/leads');
   return ok(undefined);
 }
+
+/** Lets a self-signed-up couple sign in (their login is blocked until then). */
+export async function adminApproveSignup(eventId: string): Promise<ActionResult<{ emailSent: boolean }>> {
+  const c = await adminCtx(); if (!c) return fail('admin_only');
+  if (!uuid.safeParse(eventId).success) return fail('validation');
+  const r = await callAdminFn<{ email?: { sent?: boolean } }>('approve_signup', { event_id: eventId });
+  if (!r.ok) return fail(r.error);
+  // no revalidatePath here (it would re-render the leads list at once): the card stays to offer the WhatsApp message, then refreshes itself
+  return ok({ emailSent: !!r.data.email?.sent });
+}
