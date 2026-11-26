@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { useI18n } from '@/i18n/client';
-import { signOut } from '@/server/actions/common';
 import { BrandMark } from './brand';
 import { LocaleSwitch } from './LocaleSwitch';
 import { SkinToggle } from './SkinPicker';
@@ -38,7 +37,7 @@ export function StaffShell({ brand, title, items, email, unread = 0, notificatio
       </Link>
       <div className="flex flex-wrap gap-2"><LocaleSwitch compact /><SkinToggle skin={skin} /></div>
       <p className="text-xs text-paper-dim truncate px-1" dir="ltr">{email}</p>
-      <form action={signOut}><button className="text-sm font-bold text-paper-dim hover:text-paper px-1">{m.common.signOut}</button></form>
+      <form action="/auth/signout" method="post"><button className="text-sm font-bold text-paper-dim hover:text-paper px-1">{m.common.signOut}</button></form>
     </div>
   );
   return (

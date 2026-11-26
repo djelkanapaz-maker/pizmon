@@ -1,7 +1,6 @@
 import { requireCouple } from '@/server/session';
 import { getI18n } from '@/i18n/server';
 import { fmt } from '@/i18n/format';
-import { signOut } from '@/server/actions/common';
 import { Button, PageHeader } from '@/components/ui';
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { ProfileName } from './ProfileName';
@@ -35,7 +34,7 @@ export default async function ProfilePage() {
           <p className="text-sm text-paper-dim">{m.profile.installHint}</p>
         </section>
         <AccountDeletion />
-        <form action={signOut}><Button variant="secondary" full>{m.common.signOut}</Button></form>
+        <form action="/auth/signout" method="post"><Button variant="secondary" full>{m.common.signOut}</Button></form>
       </div>
     </div>
   );
