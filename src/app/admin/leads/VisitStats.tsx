@@ -7,6 +7,7 @@ import { cx } from '@/components/ui';
 export const PERIODS = [7, 30, 90] as const;
 /** visits are counted from here on, so sign-ups are too (otherwise the conversion would be off) */
 const COUNTING_SINCE = Date.parse('2026-11-26T14:00:00Z');
+const windowStart = (days: number) => new Date(Math.max(Date.now() - days * 86_400_000, COUNTING_SINCE)).toISOString();
 type Stat = { page: string; event: string; visits: number; visitors: number; sources: { source: string; visitors: number }[] };
 
 /** The sign-up funnel: landing visitors → sign-up page → started the form → signed up. */
@@ -14,7 +15,7 @@ export async function VisitStats({ companyId, days, filter }: { companyId: strin
   const { m } = await getI18n();
   const V = m.leads.visits;
   const db = await supabaseServer();
-  const since = new Date(Math.max(Date.now() - days * 86_400_000, COUNTING_SINCE)).toISOString();
+  const since = windowStart(days);
   const [{ data }, { count: signups }] = await Promise.all([
     db.rpc('admin_visit_stats', { p_company: companyId, p_days: days }),
     db.from('event_leads').select('*', { count: 'exact', head: true }).eq('company_id', companyId).gte('created_at', since),
