@@ -12,7 +12,10 @@ const OUT = process.argv[2] ?? 'scripts/campaign/out-reel';
 const ONLY = process.argv.slice(3).map(Number);
 const PREVIEW = process.env.PREVIEW;
 mkdirSync(OUT, { recursive: true });
-const W = 1080, H = 1920, FPS = 30;
+// FORMAT=feed renders the 4:5 Instagram feed version (1080×1350) with the same scenes and timing
+const FEED = process.env.FORMAT === 'feed';
+const F = (tall, feed) => (FEED ? feed : tall);
+const W = 1080, H = F(1920, 1350), FPS = 30;
 const C = { ivory: '#F8F4ED', champagne: '#D7C3A6', taupe: '#A89886', charcoal: '#1F1F1F', violet: '#7a60dc', lilac: '#b9a9f5', mist: '#c9c5da' };
 const b64 = (p) => readFileSync(p).toString('base64');
 const fnt = (fam, file, w) => `@font-face{font-family:${fam};font-weight:${w};src:url(data:font/woff2;base64,${b64(file)}) format('woff2')}`;
@@ -55,13 +58,13 @@ const skinCss = (dark) => dark
 
 // a phone with the screen; optional zoomed "callout" of a region of the same screen (in screenshot pixels, 1170 wide)
 const PW = 560, PH = Math.round(PW * 2532 / 1170), BZ = 16;
-const phone = (src, dark, { top = 640, right = 120, anim = A('phone', 0.05, 0.6) } = {}) => `
+const phone = (src, dark, { top = F(640, 430), right = 120, anim = A('phone', 0.05, 0.6) } = {}) => `
   <div ${anim.replace('style="', `style="position:absolute;top:${top}px;right:${right}px;width:${PW + 2 * BZ}px;height:${PH + 2 * BZ}px;padding:${BZ}px;border-radius:78px;
     background:${dark ? 'linear-gradient(160deg,#4a4258,#121014 40%,#322b40)' : '#1d1b19'};
     box-shadow:0 60px 140px -30px ${dark ? 'rgba(122,96,220,.65)' : 'rgba(31,31,31,.35)'};`)}>
     <div style="width:${PW}px;height:${PH}px;border-radius:62px;overflow:hidden"><img ${A('drift', 0, 2.2, '', `width:${PW}px;display:block;transform-origin:50% 30%;animation-timing-function:linear;`)} src="${src}"></div>
   </div>`;
-const callout = (src, [sx, sy, sw, sh], dark, { width = 660, left = 40, top = 1180, delay = 0.5 } = {}) => {
+const callout = (src, [sx, sy, sw, sh], dark, { width = F(660, 560), left = 40, top = F(1180, 720), delay = 0.5 } = {}) => {
   const k = width / sw;
   return `<div ${A('pop', delay, 0.55, '', `position:absolute;left:${left}px;top:${top}px;width:${width}px;height:${Math.round(sh * k)}px;border-radius:34px;
     background:url(${src}) ${-sx * k}px ${-sy * k}px/${1170 * k}px auto no-repeat;
@@ -91,7 +94,7 @@ scenes.push({ dur: 2.0, html: `<style>${base}
 const LW = 620, k = LW / L.w;
 scenes.push({ dur: 1.3, html: `<style>${base}
   body{background:radial-gradient(900px 900px at 50% 44%,#1c1730 0%,#07070a 60%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center}
-  .k{margin-top:280px;font-size:64px;font-weight:700;color:${C.mist}}
+  .k{margin-top:${F(280, 150)}px;font-size:64px;font-weight:700;color:${C.mist}}
   .logo{position:relative;width:${LW}px;height:${Math.round(L.h * k)}px;margin-top:60px}
   .logo img{position:absolute;display:block}
   .rec{left:${((L.cx - L.size / 2) * k).toFixed(1)}px;top:${((L.cy - L.size / 2) * k).toFixed(1)}px;width:${(L.size * k).toFixed(1)}px}
@@ -106,8 +109,8 @@ const feature = (dur, skin, id, t, s, box, subAt = 0.16) => {
   const dark = skin === 'dark', src = shot(skin, id);
   return { dur, html: `<style>${base}${skinCss(dark)}
     .stage{position:absolute;inset:0}
-    .h1{position:absolute;top:230px;right:70px;left:70px;font-size:118px;text-align:center}
-    .sub{position:absolute;top:375px;right:70px;left:70px;font-size:50px;font-weight:500;text-align:center}
+    .h1{position:absolute;top:${F(230, 110)}px;right:70px;left:70px;font-size:118px;text-align:center}
+    .sub{position:absolute;top:${F(375, 255)}px;right:70px;left:70px;font-size:50px;font-weight:500;text-align:center}
   </style><div ${A('push', 0, dur, 'stage', 'animation-timing-function:linear;')}>
   <div class="h h1 fit" ${A('slam', 0.02, 0.36)}>${t}</div>
   <div class="sub" ${A('up', subAt, 0.42)}>${s}</div>
@@ -153,28 +156,28 @@ scenes.push({ dur: 3.5, html: `<style>${base}
 // 14. Available now: the official App Store and Google Play badges (public/badges, as supplied by Apple and Google)
 scenes.push({ dur: 3.43, html: `<style>${base}
   body{background:${darkBg};color:#fff}
-  .t{position:absolute;top:220px;right:70px;left:70px;font-size:140px;text-align:center;text-shadow:-7px 7px 0 #5a46a0}
-  .s{position:absolute;top:400px;right:70px;left:70px;font-size:60px;color:${C.mist};font-weight:500;text-align:center}
+  .t{position:absolute;top:${F(220, 100)}px;right:70px;left:70px;font-size:140px;text-align:center;text-shadow:-7px 7px 0 #5a46a0}
+  .s{position:absolute;top:${F(400, 270)}px;right:70px;left:70px;font-size:60px;color:${C.mist};font-weight:500;text-align:center}
   .st{position:absolute;left:50%;translate:-50% 0;height:132px;width:auto;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.7))}
-  .st1{top:540px}.st2{top:700px}
+  .st1{top:${F(540, 380)}px}.st2{top:${F(700, 380)}px}${FEED ? '.st{height:112px}.st1{margin-left:-190px}.st2{margin-left:205px}' : ''}
 </style>
 <div class="h t" ${A('slam', 0.08, 0.4)}>זמינה עכשיו</div>
 <div class="s" ${A('up', 0.7, 0.45)}>להורדה בחינם</div>
 <img ${A('up', 1.55, 0.45, 'st st1')} src="${uri('public/badges/app-store.svg', 'image/svg+xml')}" alt="">
 <img ${A('up', 2.15, 0.45, 'st st2')} src="${uri('public/badges/google-play.png')}" alt="">
-${phone(shot('dark', 'p05-home'), true, { top: 980, right: Math.round((W - PW - 2 * BZ) / 2) })}` });
+${phone(shot('dark', 'p05-home'), true, { top: F(980, 590), right: Math.round((W - PW - 2 * BZ) / 2) })}` });
 
 // 15. Light or dark (music only): the same home screen, wiped from light to dark on the downbeat
 scenes.push({ dur: 3.0, html: `<style>${base}
   .bgL,.bgD{position:absolute;inset:0}
   .bgL{background:radial-gradient(1100px 1000px at 50% 70%,#fffdf8 0%,${C.ivory} 55%,#ece2d2 100%)}
   .bgD{background:radial-gradient(1100px 1000px at 50% 70%,#2c2150 0%,#120f1c 50%,#000 100%);animation-name:wipe;animation-timing-function:cubic-bezier(.7,0,.2,1)}
-  .t{position:absolute;top:220px;right:0;left:0;text-align:center;font-size:132px}
+  .t{position:absolute;top:${F(220, 100)}px;right:0;left:0;text-align:center;font-size:132px}
   .tL{color:${C.charcoal};text-shadow:-6px 6px 0 ${C.champagne}}
   .tD{color:#fff;text-shadow:-6px 6px 0 #5a46a0}
-  .s{position:absolute;top:400px;right:0;left:0;text-align:center;font-size:56px;font-weight:700}
+  .s{position:absolute;top:${F(400, 270)}px;right:0;left:0;text-align:center;font-size:56px;font-weight:700}
   .sD{color:${C.mist}}
-  .ph{position:absolute;top:600px;left:50%;margin-left:-${(PW + 2 * BZ) / 2}px;width:${PW + 2 * BZ}px;height:${PH + 2 * BZ}px;padding:${BZ}px;border-radius:78px;background:#1d1b19;box-shadow:0 60px 140px -30px rgba(31,31,31,.4)}
+  .ph{position:absolute;top:${F(600, 400)}px;left:50%;margin-left:-${(PW + 2 * BZ) / 2}px;width:${PW + 2 * BZ}px;height:${PH + 2 * BZ}px;padding:${BZ}px;border-radius:78px;background:#1d1b19;box-shadow:0 60px 140px -30px rgba(31,31,31,.4)}
   .ph .sc{position:absolute;inset:${BZ}px;border-radius:62px;overflow:hidden}
   .ph .sc img{width:${PW}px;display:block}
   .scD{animation-name:wipe;animation-timing-function:cubic-bezier(.7,0,.2,1)}
@@ -191,18 +194,19 @@ scenes.push({ dur: 3.0, html: `<style>${base}
 </div>` });
 
 // 16. End card
+const LW2 = F(440, 330);
 scenes.push({ dur: 2.6, html: `<style>${base}
-  body{background:radial-gradient(1000px 900px at 50% 30%,#2c2150 0%,#120f1c 55%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:250px}
-  .free{font-size:260px;text-shadow:-10px 10px 0 #5a46a0}
+  body{background:radial-gradient(1000px 900px at 50% 30%,#2c2150 0%,#120f1c 55%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:${F(250, 90)}px}
+  .free{font-size:${F(260, 210)}px;text-shadow:-10px 10px 0 #5a46a0}
   .all{font-size:96px;margin-top:4px}
   .gift{margin-top:46px;font-size:44px;line-height:1.4;color:${C.mist};font-weight:500}
-  .logo{position:relative;width:440px;height:${Math.round(L.h * 440 / L.w)}px;margin-top:70px}
+  .logo{position:relative;width:${LW2}px;height:${Math.round(L.h * LW2 / L.w)}px;margin-top:${F(70, 40)}px}
   .logo img{position:absolute;display:block}
-  .rec2{left:${((L.cx - L.size / 2) * 440 / L.w).toFixed(1)}px;top:${((L.cy - L.size / 2) * 440 / L.w).toFixed(1)}px;width:${(L.size * 440 / L.w).toFixed(1)}px}
+  .rec2{left:${((L.cx - L.size / 2) * LW2 / L.w).toFixed(1)}px;top:${((L.cy - L.size / 2) * LW2 / L.w).toFixed(1)}px;width:${(L.size * LW2 / L.w).toFixed(1)}px}
   .top2{inset:0;width:100%;height:100%}
   .url{margin-top:56px;font-family:HeeboL;font-weight:700;font-size:64px;letter-spacing:.04em;direction:ltr;color:#fff;padding:24px 70px;border-radius:999px;
     background:linear-gradient(180deg,#8f79dc,#6a54ad 48%,#4f3c8a);box-shadow:inset 0 2px 0 rgba(255,255,255,.38),inset 0 -3px 0 rgba(0,0,0,.35),0 24px 50px -14px rgba(122,96,220,.9)}
-  .ring{position:absolute;top:120px;left:50%;margin-left:-480px;width:960px;height:620px;border-radius:50%;background:radial-gradient(rgba(122,96,220,.55),transparent 70%)}
+  .ring{position:absolute;top:${F(120, 0)}px;left:50%;margin-left:-480px;width:960px;height:620px;border-radius:50%;background:radial-gradient(rgba(122,96,220,.55),transparent 70%)}
 </style>
 <div ${A('glow', 0, 1.3, 'ring', 'animation-direction:alternate;animation-iteration-count:2;')}></div>
 <div class="h free" ${A('slam', 0.02, 0.45)}>חינם.</div>
