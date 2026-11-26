@@ -270,7 +270,7 @@ export const en = {
     sub: 'Pick a song for every moment, mark what you never want to hear, and hand your DJ one clear music brief. Built from hundreds of real weddings, and free for every couple.',
     cta: 'Sign up free', signIn: 'Already signed up? Sign in', free: 'Free. No credit card.',
     videoLabel: 'Video: meet Paskol', videoCta: 'Watch the video',
-    getApp: 'Get the app:', appStoreLabel: 'Paskol on the App Store', googlePlayLabel: 'Paskol on Google Play',
+    getApp: 'Get the app:', getAppTitle: 'Paskol on your phone', getAppBody: 'All your choices are already there. Sign in with the same email and password.', appStoreLabel: 'Paskol on the App Store', googlePlayLabel: 'Paskol on Google Play',
     galleryTitle: 'A look inside', gallerySub: 'Real screens from the app.', galleryHint: 'Scroll sideways for more screens', skinPick: 'Pick your Paskol shade',
     gallery: [
       { t: 'Your home', b: 'Your next step and planning progress at a glance' },
