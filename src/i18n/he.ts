@@ -318,6 +318,8 @@ export const he: Messages = {
     hasDj: 'יש דיג׳יי', noDj: 'עוד בלי דיג׳יי', callRequested: 'ביקשו שיחה {when}',
     call: 'חיוג', whatsapp: 'וואטסאפ', note: 'הערה פרטית', saveNote: 'שמירה', source: 'מקור: {source}', signedUp: 'נרשמו {when}', guests: '{count} מוזמנים',
     waText: 'היי {name}, כאן אלקנה פז מפסקול. ראיתי שנרשמתם לאפליקציה לקראת החתונה{date}, מזל טוב! אשמח לשמוע עליכם.',
+    visits: { title: 'כמה נכנסו וכמה נרשמו', period: 'תקופה', days: '{days} ימים', landing: 'נכנסו לדף הבית', signupPage: 'נכנסו לעמוד ההרשמה', started: 'התחילו למלא', signedUp: 'נרשמו', rate: '{rate} מהשלב הקודם',
+      note: 'מבקרים ייחודיים (כל אדם נספר פעם אחת). הספירה התחילה ב-26.11.2026', sources: 'מקורות לעמוד ההרשמה' },
     pendingEmpty: 'אין הרשמות שממתינות לאישור.', pendingBadge: 'ממתין לאישור', approve: 'אישור גישה', approving: 'מאשרים…', reject: 'דחייה',
     approved: 'אושר! הזוג יכול להתחבר עכשיו.', approvedEmail: 'אושר! שלחנו להם אימייל שאפשר להתחבר.', approvedWa: 'שלחו להם בוואטסאפ שאושרו',
     rejectConfirm: 'לדחות את ההרשמה של {names}? ההרשמה והפרטים יימחקו לצמיתות.', rejected: 'ההרשמה נדחתה ונמחקה',

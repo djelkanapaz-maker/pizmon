@@ -6,6 +6,7 @@ import { useI18n } from '@/i18n/client';
 import { useHydrated } from '@/components/useHydrated';
 import { Button, ErrorNote, Field, Input, cx } from '@/components/ui';
 import { selfSignup } from '@/server/actions/signup';
+import { trackVisit } from '@/components/TrackVisit';
 
 export function SignupForm({ source, locale }: { source?: string; locale: string }) {
   const { m } = useI18n();
@@ -16,6 +17,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
   const [hasDj, setHasDj] = useState<'yes' | 'no' | null>(null);
   const [noDate, setNoDate] = useState(false);
   const [done, setDone] = useState(false);
+  const [started, setStarted] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +55,7 @@ export function SignupForm({ source, locale }: { source?: string; locale: string
   );
 
   return (
-    <form method="post" onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
+    <form method="post" onSubmit={onSubmit} onFocus={() => { if (!started) { setStarted(true); trackVisit('signup', 'form_start'); } }} className="flex flex-col gap-5" noValidate>
       {error && <ErrorNote>{error}</ErrorNote>}
       <div className="grid sm:grid-cols-2 gap-5">
         <Field label={m.signup.partnerOne} htmlFor="p1" required><Input id="p1" name="partner_one_name" required maxLength={80} autoComplete="given-name" aria-invalid={inv('partner_one_name')} /></Field>

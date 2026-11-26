@@ -316,6 +316,8 @@ export const en = {
     hasDj: 'Has a DJ', noDj: 'No DJ yet', callRequested: 'Asked for a call {when}',
     call: 'Call', whatsapp: 'WhatsApp', note: 'Private note', saveNote: 'Save', source: 'Source: {source}', signedUp: 'Signed up {when}', guests: '{count} guests',
     waText: 'Hi {name}, this is Elkana Paz from Paskol. I saw you signed up ahead of your wedding{date}. Congratulations! I’d love to hear about it.',
+    visits: { title: 'Visits and sign-ups', period: 'Period', days: '{days} days', landing: 'Visited the home page', signupPage: 'Opened the sign-up page', started: 'Started the form', signedUp: 'Signed up', rate: '{rate} of the step before',
+      note: 'Unique visitors (each person counted once). Counting started on 26 Nov 2026', sources: 'Sign-up page sources' },
     pendingEmpty: 'No sign-ups waiting for approval.', pendingBadge: 'Waiting for approval', approve: 'Approve access', approving: 'Approving…', reject: 'Reject',
     approved: 'Approved! The couple can sign in now.', approvedEmail: 'Approved! We emailed them that they can sign in.', approvedWa: 'Tell them on WhatsApp',
     rejectConfirm: 'Reject the sign-up of {names}? The sign-up and its details are deleted for good.', rejected: 'Sign-up rejected and deleted',

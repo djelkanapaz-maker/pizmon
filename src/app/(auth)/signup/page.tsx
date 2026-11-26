@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getI18n } from '@/i18n/server';
 import { getSession, homeFor } from '@/server/session';
 import { SignupForm } from './SignupForm';
+import { TrackVisit } from '@/components/TrackVisit';
 
 export const metadata = { title: 'הרשמה חינם', description: 'בונים יחד את הפסקול של החתונה. חינם לזוגות מתחתנים.' };
 
@@ -15,6 +16,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   const source = [sp.ref, sp.utm_source, sp.utm_campaign].filter(Boolean).join(' / ').slice(0, 120) || undefined;
   return (
     <div className="animate-rise">
+      <TrackVisit page="signup" />
       <p className="label mb-3 text-ember">{m.landing.free}</p>
       <h1 className="display-xl poster-shadow mb-3">{m.signup.title}</h1>
       <p className="text-paper-dim mb-8">{m.signup.sub}</p>

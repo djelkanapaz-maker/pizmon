@@ -9,6 +9,7 @@ import { ButtonLink } from '@/components/ui';
 import { LandingGallery } from '@/components/LandingGallery';
 import { StoreBadges } from '@/components/StoreBadges';
 import { LandingVideo } from '@/components/LandingVideo';
+import { TrackVisit } from '@/components/TrackVisit';
 import { cookies } from 'next/headers';
 import { SKIN_COOKIE, isSkin } from '@/core/skin';
 
@@ -61,6 +62,7 @@ export default async function Root({ searchParams }: { searchParams: Promise<Rec
 
   return (
     <main id="main" className="relative min-h-dvh overflow-hidden bg-ink">
+      <TrackVisit page="landing" />
       <header className="relative gutter pt-[max(22px,env(safe-area-inset-top))] flex items-start justify-between max-w-6xl mx-auto">
         <BrandMark tagline size={34} />
         <div className="flex items-center gap-3">

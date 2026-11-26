@@ -7,6 +7,7 @@ import { daysUntil } from '@/core/progress';
 import { Badge, EmptyState, PageHeader, cx } from '@/components/ui';
 import { LeadActions } from './LeadActions';
 import { ApproveSignup } from './ApproveSignup';
+import { VisitStats, PERIODS } from './VisitStats';
 
 export const metadata = { title: 'Leads' };
 
@@ -21,10 +22,11 @@ const FILTERS = ['pending', 'open', 'noDj', 'call', 'all'] as const;
 /** Israeli numbers → international digits for wa.me (050-1234567 → 972501234567). */
 const waNumber = (phone: string) => { const d = phone.replace(/\D/g, ''); return d.startsWith('0') ? `972${d.slice(1)}` : d; };
 
-export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ f?: string }> }) {
+export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ f?: string; d?: string }> }) {
   const s = await requireRole('admin');
   const sp = await searchParams;
   const filter = (FILTERS as readonly string[]).includes(sp.f ?? '') ? (sp.f as (typeof FILTERS)[number]) : 'open';
+  const days = (PERIODS as readonly number[]).includes(Number(sp.d)) ? Number(sp.d) : 30;
   const { m, locale } = await getI18n();
   const db = await supabaseServer();
   const { data } = await db.from('event_leads')
@@ -44,6 +46,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
   return (
     <div>
       <PageHeader title={m.leads.title} sub={m.leads.sub} />
+      <VisitStats companyId={s.company.id} days={days} filter={filter} />
       <nav className="gutter mb-5 flex gap-2 flex-wrap" aria-label={m.common.filters}>
         {FILTERS.map((f) => (
           <Link key={f} href={f === 'open' ? '/admin/leads' : `/admin/leads?f=${f}`} aria-current={filter === f ? 'page' : undefined}
