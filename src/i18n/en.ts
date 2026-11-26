@@ -24,6 +24,7 @@ export const en = {
     linkInvalid: 'This link is invalid or has expired. Ask your DJ for a new one.',
     noAccess: 'Your account isn’t connected to a wedding yet. Please contact your DJ.',
     pendingApproval: 'Your sign-up was received and is waiting for approval. We’ll let you know as soon as it’s approved.',
+    invalidEmail: 'Check the email address.', recovering: 'One moment, signing you in…',
     rateLimited: 'Too many attempts. Wait a minute and try again.',
   },
   setup: {

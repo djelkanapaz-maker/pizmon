@@ -136,6 +136,22 @@ const inviteHtml = (name: string, link: string) =>
 
 /** self_signup attempts per client IP in the last hour (per function instance; a light brake on abuse). */
 const signupHits = new Map<string, number[]>();
+/** password_reset requests per IP and per email in the last hour */
+const resetHits = new Map<string, number[]>();
+function brake(map: Map<string, number[]>, key: string, max: number) {
+  const now = Date.now();
+  const hits = (map.get(key) ?? []).filter((t) => now - t < 3_600_000);
+  if (hits.length >= max) return false;
+  map.set(key, [...hits, now]);
+  return true;
+}
+/** the visitor's IP, as forwarded by the web app's server action (with the shared secret) or seen directly */
+async function clientIp(req: Request) {
+  const presented = req.headers.get('x-signup-secret') ?? '';
+  const trusted = !!presented && (presented === SIGNUP_SECRET
+    || (await admin.rpc('check_app_secret', { p_name: 'signup', p_secret: presented })).data === true);
+  return (trusted && req.headers.get('x-client-ip')) || (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+}
 
 // ── actions ──
 type Body = Record<string, unknown>;
@@ -299,6 +315,33 @@ const actions: Record<string, (req: Request, b: Body) => Promise<unknown>> = {
       }
     }
     return { event_id: ev.id };
+  },
+
+  /**
+   * Public: "forgot password". Sends our own reset link (token_hash → /auth/confirm → a button → choose a password),
+   * which works in any browser the email is opened in and survives link previews. Same answer whether or not
+   * the email exists. When email sending isn't configured, says so and the web app falls back to Supabase's own email.
+   */
+  async password_reset(req, b) {
+    if (!RESEND_API_KEY || !EMAIL_FROM) return { fallback: true };
+    const e = email(b.email)!;
+    const ip = await clientIp(req);
+    if (!brake(resetHits, `ip:${ip}`, 10) || !brake(resetHits, `e:${e}`, 3)) throw new HttpError(429, 'rate_limited');
+    const user = await findUserByEmail(e);
+    // no account, or a sign-up still waiting for approval: answer the same, send nothing
+    if (!user || (user.banned_until && Date.parse(user.banned_until) > Date.now())) return { ok: true };
+    const { data: m } = await admin.from('company_members').select('company_id').eq('user_id', user.id).limit(1).maybeSingle();
+    const companyId = (m?.company_id as string | undefined) ?? (await admin.from('companies').select('id').eq('slug', Deno.env.get('SELF_SIGNUP_COMPANY') ?? 'pizmon').maybeSingle()).data?.id;
+    if (!companyId) return { ok: true };
+    const { link } = await activationLink(companyId, e, {});
+    const name = String(user.user_metadata?.full_name ?? '').replace(/[<>&]/g, '');
+    const he = user.user_metadata?.locale !== 'en';
+    const r = await maybeEmail(e, he ? 'איפוס סיסמה לפסקול' : 'Reset your Paskol password', he
+      ? `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:16px"><p>היי${name ? ` ${name}` : ''},</p><p>ביקשתם לאפס את הסיסמה לפסקול. לחצו על הכפתור כדי לבחור סיסמה חדשה:</p>
+         <p><a href="${link}" style="display:inline-block;background:#1f1f1f;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold">בחירת סיסמה חדשה</a></p>
+         <p style="color:#777;font-size:13px">אם לא ביקשתם, אפשר להתעלם מההודעה הזאת.</p></div>`
+      : `<p>Hi${name ? ` ${name}` : ''},</p><p>You asked to reset your Paskol password. Choose a new one here:</p><p><a href="${link}">${link}</a></p><p>If you didn't ask, ignore this email.</p>`);
+    return r.sent ? { ok: true } : { fallback: true };
   },
 
   /** Lets a self-signed-up couple in: lifts the sign-in block on their logins and tells them. */

@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(dest);
   }
 
+  // No token in the query: Supabase's own email link (implicit flow) puts the session in the #fragment, which
+  // only the browser can read. Browsers keep the fragment across redirects, so hand over to a client page.
+  if (!code) return NextResponse.redirect(new URL(`/auth/recover?next=${encodeURIComponent(next)}`, url.origin));
+
   // PKCE `code`: only the browser holding the code verifier can exchange it, so a preview can't burn it.
   let ok = false;
   if (code) {

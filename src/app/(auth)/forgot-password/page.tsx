@@ -1,24 +1,33 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { supabaseBrowser } from '@/lib/supabase/browser';
+import { createClient } from '@supabase/supabase-js';
+import { requestPasswordReset } from '@/server/actions/password';
 import { useI18n } from '@/i18n/client';
 import { useHydrated } from '@/components/useHydrated';
 import { publicEnv } from '@/lib/env';
-import { Button, Field, Input } from '@/components/ui';
+import { Button, ErrorNote, Field, Input } from '@/components/ui';
 
 export default function ForgotPasswordPage() {
   const { m } = useI18n();
   const hydrated = useHydrated();
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const email = String(new FormData(e.currentTarget).get('email') ?? '').trim();
-    setBusy(true);
+    setBusy(true); setError(null);
     // Same response whether or not the email exists (no account enumeration).
-    await supabaseBrowser().auth.resetPasswordForEmail(email, { redirectTo: `${publicEnv.siteUrl}/auth/confirm?next=/activate` });
+    const r = await requestPasswordReset(email);
+    if (!r.ok) { setBusy(false); setError(r.error === 'rate_limited' ? m.auth.rateLimited : m.auth.invalidEmail); return; }
+    if (r.data.fallback) {
+      // Supabase's own email. Implicit flow: the link carries the session in the URL, so it works even when
+      // the email is opened in another browser than this one (PKCE would need this browser's code verifier).
+      const implicit = createClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, { auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+      await implicit.auth.resetPasswordForEmail(email, { redirectTo: `${publicEnv.siteUrl}/auth/confirm?next=/activate` });
+    }
     setBusy(false);
     setSent(true);
   }
@@ -31,6 +40,7 @@ export default function ForgotPasswordPage() {
         <p role="status" className="card p-5 font-bold">{m.auth.linkSent}</p>
       ) : (
         <form method="post" onSubmit={onSubmit} className="flex flex-col gap-5">
+          {error && <ErrorNote>{error}</ErrorNote>}
           <Field label={m.auth.email} htmlFor="email">
             <Input id="email" name="email" type="email" autoComplete="email" required dir="ltr" />
           </Field>
